@@ -1,4 +1,9 @@
-import type { DominoCard, GameState, PlacementOption } from '../types/game';
+import type {
+  DominoCard,
+  GameState,
+  PlacementOption,
+  ScoreEntry,
+} from '../types/game';
 
 export class GameLogic {
   static getPlacementOptions(
@@ -40,12 +45,10 @@ export class GameLogic {
     return options;
   }
 
-  static canPlayCard(card: DominoCard, gameState: GameState): boolean {
-    return this.getPlacementOptions(card, gameState).length > 0;
-  }
-
   static hasPlayableCard(cards: DominoCard[], gameState: GameState): boolean {
-    return cards.some((card) => this.canPlayCard(card, gameState));
+    return cards.some(
+      (card) => this.getPlacementOptions(card, gameState).length > 0
+    );
   }
 
   static playCard(
@@ -79,39 +82,38 @@ export class GameLogic {
     return playedCard;
   }
 
-  static checkWinner(gameState: GameState): string | null {
-    const emptyHandPlayer = gameState.players.find(
-      (player) => player.hand.length === 0
-    );
-    if (emptyHandPlayer) {
-      return emptyHandPlayer.id;
-    }
-
-    const everyonePassed = gameState.players.every((player) => player.hasPassed);
-    if (everyonePassed) {
-      return this.getPlayerWithLowestPips(gameState);
-    }
-
-    return null;
+  static getCardScore(card: DominoCard): number {
+    return card.left + card.right;
   }
 
-  static getPlayerWithLowestPips(gameState: GameState): string {
-    let winnerId = gameState.players[0]?.id ?? '';
-    let lowestPips = Number.POSITIVE_INFINITY;
-
-    for (const player of gameState.players) {
-      const pips = player.hand.reduce(
-        (total, card) => total + card.left + card.right,
+  static calculateScores(gameState: GameState): ScoreEntry[] {
+    const scores = gameState.players.map((player) => ({
+      playerId: player.id,
+      nickname: player.nickname,
+      position: player.position,
+      score: player.hand.reduce(
+        (total, card) => total + this.getCardScore(card),
         0
-      );
+      ),
+      rank: 0,
+      remainingCards: [...player.hand],
+    }));
 
-      if (pips < lowestPips) {
-        lowestPips = pips;
-        winnerId = player.id;
+    scores.sort((left, right) => {
+      if (left.score !== right.score) {
+        return left.score - right.score;
       }
-    }
 
-    return winnerId;
+      if (left.remainingCards.length !== right.remainingCards.length) {
+        return left.remainingCards.length - right.remainingCards.length;
+      }
+
+      return left.nickname.localeCompare(right.nickname);
+    });
+
+    return scores.map((entry, index) => ({
+      ...entry,
+      rank: index + 1,
+    }));
   }
 }
-

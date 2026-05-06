@@ -1,7 +1,10 @@
 import type {
   DominoCard,
+  GameStatus,
   GameStateView,
   PlacementOption,
+  PlayerPosition,
+  RoomType,
 } from '@/types/game';
 
 export function getPlacementOptions(
@@ -88,3 +91,49 @@ export function formatTime(timestamp: number) {
   }).format(timestamp);
 }
 
+export function formatDateTime(timestamp: number) {
+  return new Intl.DateTimeFormat('id-ID', {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(timestamp);
+}
+
+export function formatRoomType(type: RoomType) {
+  return type === 'public' ? 'Public' : 'Private';
+}
+
+export function formatRoomStatus(status: GameStatus) {
+  if (status === 'waiting') {
+    return 'Waiting';
+  }
+
+  if (status === 'playing') {
+    return 'Playing';
+  }
+
+  return 'Finished';
+}
+
+export function formatPosition(position: PlayerPosition) {
+  return position.charAt(0).toUpperCase() + position.slice(1);
+}
+
+export function sortPlayersByPosition<T extends { position: PlayerPosition }>(
+  players: T[]
+) {
+  const order: PlayerPosition[] = ['north', 'west', 'east', 'south'];
+  return [...players].sort(
+    (left, right) => order.indexOf(left.position) - order.indexOf(right.position)
+  );
+}
+
+export function msToSecondsLabel(timestamp: number | null) {
+  if (!timestamp) {
+    return null;
+  }
+
+  const seconds = Math.max(0, Math.ceil((timestamp - Date.now()) / 1000));
+  return `${seconds}s`;
+}

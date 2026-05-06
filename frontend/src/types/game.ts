@@ -1,5 +1,8 @@
 export type BoardSide = 'left' | 'right';
-export type RoomStatus = 'waiting' | 'countdown' | 'playing' | 'finished';
+export type RoomType = 'public' | 'private';
+export type GameStatus = 'waiting' | 'playing' | 'finished';
+export type EndReason = 'empty-hand' | 'blocked' | 'player-left';
+export type PlayerPosition = 'north' | 'south' | 'east' | 'west';
 
 export interface DominoCard {
   id: string;
@@ -15,9 +18,13 @@ export interface PlacementOption {
 export interface PublicPlayer {
   id: string;
   nickname: string;
+  position: PlayerPosition;
   cardCount: number;
   hasPassed: boolean;
   isConnected: boolean;
+  isReady: boolean;
+  isHost: boolean;
+  score: number;
 }
 
 export interface PlayerView extends PublicPlayer {
@@ -26,24 +33,77 @@ export interface PlayerView extends PublicPlayer {
 
 export interface RoomState {
   roomId: string;
-  status: RoomStatus;
+  name: string;
+  code: string;
+  type: RoomType;
+  status: GameStatus;
+  hostId: string | null;
+  maxPlayers: 2 | 3 | 4;
   players: PublicPlayer[];
-  maxPlayers: number;
-  countdownEndsAt: number | null;
+  currentPlayers: number;
+  createdAt: number;
   message: string;
+}
+
+export interface RoomSummary {
+  roomId: string;
+  name: string;
+  code: string;
+  type: RoomType;
+  status: GameStatus;
+  currentPlayers: number;
+  maxPlayers: 2 | 3 | 4;
+  createdAt: number;
+}
+
+export interface RoomLookupResult {
+  found: boolean;
+  room?: RoomSummary;
+  message?: string;
+}
+
+export interface GameMove {
+  id: string;
+  type: 'play' | 'pass' | 'system';
+  playerId: string | null;
+  playerName: string;
+  text: string;
+  card?: DominoCard;
+  side?: BoardSide;
+  timestamp: number;
+}
+
+export interface ScoreEntry {
+  playerId: string;
+  nickname: string;
+  position: PlayerPosition;
+  score: number;
+  rank: number;
+  remainingCards: DominoCard[];
+}
+
+export interface GameResult {
+  reason: EndReason;
+  winnerId: string;
+  scores: ScoreEntry[];
+  endedAt: number;
+  autoReturnAt: number | null;
 }
 
 export interface GameStateView {
   roomId: string;
+  status: GameStatus;
   players: PlayerView[];
   board: DominoCard[];
   currentTurnIndex: number;
-  status: RoomStatus;
-  winner: string | null;
   leftEnd: number | null;
   rightEnd: number | null;
-  countdownEndsAt: number | null;
   startedAt: number | null;
+  winner: string | null;
+  passCount: number;
+  lastMove: GameMove | null;
+  gameLog: GameMove[];
+  result: GameResult | null;
   selfId: string;
 }
 
@@ -60,4 +120,3 @@ export interface TypingPlayer {
   playerId: string;
   nickname: string;
 }
-

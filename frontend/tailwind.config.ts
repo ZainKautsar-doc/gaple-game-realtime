@@ -10,18 +10,23 @@ const config: Config = {
   theme: {
     extend: {
       boxShadow: {
-        neon: '0 0 40px rgba(61, 245, 191, 0.25)',
+        neon: '0 0 40px rgba(0, 217, 255, 0.25)',
       },
       colors: {
-        ink: '#050a0f',
-        panel: '#0a1219',
-        line: '#152938',
+        ink: '#0a0e27',
+        panel: '#101735',
+        line: '#223056',
         brand: {
-          DEFAULT: '#0653b6',
-          light: '#4a90e2',
-          dark: '#043b82',
+          DEFAULT: '#00D9FF',
+          light: '#79EAFF',
+          dark: '#0090C4',
         },
-        accent: '#39FF14', // Keeping a bit of neon green as secondary accent if needed, or I can use silver/white
+        accent: '#39FF14',
+        secondary: '#FF4FD8',
+        success: '#00FF88',
+        error: '#FF3333',
+        aqua: '#00D9FF',
+        mint: '#39FF14',
         gold: '#ffd66b',
       },
       backgroundImage: {
@@ -31,6 +36,8 @@ const config: Config = {
         float: 'float 5s ease-in-out infinite',
         pulseGlow: 'pulseGlow 1.8s ease-in-out infinite',
         drift: 'drift 18s linear infinite',
+        glow: 'glow 2.8s ease-in-out infinite',
+        shimmer: 'shimmer 1.8s linear infinite',
       },
       keyframes: {
         float: {
@@ -46,6 +53,10 @@ const config: Config = {
           '50%': { transform: 'translate3d(5%, -4%, 0)' },
           '100%': { transform: 'translate3d(-5%, 0, 0)' },
         },
+        glow: {
+          '0%, 100%': { boxShadow: '0 0 0 rgba(0, 217, 255, 0.18)' },
+          '50%': { boxShadow: '0 0 28px rgba(0, 217, 255, 0.32)' },
+        },
         shimmer: {
           '100%': { transform: 'translateX(100%)' },
         },
@@ -56,4 +67,3 @@ const config: Config = {
 };
 
 export default config;
-

@@ -1,150 +1,262 @@
-import { randomUUID } from 'crypto';
+import { randomUUID, scryptSync, timingSafeEqual } from 'crypto';
 import { DeckManager } from './DeckManager';
 import { GameLogic } from './GameLogic';
 import type {
   BoardSide,
   ChatMessage,
+  EndReason,
+  GameMove,
+  GameResult,
   GameState,
   GameStateView,
   Player,
   PublicPlayer,
-  RoomState,
 } from '../types/game';
-import type { PlayerIdentity, TypingPlayer } from '../types/player';
+import type { PlayerIdentity, PlayerPosition, TypingPlayer } from '../types/player';
+import type { RoomState, RoomSummary, RoomType } from '../types/room';
 
-const MAX_PLAYERS = 4;
+const AUTO_RETURN_MS = 8000;
 
 type MutationResult =
-  | { success: true }
+  | { success: true; message?: string }
   | { success: false; error: string };
 
+interface CreateRoomOptions {
+  id: string;
+  name: string;
+  code: string;
+  type: RoomType;
+  password?: string;
+  maxPlayers: 2 | 3 | 4;
+  createdAt?: number;
+}
+
+const POSITION_POOLS: Record<2 | 3 | 4, PlayerPosition[]> = {
+  2: ['south', 'north'],
+  3: ['south', 'west', 'east'],
+  4: ['south', 'west', 'north', 'east'],
+};
+
 export class GameRoom {
+  readonly id: string;
+
+  readonly code: string;
+
+  readonly name: string;
+
+  readonly type: RoomType;
+
+  readonly maxPlayers: 2 | 3 | 4;
+
+  readonly createdAt: number;
+
+  private readonly passwordHash: Buffer | null;
+
   private gameState: GameState;
 
   private chatMessages: ChatMessage[] = [];
 
   private typingPlayers = new Map<string, string>();
 
-  constructor(private readonly roomId: string) {
+  private autoResetAt: number | null = null;
+
+  constructor(options: CreateRoomOptions) {
+    this.id = options.id;
+    this.code = options.code;
+    this.name = options.name;
+    this.type = options.type;
+    this.maxPlayers = options.maxPlayers;
+    this.createdAt = options.createdAt ?? Date.now();
+    this.passwordHash = options.password
+      ? this.hashPassword(options.password)
+      : null;
     this.gameState = {
-      roomId,
+      roomId: this.id,
+      status: 'waiting',
       players: [],
       board: [],
       currentTurnIndex: 0,
-      status: 'waiting',
-      winner: null,
       leftEnd: null,
       rightEnd: null,
-      countdownEndsAt: null,
       startedAt: null,
+      winner: null,
+      passCount: 0,
+      lastMove: null,
+      gameLog: [],
+      result: null,
     };
   }
 
-  addPlayer(player: PlayerIdentity): MutationResult {
-    const existingPlayer = this.gameState.players.find(
-      (roomPlayer) => roomPlayer.id === player.id
-    );
-
-    if (existingPlayer) {
-      existingPlayer.nickname = player.nickname;
-      existingPlayer.socketId = player.socketId;
-      existingPlayer.connected = true;
-      return { success: true };
+  addPlayer(player: PlayerIdentity, password?: string): MutationResult {
+    const validation = this.canJoin(password);
+    if (!validation.success) {
+      return validation;
     }
 
-    if (this.gameState.players.length >= MAX_PLAYERS) {
-      return { success: false, error: 'Room is full.' };
+    if (this.gameState.players.some((existing) => existing.id === player.id)) {
+      return { success: false, error: 'Kamu sudah ada di room ini.' };
+    }
+
+    const position = this.getAvailablePosition();
+    if (!position) {
+      return { success: false, error: 'Posisi kursi tidak tersedia.' };
     }
 
     this.gameState.players.push({
       ...player,
+      position,
+      isReady: false,
+      isHost: this.gameState.players.length === 0,
       hand: [],
       hasPassed: false,
       connected: true,
+      score: 0,
     });
 
     return { success: true };
   }
 
-  removePlayer(playerId: string): void {
-    const removedIndex = this.gameState.players.findIndex(
-      (player) => player.id === playerId
-    );
-
-    if (removedIndex === -1) {
-      return;
+  canJoin(password?: string): MutationResult {
+    if (this.type === 'private' && !this.passwordMatches(password)) {
+      return { success: false, error: 'Password room salah.' };
     }
 
-    this.gameState.players.splice(removedIndex, 1);
+    if (this.gameState.status === 'playing') {
+      return { success: false, error: 'Game sedang berjalan. Tunggu ronde selesai.' };
+    }
+
+    if (this.gameState.players.length >= this.maxPlayers) {
+      return { success: false, error: 'Room sudah penuh.' };
+    }
+
+    return { success: true };
+  }
+
+  removePlayer(playerId: string): Player | null {
+    const index = this.gameState.players.findIndex((player) => player.id === playerId);
+    if (index === -1) {
+      return null;
+    }
+
+    const [removedPlayer] = this.gameState.players.splice(index, 1);
     this.typingPlayers.delete(playerId);
 
     if (this.gameState.players.length === 0) {
-      this.resetToWaiting();
-      return;
+      this.resetForLobby();
+      return removedPlayer;
     }
 
-    if (removedIndex < this.gameState.currentTurnIndex) {
-      this.gameState.currentTurnIndex -= 1;
+    if (removedPlayer.isHost) {
+      this.gameState.players[0].isHost = true;
     }
 
-    if (this.gameState.currentTurnIndex >= this.gameState.players.length) {
-      this.gameState.currentTurnIndex = 0;
+    if (this.gameState.status === 'playing') {
+      this.finishGame('player-left');
+      this.resetForLobby();
+    } else if (this.gameState.status === 'finished') {
+      this.resetForLobby();
+    } else {
+      this.gameState.players.forEach((player) => {
+        player.isReady = false;
+      });
     }
 
-    if (this.gameState.status !== 'waiting') {
-      this.resetToWaiting();
-    }
+    return removedPlayer;
   }
 
   isEmpty(): boolean {
     return this.gameState.players.length === 0;
   }
 
-  shouldStartCountdown(): boolean {
+  setReady(playerId: string, isReady: boolean): MutationResult {
+    if (this.gameState.status !== 'waiting') {
+      return { success: false, error: 'Ready hanya bisa diubah saat di lobby.' };
+    }
+
+    const player = this.findPlayer(playerId);
+    if (!player) {
+      return { success: false, error: 'Pemain tidak ditemukan.' };
+    }
+
+    player.isReady = isReady;
+    return {
+      success: true,
+      message: isReady
+        ? `${player.nickname} siap bermain.`
+        : `${player.nickname} belum siap bermain.`,
+    };
+  }
+
+  kickPlayer(hostId: string, playerId: string): MutationResult {
+    const host = this.findPlayer(hostId);
+    if (!host?.isHost) {
+      return { success: false, error: 'Hanya host yang bisa mengeluarkan pemain.' };
+    }
+
+    if (hostId === playerId) {
+      return { success: false, error: 'Host tidak bisa mengeluarkan dirinya sendiri.' };
+    }
+
+    const target = this.findPlayer(playerId);
+    if (!target) {
+      return { success: false, error: 'Pemain target tidak ditemukan.' };
+    }
+
+    this.removePlayer(playerId);
+    return {
+      success: true,
+      message: `[HOST] ${target.nickname} telah dikeluarkan dari room.`,
+    };
+  }
+
+  canStartGame(): boolean {
     return (
-      this.gameState.players.length === MAX_PLAYERS &&
       this.gameState.status === 'waiting' &&
-      this.gameState.countdownEndsAt === null
+      this.gameState.players.length >= 2 &&
+      this.gameState.players.every((player) => player.isReady)
     );
   }
 
-  setCountdown(endAt: number): void {
-    this.gameState.status = 'countdown';
-    this.gameState.countdownEndsAt = endAt;
-  }
-
-  clearCountdown(): void {
-    if (this.gameState.status === 'countdown') {
-      this.gameState.status = 'waiting';
+  startGame(hostId: string): MutationResult {
+    const host = this.findPlayer(hostId);
+    if (!host?.isHost) {
+      return { success: false, error: 'Hanya host yang bisa memulai game.' };
     }
-    this.gameState.countdownEndsAt = null;
-  }
 
-  startGame(): void {
-    if (this.gameState.players.length !== MAX_PLAYERS) {
-      throw new Error('Game needs exactly 4 players.');
+    if (!this.canStartGame()) {
+      return {
+        success: false,
+        error: 'Semua pemain harus siap dan minimal ada 2 pemain.',
+      };
     }
 
     const deck = DeckManager.createDeck();
-    const hands = DeckManager.dealCards(deck, MAX_PLAYERS);
+    const hands = DeckManager.dealCards(deck, this.gameState.players.length);
 
     this.gameState.players.forEach((player, index) => {
       player.hand = hands[index];
       player.hasPassed = false;
-      player.connected = true;
+      player.score = 0;
+      player.isReady = false;
     });
 
+    this.gameState.status = 'playing';
     this.gameState.board = [];
     this.gameState.currentTurnIndex = Math.floor(
       Math.random() * this.gameState.players.length
     );
-    this.gameState.status = 'playing';
-    this.gameState.winner = null;
     this.gameState.leftEnd = null;
     this.gameState.rightEnd = null;
-    this.gameState.countdownEndsAt = null;
     this.gameState.startedAt = Date.now();
+    this.gameState.winner = null;
+    this.gameState.passCount = 0;
+    this.gameState.lastMove = null;
+    this.gameState.gameLog = [];
+    this.gameState.result = null;
+    this.autoResetAt = null;
     this.typingPlayers.clear();
+
+    return { success: true };
   }
 
   playCard(playerId: string, cardId: string, side?: BoardSide): MutationResult {
@@ -152,7 +264,7 @@ export class GameRoom {
       return { success: false, error: 'Game belum dimulai.' };
     }
 
-    const currentPlayer = this.gameState.players[this.gameState.currentTurnIndex];
+    const currentPlayer = this.getCurrentPlayer();
     if (!currentPlayer || currentPlayer.id !== playerId) {
       return { success: false, error: 'Bukan giliran kamu.' };
     }
@@ -164,40 +276,42 @@ export class GameRoom {
 
     const placementOptions = GameLogic.getPlacementOptions(card, this.gameState);
     if (placementOptions.length === 0) {
-      return { success: false, error: 'Kartu itu tidak bisa dimainkan.' };
-    }
-
-    const distinctSides = Array.from(
-      new Set(placementOptions.map((option) => option.side))
-    );
-    if (distinctSides.length > 1 && !side) {
-      return {
-        success: false,
-        error: 'Pilih sisi kiri atau kanan untuk meletakkan kartu.',
-      };
+      return { success: false, error: 'Kartu itu tidak bisa dipasang di posisi ini.' };
     }
 
     const selectedPlacement =
-      placementOptions.find((option) => option.side === side) ??
-      placementOptions[0];
+      placementOptions.find((option) => option.side === side) ?? placementOptions[0];
 
-    GameLogic.playCard(card, selectedPlacement, this.gameState);
-    currentPlayer.hand = currentPlayer.hand.filter(
-      (handCard) => handCard.id !== cardId
-    );
+    if (placementOptions.length > 1 && !side) {
+      return { success: false, error: 'Pilih mau pasang di sisi kiri atau kanan.' };
+    }
+
+    const playedCard = GameLogic.playCard(card, selectedPlacement, this.gameState);
+    currentPlayer.hand = currentPlayer.hand.filter((handCard) => handCard.id !== cardId);
+    this.gameState.passCount = 0;
     this.gameState.players.forEach((player) => {
       player.hasPassed = false;
     });
     this.typingPlayers.delete(playerId);
 
-    const winner = GameLogic.checkWinner(this.gameState);
-    if (winner) {
-      this.gameState.winner = winner;
-      this.gameState.status = 'finished';
-    } else {
-      this.nextTurn();
+    const move = this.createMove({
+      type: 'play',
+      playerId,
+      playerName: currentPlayer.nickname,
+      text: `${currentPlayer.nickname} memasang [${playedCard.left}/${playedCard.right}] di ${selectedPlacement.side}.`,
+      card: playedCard,
+      side: selectedPlacement.side,
+    });
+
+    this.gameState.lastMove = move;
+    this.gameState.gameLog = [...this.gameState.gameLog.slice(-19), move];
+
+    if (currentPlayer.hand.length === 0) {
+      this.finishGame('empty-hand');
+      return { success: true };
     }
 
+    this.nextTurn();
     return { success: true };
   }
 
@@ -206,36 +320,44 @@ export class GameRoom {
       return { success: false, error: 'Game belum dimulai.' };
     }
 
-    const currentPlayer = this.gameState.players[this.gameState.currentTurnIndex];
+    const currentPlayer = this.getCurrentPlayer();
     if (!currentPlayer || currentPlayer.id !== playerId) {
       return { success: false, error: 'Bukan giliran kamu.' };
     }
 
     if (GameLogic.hasPlayableCard(currentPlayer.hand, this.gameState)) {
-      return {
-        success: false,
-        error: 'Kamu masih punya kartu yang bisa dimainkan.',
-      };
+      return { success: false, error: 'Kamu masih punya kartu yang bisa dimainkan.' };
     }
 
     currentPlayer.hasPassed = true;
+    this.gameState.passCount += 1;
     this.typingPlayers.delete(playerId);
 
-    const winner = GameLogic.checkWinner(this.gameState);
-    if (winner) {
-      this.gameState.winner = winner;
-      this.gameState.status = 'finished';
-    } else {
-      this.nextTurn();
+    const move = this.createMove({
+      type: 'pass',
+      playerId,
+      playerName: currentPlayer.nickname,
+      text: `${currentPlayer.nickname} pass.`,
+    });
+
+    this.gameState.lastMove = move;
+    this.gameState.gameLog = [...this.gameState.gameLog.slice(-19), move];
+
+    if (this.gameState.passCount >= this.gameState.players.length) {
+      this.finishGame('blocked');
+      return { success: true };
     }
 
+    this.nextTurn();
     return { success: true };
   }
 
+  returnToLobby(): void {
+    this.resetForLobby();
+  }
+
   addChatMessage(playerId: string, message: string): ChatMessage | null {
-    const player = this.gameState.players.find(
-      (roomPlayer) => roomPlayer.id === playerId
-    );
+    const player = this.findPlayer(playerId);
     if (!player) {
       return null;
     }
@@ -272,9 +394,7 @@ export class GameRoom {
   }
 
   setTyping(playerId: string, isTyping: boolean): void {
-    const player = this.gameState.players.find(
-      (roomPlayer) => roomPlayer.id === playerId
-    );
+    const player = this.findPlayer(playerId);
     if (!player) {
       return;
     }
@@ -295,39 +415,117 @@ export class GameRoom {
       }));
   }
 
-  getGameState(): GameState {
-    return this.gameState;
-  }
-
   getRoomState(): RoomState {
     return {
-      roomId: this.roomId,
+      roomId: this.id,
+      name: this.name,
+      code: this.code,
+      type: this.type,
       status: this.gameState.status,
+      hostId: this.gameState.players.find((player) => player.isHost)?.id ?? null,
+      maxPlayers: this.maxPlayers,
       players: this.toPublicPlayers(this.gameState.players),
-      maxPlayers: MAX_PLAYERS,
-      countdownEndsAt: this.gameState.countdownEndsAt,
+      currentPlayers: this.gameState.players.length,
+      createdAt: this.createdAt,
       message: this.getStatusMessage(),
+    };
+  }
+
+  getRoomSummary(): RoomSummary {
+    return {
+      roomId: this.id,
+      name: this.name,
+      code: this.code,
+      type: this.type,
+      status: this.gameState.status,
+      currentPlayers: this.gameState.players.length,
+      maxPlayers: this.maxPlayers,
+      createdAt: this.createdAt,
     };
   }
 
   getPlayerView(playerId: string): GameStateView {
     return {
       ...this.gameState,
+      result: this.gameState.result
+        ? {
+            ...this.gameState.result,
+            autoReturnAt: this.autoResetAt,
+          }
+        : null,
       selfId: playerId,
       players: this.toPublicPlayers(this.gameState.players).map((player) => ({
         ...player,
         hand:
-          player.id === playerId
-            ? this.gameState.players.find(
-                (roomPlayer) => roomPlayer.id === playerId
-              )?.hand ?? []
+          player.id === playerId || this.gameState.status === 'finished'
+            ? this.findPlayer(player.id)?.hand ?? []
             : [],
       })),
     };
   }
 
+  getGameState(): GameState {
+    return this.gameState;
+  }
+
   findPlayer(playerId: string): Player | undefined {
     return this.gameState.players.find((player) => player.id === playerId);
+  }
+
+  getAutoResetAt(): number | null {
+    return this.autoResetAt;
+  }
+
+  private finishGame(reason: EndReason): GameResult {
+    const scores = GameLogic.calculateScores(this.gameState);
+    const winner = scores[0];
+
+    this.gameState.players.forEach((player) => {
+      const scoreEntry = scores.find((entry) => entry.playerId === player.id);
+      player.score = scoreEntry?.score ?? 0;
+      player.hasPassed = false;
+    });
+
+    this.autoResetAt = Date.now() + AUTO_RETURN_MS;
+    this.gameState.status = 'finished';
+    this.gameState.winner = winner?.playerId ?? null;
+    this.gameState.passCount = 0;
+    this.gameState.result = {
+      reason,
+      winnerId: winner?.playerId ?? '',
+      scores,
+      endedAt: Date.now(),
+      autoReturnAt: this.autoResetAt,
+    };
+
+    return this.gameState.result;
+  }
+
+  private resetForLobby(): void {
+    this.gameState.status = 'waiting';
+    this.gameState.board = [];
+    this.gameState.currentTurnIndex = 0;
+    this.gameState.leftEnd = null;
+    this.gameState.rightEnd = null;
+    this.gameState.startedAt = null;
+    this.gameState.winner = null;
+    this.gameState.passCount = 0;
+    this.gameState.lastMove = null;
+    this.gameState.gameLog = [];
+    this.gameState.result = null;
+    this.autoResetAt = null;
+    this.typingPlayers.clear();
+
+    this.gameState.players.forEach((player) => {
+      player.hand = [];
+      player.hasPassed = false;
+      player.isReady = false;
+      player.score = 0;
+    });
+  }
+
+  private getCurrentPlayer(): Player | undefined {
+    return this.gameState.players[this.gameState.currentTurnIndex];
   }
 
   private nextTurn(): void {
@@ -335,54 +533,71 @@ export class GameRoom {
       (this.gameState.currentTurnIndex + 1) % this.gameState.players.length;
   }
 
-  private resetToWaiting(): void {
-    this.gameState.board = [];
-    this.gameState.currentTurnIndex = 0;
-    this.gameState.status = 'waiting';
-    this.gameState.winner = null;
-    this.gameState.leftEnd = null;
-    this.gameState.rightEnd = null;
-    this.gameState.countdownEndsAt = null;
-    this.gameState.startedAt = null;
-    this.typingPlayers.clear();
-
-    this.gameState.players.forEach((player) => {
-      player.hand = [];
-      player.hasPassed = false;
-      player.connected = true;
-    });
+  private getAvailablePosition(): PlayerPosition | null {
+    const occupied = new Set(this.gameState.players.map((player) => player.position));
+    const pool = POSITION_POOLS[this.maxPlayers];
+    return pool.find((position) => !occupied.has(position)) ?? null;
   }
 
   private toPublicPlayers(players: Player[]): PublicPlayer[] {
     return players.map((player) => ({
       id: player.id,
       nickname: player.nickname,
+      position: player.position,
       cardCount: player.hand.length,
       hasPassed: player.hasPassed,
       isConnected: player.connected,
+      isReady: player.isReady,
+      isHost: player.isHost,
+      score: player.score,
     }));
   }
 
   private getStatusMessage(): string {
-    if (this.gameState.status === 'countdown') {
-      return 'Semua kursi terisi. Game akan mulai sebentar lagi.';
-    }
-
     if (this.gameState.status === 'playing') {
-      return 'Match sedang berjalan. Server menjadi sumber kebenaran utama.';
+      const currentPlayer = this.getCurrentPlayer();
+      return currentPlayer
+        ? `Giliran ${currentPlayer.nickname}.`
+        : 'Game sedang berjalan.';
     }
 
-    if (this.gameState.status === 'finished') {
-      const winner = this.findPlayer(this.gameState.winner ?? '');
+    if (this.gameState.status === 'finished' && this.gameState.result) {
+      const winner = this.findPlayer(this.gameState.result.winnerId);
       return winner
-        ? `${winner.nickname} memenangkan ronde ini.`
-        : 'Ronde selesai.';
+        ? `${winner.nickname} menang dengan poin ${winner.score}.`
+        : 'Permainan berakhir.';
     }
 
-    const missingPlayers = MAX_PLAYERS - this.gameState.players.length;
-    return missingPlayers > 0
-      ? `Menunggu ${missingPlayers} pemain lagi untuk memulai.`
-      : 'Siap memulai ronde baru.';
+    if (this.gameState.players.length < 2) {
+      return 'Menunggu pemain lain bergabung...';
+    }
+
+    const readyCount = this.gameState.players.filter((player) => player.isReady).length;
+    return `${readyCount}/${this.gameState.players.length} pemain siap. Host bisa mulai saat semua ready.`;
+  }
+
+  private createMove(input: Omit<GameMove, 'id' | 'timestamp'>): GameMove {
+    return {
+      id: randomUUID(),
+      timestamp: Date.now(),
+      ...input,
+    };
+  }
+
+  private hashPassword(password: string): Buffer {
+    return scryptSync(password, `gaple:${this.code}`, 64);
+  }
+
+  private passwordMatches(password?: string): boolean {
+    if (!this.passwordHash) {
+      return true;
+    }
+
+    if (!password) {
+      return false;
+    }
+
+    const candidate = this.hashPassword(password);
+    return timingSafeEqual(this.passwordHash, candidate);
   }
 }
-

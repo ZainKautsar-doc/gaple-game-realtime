@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { SendHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -89,48 +90,56 @@ export function ChatBox({
             </div>
           ) : (
             <div className="flex flex-col gap-3">
-              {messages.map((message) => {
-                const isMe = message.playerId === currentPlayerId;
-                const isSystem = message.kind === 'system';
+              <AnimatePresence initial={false}>
+                {messages.map((message) => {
+                  const isMe = message.playerId === currentPlayerId;
+                  const isSystem = message.kind === 'system';
 
-                if (isSystem) {
-                  return (
-                    <div
-                      key={message.id}
-                      className="mx-auto rounded-full border border-white/5 bg-white/[0.05] px-4 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-500"
-                    >
-                      {message.message.replace('telah bergabung', 'masuk meja').replace('telah keluar', 'cabut')}
-                    </div>
-                  );
-                }
-
-                return (
-                  <div
-                    key={message.id}
-                    className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}
-                  >
-                    <div className={`flex max-w-[85%] flex-col gap-1 ${isMe ? 'items-end' : 'items-start'}`}>
-                      {!isMe && (
-                        <p className="px-1 text-[10px] font-black text-brand-light opacity-80">
-                          {message.nickname}
-                        </p>
-                      )}
-                      <div
-                        className={`rounded-2xl px-4 py-2 text-sm shadow-md transition-all ${
-                          isMe
-                            ? 'rounded-tr-none bg-brand text-white border border-brand-light/30 shadow-brand/10'
-                            : 'rounded-tl-none bg-white/[0.07] text-slate-200 border border-white/10'
-                        }`}
+                  if (isSystem) {
+                    return (
+                      <motion.div
+                        key={message.id}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        className="mx-auto rounded-full border border-white/5 bg-white/[0.05] px-4 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-500"
                       >
-                        {message.message}
+                        {message.message.replace('telah bergabung', 'masuk meja').replace('telah keluar', 'cabut')}
+                      </motion.div>
+                    );
+                  }
+
+                  return (
+                    <motion.div
+                      key={message.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}
+                    >
+                      <div className={`flex max-w-[85%] flex-col gap-1 ${isMe ? 'items-end' : 'items-start'}`}>
+                        {!isMe && (
+                          <p className="px-1 text-[10px] font-black text-brand-light opacity-80">
+                            {message.nickname}
+                          </p>
+                        )}
+                        <div
+                          className={`rounded-2xl px-4 py-2 text-sm shadow-md transition-all ${
+                            isMe
+                              ? 'rounded-tr-none bg-brand text-[#081126] border border-brand-light/30 shadow-brand/10'
+                              : 'rounded-tl-none bg-white/[0.07] text-slate-200 border border-white/10'
+                          }`}
+                        >
+                          {message.message}
+                        </div>
+                        <span className="px-1 text-[9px] font-bold text-slate-600">
+                          {formatTime(message.timestamp)}
+                        </span>
                       </div>
-                      <span className="px-1 text-[9px] font-bold text-slate-600">
-                        {formatTime(message.timestamp)}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
             </div>
           )}
           {visibleTypingPlayers.length > 0 && (

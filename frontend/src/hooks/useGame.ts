@@ -1,14 +1,17 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { getPlayableMap } from '@/lib/game';
 import { useChatStore } from '@/store/chatStore';
 import { useGameStore } from '@/store/gameStore';
+import { useRoomStore } from '@/store/roomStore';
 import type {
   BoardSide,
   ChatMessage,
   GameStateView,
+  RoomLookupResult,
   RoomState,
+  RoomSummary,
   TypingPlayer,
 } from '@/types/game';
 import { useSocket } from './useSocket';
@@ -22,14 +25,29 @@ export function useGame() {
     gameState,
     joinedRoom,
     error,
+    infoMessage,
+    lastResetAt,
     setMyPlayerId,
     setRoomState,
     setGameState,
     setIsConnected,
     setJoinedRoom,
     setError,
+    setInfoMessage,
+    markGameReset,
     resetSession,
   } = useGameStore();
+  const {
+    rooms,
+    lookupResult,
+    isRoomsLoading,
+    isSubmitting,
+    setRooms,
+    setLookupResult,
+    setRoomsLoading,
+    setSubmitting,
+    resetRoomUi,
+  } = useRoomStore();
   const {
     messages,
     typingPlayers,
@@ -41,29 +59,36 @@ export function useGame() {
 
   useEffect(() => {
     setIsConnected(isConnected);
-  }, [isConnected, setIsConnected]);
-
-  useEffect(() => {
-    if (isConnected && nickname && !joinedRoom) {
-      socket.emit('join-room', { nickname: nickname.trim() });
+    if (isConnected) {
+      socket.emit('get-rooms');
     }
-  }, [isConnected, joinedRoom, nickname, socket]);
+  }, [isConnected, setIsConnected, socket]);
 
   useEffect(() => {
-    const handleJoinedRoom = ({
-      playerId,
-    }: {
-      playerId: string;
-      roomId: string;
-    }) => {
+    const handleJoinedRoom = ({ playerId }: { playerId: string; roomId: string }) => {
       setMyPlayerId(playerId);
       setJoinedRoom(true);
       setError(null);
+      setInfoMessage(null);
+      setSubmitting(false);
     };
 
     const handleJoinFailed = ({ message }: { message: string }) => {
       setJoinedRoom(false);
       setError(message);
+      setSubmitting(false);
+    };
+
+    const handleLookupResult = (payload: RoomLookupResult) => {
+      setLookupResult(payload);
+      setSubmitting(false);
+      if (!payload.found && payload.message) {
+        setError(payload.message);
+      }
+    };
+
+    const handleRoomsList = (nextRooms: RoomSummary[]) => {
+      setRooms(nextRooms);
     };
 
     const handleRoomState = (nextRoomState: RoomState) => {
@@ -74,8 +99,21 @@ export function useGame() {
       setGameState(nextGameState);
     };
 
+    const handleGameReset = () => {
+      markGameReset();
+    };
+
+    const handlePlayerKicked = ({ reason }: { playerName: string; reason: string }) => {
+      setError(reason);
+      setJoinedRoom(false);
+      setRoomState(null);
+      markGameReset();
+      clearChat();
+    };
+
     const handleActionError = ({ message }: { message: string }) => {
       setError(message);
+      setSubmitting(false);
     };
 
     const handleChatHistory = (nextMessages: ChatMessage[]) => {
@@ -92,13 +130,16 @@ export function useGame() {
 
     const handleDisconnect = () => {
       setIsConnected(false);
-      setJoinedRoom(false);
     };
 
     socket.on('joined-room', handleJoinedRoom);
     socket.on('join-failed', handleJoinFailed);
+    socket.on('room-lookup-result', handleLookupResult);
+    socket.on('rooms-list', handleRoomsList);
     socket.on('room-state', handleRoomState);
     socket.on('game-state', handleGameState);
+    socket.on('game-reset', handleGameReset);
+    socket.on('player-kicked', handlePlayerKicked);
     socket.on('action-error', handleActionError);
     socket.on('chat-history', handleChatHistory);
     socket.on('chat-message', handleChatMessage);
@@ -108,8 +149,12 @@ export function useGame() {
     return () => {
       socket.off('joined-room', handleJoinedRoom);
       socket.off('join-failed', handleJoinFailed);
+      socket.off('room-lookup-result', handleLookupResult);
+      socket.off('rooms-list', handleRoomsList);
       socket.off('room-state', handleRoomState);
       socket.off('game-state', handleGameState);
+      socket.off('game-reset', handleGameReset);
+      socket.off('player-kicked', handlePlayerKicked);
       socket.off('action-error', handleActionError);
       socket.off('chat-history', handleChatHistory);
       socket.off('chat-message', handleChatMessage);
@@ -118,41 +163,97 @@ export function useGame() {
     };
   }, [
     addMessage,
+    clearChat,
+    markGameReset,
     setError,
     setGameState,
+    setInfoMessage,
     setIsConnected,
     setJoinedRoom,
+    setLookupResult,
     setMessages,
     setMyPlayerId,
     setRoomState,
+    setRooms,
+    setSubmitting,
     setTypingPlayers,
     socket,
   ]);
 
   const myPlayer = gameState?.players.find((player) => player.id === myPlayerId) ?? null;
-  const currentPlayer =
-    gameState?.players[gameState.currentTurnIndex] ?? null;
+  const currentPlayer = gameState?.players[gameState.currentTurnIndex] ?? null;
   const isMyTurn = currentPlayer?.id === myPlayerId;
   const playableCards = getPlayableMap(myPlayer?.hand ?? [], gameState);
+  const isHost = roomState?.hostId === myPlayerId;
+  const everyoneReady =
+    !!roomState &&
+    roomState.players.length >= 2 &&
+    roomState.players.every((player) => player.isReady);
 
-  const joinMainRoom = () => {
-    if (!nickname.trim()) {
-      setError('Masukkan nickname dulu sebelum join.');
-      return;
-    }
-
+  const ensureConnected = useCallback(() => {
     if (!socket.connected) {
       socket.connect();
     }
+  }, [socket]);
 
-    socket.emit('join-room', { nickname: nickname.trim() });
+  const createRoom = (payload: {
+    playerName: string;
+    roomName?: string;
+    type: 'public' | 'private';
+    password?: string;
+    maxPlayers: 2 | 3 | 4;
+  }) => {
+    ensureConnected();
+    setSubmitting(true);
+    setError(null);
+    socket.emit('create-room', payload);
   };
+
+  const joinRoom = (payload: {
+    roomCode: string;
+    playerName: string;
+    password?: string;
+  }) => {
+    ensureConnected();
+    setSubmitting(true);
+    setError(null);
+    socket.emit('join-room', payload);
+  };
+
+  const lookupRoom = (roomCode: string) => {
+    ensureConnected();
+    setSubmitting(true);
+    setLookupResult(null);
+    socket.emit('lookup-room', { roomCode });
+  };
+
+  const refreshRooms = useCallback(() => {
+    ensureConnected();
+    setRoomsLoading(true);
+    socket.emit('get-rooms');
+  }, [ensureConnected, setRoomsLoading, socket]);
 
   const leaveRoom = () => {
     socket.emit('leave-room');
-    socket.disconnect();
-    resetSession();
+    resetRoomUi();
     clearChat();
+    resetSession();
+  };
+
+  const setReady = (value: boolean) => {
+    socket.emit('set-ready', { isReady: value });
+  };
+
+  const startGame = () => {
+    socket.emit('start-game');
+  };
+
+  const kickPlayer = (playerId: string) => {
+    socket.emit('kick-player', { playerId });
+  };
+
+  const returnToLobby = () => {
+    socket.emit('return-to-lobby');
   };
 
   const playCard = (cardId: string, side?: BoardSide) => {
@@ -181,13 +282,28 @@ export function useGame() {
     myPlayer,
     currentPlayer,
     isMyTurn,
+    isHost,
+    everyoneReady,
     joinedRoom,
     error,
+    infoMessage,
+    lastResetAt,
     messages,
     typingPlayers,
     playableCards,
-    joinMainRoom,
+    rooms,
+    lookupResult,
+    isRoomsLoading,
+    isSubmitting,
+    createRoom,
+    joinRoom,
+    lookupRoom,
+    refreshRooms,
     leaveRoom,
+    setReady,
+    startGame,
+    kickPlayer,
+    returnToLobby,
     playCard,
     passTurn,
     sendChatMessage,

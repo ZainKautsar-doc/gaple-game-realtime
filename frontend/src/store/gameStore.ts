@@ -16,6 +16,8 @@ interface GameStore {
   isConnected: boolean;
   joinedRoom: boolean;
   error: string | null;
+  infoMessage: string | null;
+  lastResetAt: number;
   isSetupDialogOpen: boolean;
   setupDialogMode: 'create' | 'join';
   setNickname: (nickname: string) => void;
@@ -25,6 +27,8 @@ interface GameStore {
   setIsConnected: (isConnected: boolean) => void;
   setJoinedRoom: (joinedRoom: boolean) => void;
   setError: (error: string | null) => void;
+  setInfoMessage: (message: string | null) => void;
+  markGameReset: () => void;
   setSetupDialog: (isOpen: boolean, mode?: 'create' | 'join') => void;
   resetSession: () => void;
 }
@@ -37,10 +41,12 @@ export const useGameStore = create<GameStore>((set) => ({
   isConnected: false,
   joinedRoom: false,
   error: null,
+  infoMessage: null,
+  lastResetAt: 0,
   isSetupDialogOpen: false,
   setupDialogMode: 'create',
   setNickname: (nickname) => {
-    const trimmedNickname = nickname.slice(0, 18);
+    const trimmedNickname = nickname.slice(0, 20);
     if (typeof window !== 'undefined') {
       window.localStorage.setItem('gaple-nickname', trimmedNickname);
     }
@@ -52,6 +58,8 @@ export const useGameStore = create<GameStore>((set) => ({
   setIsConnected: (isConnected) => set({ isConnected }),
   setJoinedRoom: (joinedRoom) => set({ joinedRoom }),
   setError: (error) => set({ error }),
+  setInfoMessage: (infoMessage) => set({ infoMessage }),
+  markGameReset: () => set({ gameState: null, lastResetAt: Date.now() }),
   setSetupDialog: (isOpen, mode) => set((state) => ({ 
     isSetupDialogOpen: isOpen, 
     setupDialogMode: mode ?? state.setupDialogMode 
@@ -63,6 +71,7 @@ export const useGameStore = create<GameStore>((set) => ({
       gameState: null,
       joinedRoom: false,
       error: null,
+      infoMessage: null,
+      lastResetAt: 0,
     }),
 }));
-

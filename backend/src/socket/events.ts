@@ -1,9 +1,20 @@
 export const SOCKET_EVENTS = {
+  CREATE_ROOM: 'create-room',
   JOIN_ROOM: 'join-room',
   JOINED_ROOM: 'joined-room',
   JOIN_FAILED: 'join-failed',
+  LOOKUP_ROOM: 'lookup-room',
+  ROOM_LOOKUP_RESULT: 'room-lookup-result',
+  GET_ROOMS: 'get-rooms',
+  ROOMS_LIST: 'rooms-list',
   LEAVE_ROOM: 'leave-room',
   ROOM_STATE: 'room-state',
+  GAME_RESET: 'game-reset',
+  RETURN_TO_LOBBY: 'return-to-lobby',
+  SET_READY: 'set-ready',
+  START_GAME: 'start-game',
+  KICK_PLAYER: 'kick-player',
+  PLAYER_KICKED: 'player-kicked',
   GAME_STARTED: 'game-started',
   GAME_STATE: 'game-state',
   PLAY_CARD: 'play-card',
@@ -15,4 +26,3 @@ export const SOCKET_EVENTS = {
   TYPING_STOP: 'typing-stop',
   TYPING_STATE: 'typing-state',
 } as const;
-

@@ -1,154 +1,411 @@
+import { randomUUID } from 'crypto';
 import type { Server, Socket } from 'socket.io';
 import { GameRoom } from '../game/GameRoom';
 import { SOCKET_EVENTS } from './events';
 import {
   chatMessageSchema,
+  createRoomSchema,
   joinRoomSchema,
+  kickPlayerSchema,
+  lookupRoomSchema,
   playCardSchema,
+  setReadySchema,
 } from '../utils/validators';
 
-const ROOM_ID = 'main-room';
-const COUNTDOWN_MS = 3000;
-
 const rooms = new Map<string, GameRoom>();
-let countdownTimer: NodeJS.Timeout | null = null;
+const autoResetTimers = new Map<string, NodeJS.Timeout>();
 
-const getRoom = (): GameRoom => {
-  if (!rooms.has(ROOM_ID)) {
-    rooms.set(ROOM_ID, new GameRoom(ROOM_ID));
-  }
+const emitRoomsList = (io: Server) => {
+  const publicRooms = Array.from(rooms.values())
+    .filter((room) => room.type === 'public')
+    .map((room) => room.getRoomSummary())
+    .sort((left, right) => right.createdAt - left.createdAt);
 
-  return rooms.get(ROOM_ID)!;
+  io.emit(SOCKET_EVENTS.ROOMS_LIST, publicRooms);
 };
 
-const emitPlayerStates = (io: Server, room: GameRoom) => {
+const findRoomByPlayer = (playerId: string): GameRoom | null => {
+  for (const room of rooms.values()) {
+    if (room.findPlayer(playerId)) {
+      return room;
+    }
+  }
+
+  return null;
+};
+
+const findRoomByCode = (roomCode: string): GameRoom | null => {
+  const normalizedCode = roomCode.trim().toUpperCase();
+  for (const room of rooms.values()) {
+    if (room.code === normalizedCode) {
+      return room;
+    }
+  }
+
+  return null;
+};
+
+const clearRoomResetTimer = (roomId: string) => {
+  const timer = autoResetTimers.get(roomId);
+  if (timer) {
+    clearTimeout(timer);
+    autoResetTimers.delete(roomId);
+  }
+};
+
+const emitRoomState = (io: Server, room: GameRoom) => {
+  io.to(room.id).emit(SOCKET_EVENTS.ROOM_STATE, room.getRoomState());
+};
+
+const emitGameState = (io: Server, room: GameRoom) => {
+  room.getGameState().players.forEach((player) => {
+    io.to(player.socketId).emit(SOCKET_EVENTS.GAME_STATE, room.getPlayerView(player.id));
+  });
+};
+
+const emitTypingState = (io: Server, room: GameRoom) => {
   room.getGameState().players.forEach((player) => {
     io.to(player.socketId).emit(
-      SOCKET_EVENTS.GAME_STATE,
-      room.getPlayerView(player.id)
+      SOCKET_EVENTS.TYPING_STATE,
+      room.getTypingPlayers(player.id)
     );
   });
 };
 
-const emitRoomState = (io: Server, room: GameRoom) => {
-  io.to(ROOM_ID).emit(SOCKET_EVENTS.ROOM_STATE, room.getRoomState());
+const emitChatHistory = (socket: Socket, room: GameRoom) => {
+  socket.emit(SOCKET_EVENTS.CHAT_HISTORY, room.getChatMessages());
+  socket.emit(SOCKET_EVENTS.TYPING_STATE, room.getTypingPlayers(socket.id));
 };
 
-const emitTypingState = (io: Server, room: GameRoom) => {
-  io.to(ROOM_ID).emit(SOCKET_EVENTS.TYPING_STATE, room.getTypingPlayers());
-};
-
-const clearCountdown = (room: GameRoom) => {
-  if (countdownTimer) {
-    clearTimeout(countdownTimer);
-    countdownTimer = null;
+const cleanupRoomIfEmpty = (room: GameRoom | null) => {
+  if (room && room.isEmpty()) {
+    clearRoomResetTimer(room.id);
+    rooms.delete(room.id);
   }
-  room.clearCountdown();
 };
 
-const maybeStartCountdown = (io: Server, room: GameRoom) => {
-  if (!room.shouldStartCountdown()) {
+const scheduleAutoReturn = (io: Server, room: GameRoom) => {
+  clearRoomResetTimer(room.id);
+  const autoReturnAt = room.getAutoResetAt();
+  if (!autoReturnAt) {
     return;
   }
 
-  const countdownEndsAt = Date.now() + COUNTDOWN_MS;
-  room.setCountdown(countdownEndsAt);
-  const systemMessage = room.addSystemMessage(
-    'Meja penuh. Ronde akan dimulai dalam 3 detik.'
-  );
-  emitRoomState(io, room);
-  io.to(ROOM_ID).emit(SOCKET_EVENTS.CHAT_MESSAGE, systemMessage);
+  const delay = Math.max(0, autoReturnAt - Date.now());
+  const timer = setTimeout(() => {
+    autoResetTimers.delete(room.id);
+    room.returnToLobby();
+    io.to(room.id).emit(SOCKET_EVENTS.GAME_RESET);
+    emitRoomState(io, room);
+    emitRoomsList(io);
+  }, delay);
 
-  countdownTimer = setTimeout(() => {
-    countdownTimer = null;
+  autoResetTimers.set(room.id, timer);
+};
 
-    const latestRoom = getRoom();
-    if (
-      latestRoom.getGameState().players.length !== 4 ||
-      latestRoom.getGameState().status !== 'countdown'
-    ) {
-      latestRoom.clearCountdown();
-      emitRoomState(io, latestRoom);
-      return;
+const leaveExistingRoom = (io: Server, socket: Socket) => {
+  const existingRoom = findRoomByPlayer(socket.id);
+  if (!existingRoom) {
+    return;
+  }
+
+  clearRoomResetTimer(existingRoom.id);
+  const previousStatus = existingRoom.getGameState().status;
+  socket.leave(existingRoom.id);
+  const removedPlayer = existingRoom.removePlayer(socket.id);
+  if (removedPlayer) {
+    const systemMessage = existingRoom.addSystemMessage(
+      `${removedPlayer.nickname} meninggalkan room.`
+    );
+    if (previousStatus !== 'waiting' && !existingRoom.isEmpty()) {
+      io.to(existingRoom.id).emit(SOCKET_EVENTS.GAME_RESET);
     }
-
-    latestRoom.startGame();
-    io.to(ROOM_ID).emit(SOCKET_EVENTS.GAME_STARTED, {
-      roomId: ROOM_ID,
-      startedAt: Date.now(),
-    });
-    emitRoomState(io, latestRoom);
-    emitPlayerStates(io, latestRoom);
-  }, COUNTDOWN_MS);
+    emitRoomState(io, existingRoom);
+    emitTypingState(io, existingRoom);
+    io.to(existingRoom.id).emit(SOCKET_EVENTS.CHAT_MESSAGE, systemMessage);
+    io.to(socket.id).emit(SOCKET_EVENTS.GAME_RESET);
+  }
+  cleanupRoomIfEmpty(existingRoom);
+  emitRoomsList(io);
 };
 
-const handlePlayerLeave = (io: Server, socketId: string) => {
-  const room = getRoom();
-  const player = room.findPlayer(socketId);
-  if (!player) {
-    return;
-  }
-
-  clearCountdown(room);
-  room.removePlayer(player.id);
-  const systemMessage = room.addSystemMessage(
-    `${player.nickname} meninggalkan meja.`
-  );
-
+const syncRoomAfterMutation = (io: Server, room: GameRoom) => {
   emitRoomState(io, room);
   emitTypingState(io, room);
-  io.to(ROOM_ID).emit(SOCKET_EVENTS.CHAT_MESSAGE, systemMessage);
+  if (room.getGameState().status !== 'waiting') {
+    emitGameState(io, room);
+  }
+  emitRoomsList(io);
+};
+
+const createRoomCode = (): string => {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  do {
+    code = Array.from({ length: 6 }, () => {
+      const index = Math.floor(Math.random() * alphabet.length);
+      return alphabet[index];
+    }).join('');
+  } while (findRoomByCode(code));
+
+  return code;
 };
 
 export function setupSocketHandlers(io: Server) {
   io.on('connection', (socket: Socket) => {
+    socket.emit(SOCKET_EVENTS.ROOMS_LIST, []);
+    emitRoomsList(io);
+
+    socket.on(SOCKET_EVENTS.GET_ROOMS, () => {
+      socket.emit(
+        SOCKET_EVENTS.ROOMS_LIST,
+        Array.from(rooms.values())
+          .filter((room) => room.type === 'public')
+          .map((room) => room.getRoomSummary())
+          .sort((left, right) => right.createdAt - left.createdAt)
+      );
+    });
+
+    socket.on(SOCKET_EVENTS.LOOKUP_ROOM, (payload) => {
+      const parsed = lookupRoomSchema.safeParse(payload);
+      if (!parsed.success) {
+        socket.emit(SOCKET_EVENTS.ROOM_LOOKUP_RESULT, {
+          found: false,
+          message: 'Kode room tidak valid.',
+        });
+        return;
+      }
+
+      const room = findRoomByCode(parsed.data.roomCode);
+      if (!room) {
+        socket.emit(SOCKET_EVENTS.ROOM_LOOKUP_RESULT, {
+          found: false,
+          message: 'Room tidak ditemukan.',
+        });
+        return;
+      }
+
+      socket.emit(SOCKET_EVENTS.ROOM_LOOKUP_RESULT, {
+        found: true,
+        room: room.getRoomSummary(),
+      });
+    });
+
+    socket.on(SOCKET_EVENTS.CREATE_ROOM, (payload) => {
+      const parsed = createRoomSchema.safeParse(payload);
+      if (!parsed.success) {
+        socket.emit(SOCKET_EVENTS.JOIN_FAILED, {
+          message: parsed.error.issues[0]?.message ?? 'Data room tidak valid.',
+        });
+        return;
+      }
+
+      leaveExistingRoom(io, socket);
+
+      const roomCode = createRoomCode();
+      const room = new GameRoom({
+        id: randomUUID(),
+        name: parsed.data.roomName?.trim() || `Room ${roomCode}`,
+        code: roomCode,
+        type: parsed.data.type,
+        password: parsed.data.password?.trim(),
+        maxPlayers: parsed.data.maxPlayers,
+      });
+
+      rooms.set(room.id, room);
+      room.addPlayer({
+        id: socket.id,
+        socketId: socket.id,
+        nickname: parsed.data.playerName.trim(),
+      });
+      room.addSystemMessage(`${parsed.data.playerName.trim()} membuat room.`);
+
+      socket.join(room.id);
+      socket.emit(SOCKET_EVENTS.JOINED_ROOM, {
+        playerId: socket.id,
+        roomId: room.id,
+      });
+      emitChatHistory(socket, room);
+      syncRoomAfterMutation(io, room);
+    });
+
     socket.on(SOCKET_EVENTS.JOIN_ROOM, (payload) => {
-      const room = getRoom();
       const parsed = joinRoomSchema.safeParse(payload);
       if (!parsed.success) {
         socket.emit(SOCKET_EVENTS.JOIN_FAILED, {
-          message: 'Nickname harus berisi 2-18 karakter.',
+          message: parsed.error.issues[0]?.message ?? 'Data join room tidak valid.',
         });
         return;
       }
 
-      const joinResult = room.addPlayer({
-        id: socket.id,
-        socketId: socket.id,
-        nickname: parsed.data.nickname,
-      });
-
-      if (!joinResult.success) {
+      const room = findRoomByCode(parsed.data.roomCode);
+      if (!room) {
         socket.emit(SOCKET_EVENTS.JOIN_FAILED, {
-          message: joinResult.error,
+          message: 'Room tidak ditemukan.',
         });
         return;
       }
 
-      socket.join(ROOM_ID);
-      socket.emit(SOCKET_EVENTS.JOINED_ROOM, {
-        playerId: socket.id,
-        roomId: ROOM_ID,
-      });
-      socket.emit(SOCKET_EVENTS.CHAT_HISTORY, room.getChatMessages());
-      socket.emit(SOCKET_EVENTS.TYPING_STATE, room.getTypingPlayers(socket.id));
+      const validation = room.canJoin(parsed.data.password?.trim());
+      if (!validation.success) {
+        socket.emit(SOCKET_EVENTS.JOIN_FAILED, {
+          message: validation.error,
+        });
+        return;
+      }
 
-      const systemMessage = room.addSystemMessage(
-        `${parsed.data.nickname} bergabung ke meja.`
+      leaveExistingRoom(io, socket);
+
+      const result = room.addPlayer(
+        {
+          id: socket.id,
+          socketId: socket.id,
+          nickname: parsed.data.playerName.trim(),
+        },
+        parsed.data.password?.trim()
       );
 
-      emitRoomState(io, room);
-      io.to(ROOM_ID).emit(SOCKET_EVENTS.CHAT_MESSAGE, systemMessage);
-      maybeStartCountdown(io, room);
-
-      if (room.getGameState().status === 'playing') {
-        emitPlayerStates(io, room);
+      if (!result.success) {
+        socket.emit(SOCKET_EVENTS.JOIN_FAILED, {
+          message: result.error,
+        });
+        return;
       }
+
+      socket.join(room.id);
+      socket.emit(SOCKET_EVENTS.JOINED_ROOM, {
+        playerId: socket.id,
+        roomId: room.id,
+      });
+      emitChatHistory(socket, room);
+
+      const systemMessage = room.addSystemMessage(
+        `${parsed.data.playerName.trim()} bergabung ke room.`
+      );
+      io.to(room.id).emit(SOCKET_EVENTS.CHAT_MESSAGE, systemMessage);
+      syncRoomAfterMutation(io, room);
     });
 
     socket.on(SOCKET_EVENTS.LEAVE_ROOM, () => {
-      socket.leave(ROOM_ID);
-      handlePlayerLeave(io, socket.id);
+      leaveExistingRoom(io, socket);
+    });
+
+    socket.on(SOCKET_EVENTS.SET_READY, (payload) => {
+      const parsed = setReadySchema.safeParse(payload);
+      if (!parsed.success) {
+        socket.emit(SOCKET_EVENTS.ACTION_ERROR, {
+          message: 'Status ready tidak valid.',
+        });
+        return;
+      }
+
+      const room = findRoomByPlayer(socket.id);
+      if (!room) {
+        socket.emit(SOCKET_EVENTS.ACTION_ERROR, {
+          message: 'Kamu belum bergabung ke room.',
+        });
+        return;
+      }
+
+      const result = room.setReady(socket.id, parsed.data.isReady);
+      if (!result.success) {
+        socket.emit(SOCKET_EVENTS.ACTION_ERROR, {
+          message: result.error,
+        });
+        return;
+      }
+
+      if (result.message) {
+        io.to(room.id).emit(SOCKET_EVENTS.CHAT_MESSAGE, room.addSystemMessage(result.message));
+      }
+      syncRoomAfterMutation(io, room);
+    });
+
+    socket.on(SOCKET_EVENTS.START_GAME, () => {
+      const room = findRoomByPlayer(socket.id);
+      if (!room) {
+        socket.emit(SOCKET_EVENTS.ACTION_ERROR, {
+          message: 'Kamu belum ada di room.',
+        });
+        return;
+      }
+
+      const result = room.startGame(socket.id);
+      if (!result.success) {
+        socket.emit(SOCKET_EVENTS.ACTION_ERROR, {
+          message: result.error,
+        });
+        return;
+      }
+
+      io.to(room.id).emit(SOCKET_EVENTS.GAME_STARTED, {
+        roomId: room.id,
+        startedAt: Date.now(),
+      });
+      io.to(room.id).emit(
+        SOCKET_EVENTS.CHAT_MESSAGE,
+        room.addSystemMessage('Game dimulai. Semoga gacor.')
+      );
+      syncRoomAfterMutation(io, room);
+    });
+
+    socket.on(SOCKET_EVENTS.KICK_PLAYER, (payload) => {
+      const parsed = kickPlayerSchema.safeParse(payload);
+      if (!parsed.success) {
+        socket.emit(SOCKET_EVENTS.ACTION_ERROR, {
+          message: 'Target kick tidak valid.',
+        });
+        return;
+      }
+
+      const room = findRoomByPlayer(socket.id);
+      if (!room) {
+        socket.emit(SOCKET_EVENTS.ACTION_ERROR, {
+          message: 'Kamu belum bergabung ke room.',
+        });
+        return;
+      }
+
+      const target = room.findPlayer(parsed.data.playerId);
+      const previousStatus = room.getGameState().status;
+      const result = room.kickPlayer(socket.id, parsed.data.playerId);
+      if (!result.success) {
+        socket.emit(SOCKET_EVENTS.ACTION_ERROR, {
+          message: result.error,
+        });
+        return;
+      }
+
+      if (target) {
+        io.sockets.sockets.get(target.socketId)?.leave(room.id);
+        io.to(target.socketId).emit(SOCKET_EVENTS.PLAYER_KICKED, {
+          playerName: target.nickname,
+          reason: 'Host mengeluarkan kamu dari room.',
+        });
+        io.to(target.socketId).emit(SOCKET_EVENTS.GAME_RESET);
+      }
+
+      if (previousStatus !== 'waiting' && !room.isEmpty()) {
+        io.to(room.id).emit(SOCKET_EVENTS.GAME_RESET);
+      }
+      if (result.message) {
+        io.to(room.id).emit(SOCKET_EVENTS.CHAT_MESSAGE, room.addSystemMessage(result.message));
+      }
+      syncRoomAfterMutation(io, room);
+      cleanupRoomIfEmpty(room);
+    });
+
+    socket.on(SOCKET_EVENTS.RETURN_TO_LOBBY, () => {
+      const room = findRoomByPlayer(socket.id);
+      if (!room) {
+        return;
+      }
+
+      clearRoomResetTimer(room.id);
+      room.returnToLobby();
+      io.to(room.id).emit(SOCKET_EVENTS.GAME_RESET);
+      emitRoomState(io, room);
+      emitRoomsList(io);
     });
 
     socket.on(SOCKET_EVENTS.PLAY_CARD, (payload) => {
@@ -160,13 +417,15 @@ export function setupSocketHandlers(io: Server) {
         return;
       }
 
-      const room = getRoom();
-      const result = room.playCard(
-        socket.id,
-        parsed.data.cardId,
-        parsed.data.side
-      );
+      const room = findRoomByPlayer(socket.id);
+      if (!room) {
+        socket.emit(SOCKET_EVENTS.ACTION_ERROR, {
+          message: 'Kamu belum bergabung ke room.',
+        });
+        return;
+      }
 
+      const result = room.playCard(socket.id, parsed.data.cardId, parsed.data.side);
       if (!result.success) {
         socket.emit(SOCKET_EVENTS.ACTION_ERROR, {
           message: result.error,
@@ -174,23 +433,28 @@ export function setupSocketHandlers(io: Server) {
         return;
       }
 
-      emitRoomState(io, room);
-      emitPlayerStates(io, room);
-      emitTypingState(io, room);
-
       if (room.getGameState().status === 'finished') {
         const winner = room.findPlayer(room.getGameState().winner ?? '');
-        const winMessage = room.addSystemMessage(
-          winner ? `${winner.nickname} memenangkan ronde.` : 'Ronde selesai.'
-        );
-        io.to(ROOM_ID).emit(SOCKET_EVENTS.CHAT_MESSAGE, winMessage);
+        const message = winner
+          ? `${winner.nickname} menang dengan poin paling kecil.`
+          : 'Permainan selesai.';
+        io.to(room.id).emit(SOCKET_EVENTS.CHAT_MESSAGE, room.addSystemMessage(message));
+        scheduleAutoReturn(io, room);
       }
+
+      syncRoomAfterMutation(io, room);
     });
 
     socket.on(SOCKET_EVENTS.PASS_TURN, () => {
-      const room = getRoom();
-      const result = room.passTurn(socket.id);
+      const room = findRoomByPlayer(socket.id);
+      if (!room) {
+        socket.emit(SOCKET_EVENTS.ACTION_ERROR, {
+          message: 'Kamu belum bergabung ke room.',
+        });
+        return;
+      }
 
+      const result = room.passTurn(socket.id);
       if (!result.success) {
         socket.emit(SOCKET_EVENTS.ACTION_ERROR, {
           message: result.error,
@@ -198,19 +462,16 @@ export function setupSocketHandlers(io: Server) {
         return;
       }
 
-      emitRoomState(io, room);
-      emitPlayerStates(io, room);
-      emitTypingState(io, room);
-
       if (room.getGameState().status === 'finished') {
         const winner = room.findPlayer(room.getGameState().winner ?? '');
-        const winMessage = room.addSystemMessage(
-          winner
-            ? `${winner.nickname} memenangkan ronde karena pip paling kecil.`
-            : 'Ronde selesai.'
-        );
-        io.to(ROOM_ID).emit(SOCKET_EVENTS.CHAT_MESSAGE, winMessage);
+        const message = winner
+          ? `${winner.nickname} menang karena total poin paling kecil.`
+          : 'Permainan selesai.';
+        io.to(room.id).emit(SOCKET_EVENTS.CHAT_MESSAGE, room.addSystemMessage(message));
+        scheduleAutoReturn(io, room);
       }
+
+      syncRoomAfterMutation(io, room);
     });
 
     socket.on(SOCKET_EVENTS.CHAT_MESSAGE, (payload) => {
@@ -222,31 +483,45 @@ export function setupSocketHandlers(io: Server) {
         return;
       }
 
-      const room = getRoom();
+      const room = findRoomByPlayer(socket.id);
+      if (!room) {
+        socket.emit(SOCKET_EVENTS.ACTION_ERROR, {
+          message: 'Kamu belum bergabung ke room.',
+        });
+        return;
+      }
+
       const chatMessage = room.addChatMessage(socket.id, parsed.data.message);
       room.setTyping(socket.id, false);
 
       if (chatMessage) {
-        io.to(ROOM_ID).emit(SOCKET_EVENTS.CHAT_MESSAGE, chatMessage);
+        io.to(room.id).emit(SOCKET_EVENTS.CHAT_MESSAGE, chatMessage);
         emitTypingState(io, room);
       }
     });
 
     socket.on(SOCKET_EVENTS.TYPING_START, () => {
-      const room = getRoom();
+      const room = findRoomByPlayer(socket.id);
+      if (!room) {
+        return;
+      }
+
       room.setTyping(socket.id, true);
       emitTypingState(io, room);
     });
 
     socket.on(SOCKET_EVENTS.TYPING_STOP, () => {
-      const room = getRoom();
+      const room = findRoomByPlayer(socket.id);
+      if (!room) {
+        return;
+      }
+
       room.setTyping(socket.id, false);
       emitTypingState(io, room);
     });
 
     socket.on('disconnect', () => {
-      handlePlayerLeave(io, socket.id);
+      leaveExistingRoom(io, socket);
     });
   });
 }
-
