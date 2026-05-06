@@ -29,6 +29,7 @@ interface GameStore {
   setError: (error: string | null) => void;
   setInfoMessage: (message: string | null) => void;
   markGameReset: () => void;
+  clearGameReset: () => void;
   setSetupDialog: (isOpen: boolean, mode?: 'create' | 'join') => void;
   resetSession: () => void;
 }
@@ -54,12 +55,17 @@ export const useGameStore = create<GameStore>((set) => ({
   },
   setMyPlayerId: (myPlayerId) => set({ myPlayerId }),
   setRoomState: (roomState) => set({ roomState }),
-  setGameState: (gameState) => set({ gameState }),
+  setGameState: (gameState) =>
+    set((state) => ({
+      gameState,
+      lastResetAt: gameState ? 0 : state.lastResetAt,
+    })),
   setIsConnected: (isConnected) => set({ isConnected }),
   setJoinedRoom: (joinedRoom) => set({ joinedRoom }),
   setError: (error) => set({ error }),
   setInfoMessage: (infoMessage) => set({ infoMessage }),
   markGameReset: () => set({ gameState: null, lastResetAt: Date.now() }),
+  clearGameReset: () => set({ lastResetAt: 0 }),
   setSetupDialog: (isOpen, mode) => set((state) => ({ 
     isSetupDialogOpen: isOpen, 
     setupDialogMode: mode ?? state.setupDialogMode 

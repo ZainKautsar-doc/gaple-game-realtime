@@ -195,7 +195,10 @@ export function setupSocketHandlers(io: Server) {
       const parsed = createRoomSchema.safeParse(payload);
       if (!parsed.success) {
         socket.emit(SOCKET_EVENTS.JOIN_FAILED, {
-          message: parsed.error.issues[0]?.message ?? 'Data room tidak valid.',
+          message:
+            parsed.error.issues
+              .map((issue) => issue.message)
+              .find(Boolean) ?? 'Data room tidak valid.',
         });
         return;
       }

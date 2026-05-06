@@ -35,6 +35,7 @@ export function useGame() {
     setError,
     setInfoMessage,
     markGameReset,
+    clearGameReset,
     resetSession,
   } = useGameStore();
   const {
@@ -70,6 +71,7 @@ export function useGame() {
       setJoinedRoom(true);
       setError(null);
       setInfoMessage(null);
+      clearGameReset();
       setSubmitting(false);
     };
 
@@ -92,6 +94,9 @@ export function useGame() {
     };
 
     const handleRoomState = (nextRoomState: RoomState) => {
+      if (nextRoomState.status === 'playing') {
+        clearGameReset();
+      }
       setRoomState(nextRoomState);
     };
 
@@ -164,6 +169,7 @@ export function useGame() {
   }, [
     addMessage,
     clearChat,
+    clearGameReset,
     markGameReset,
     setError,
     setGameState,
