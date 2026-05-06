@@ -293,7 +293,7 @@ export default function GamePage() {
           )}
         </div>
 
-        <div>
+        <div className="xl:sticky xl:top-6 h-fit">
           <ChatBox
             title="Table Chat"
             messages={messages}

@@ -91,14 +91,16 @@ export default function LobbyPage() {
           />
         </div>
 
-        <ChatBox
-          title="Lobby Chat"
-          messages={messages}
-          typingPlayers={typingPlayers}
-          currentPlayerId={myPlayerId}
-          onSendMessage={sendChatMessage}
-          onTypingChange={setTyping}
-        />
+        <div className="xl:sticky xl:top-8 h-fit">
+          <ChatBox
+            title="Lobby Chat"
+            messages={messages}
+            typingPlayers={typingPlayers}
+            currentPlayerId={myPlayerId}
+            onSendMessage={sendChatMessage}
+            onTypingChange={setTyping}
+          />
+        </div>
       </div>
     </main>
   );
