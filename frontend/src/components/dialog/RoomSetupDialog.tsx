@@ -10,7 +10,6 @@ import {
   RefreshCcw,
   Search,
   Shield,
-  Users,
   X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -50,7 +49,6 @@ export function RoomSetupDialog({
   const [playerName, setPlayerName] = useState(savedNickname);
   const [roomName, setRoomName] = useState('');
   const [roomType, setRoomType] = useState<'public' | 'private'>('public');
-  const [maxPlayers, setMaxPlayers] = useState<2 | 3 | 4>(4);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -121,7 +119,6 @@ export function RoomSetupDialog({
       roomName: trimmedRoomName,
       type: roomType,
       password: roomType === 'private' ? trimmedPassword : undefined,
-      maxPlayers,
     });
   };
 
@@ -300,27 +297,6 @@ export function RoomSetupDialog({
                               </div>
                             </div>
 
-                            <div>
-                              <label className="text-sm font-medium text-slate-200">Max Players</label>
-                              <div className="mt-2 grid grid-cols-3 gap-3">
-                                {[2, 3, 4].map((count) => (
-                                  <button
-                                    key={count}
-                                    type="button"
-                                    className={`rounded-2xl border px-4 py-4 text-center transition ${
-                                      maxPlayers === count
-                                        ? 'border-secondary/40 bg-secondary/15 text-white'
-                                        : 'border-white/10 bg-black/10 text-slate-300 hover:bg-white/5'
-                                    }`}
-                                    onClick={() => setMaxPlayers(count as 2 | 3 | 4)}
-                                  >
-                                    <Users className="mx-auto h-4 w-4" />
-                                    <p className="mt-2 font-semibold">{count} Player</p>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-
                             {roomType === 'private' && (
                               <>
                                 <div>
@@ -389,7 +365,7 @@ export function RoomSetupDialog({
                             </div>
                             <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
                               <p className="text-xs text-slate-400">Maksimal</p>
-                              <p className="mt-1 font-semibold text-white">{maxPlayers} pemain</p>
+                              <p className="mt-1 font-semibold text-white">4 pemain</p>
                             </div>
                           </div>
                           <div className="rounded-2xl border border-brand/25 bg-brand/10 p-4">

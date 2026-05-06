@@ -8,7 +8,6 @@ export const createRoomSchema = z
     roomName: z.string().trim().max(30).optional().or(z.literal('')),
     type: z.enum(['public', 'private']),
     password: z.string().min(4).max(30).optional(),
-    maxPlayers: z.union([z.literal(2), z.literal(3), z.literal(4)]),
   })
   .superRefine((value, ctx) => {
     if (value.type === 'private' && !value.password?.trim()) {

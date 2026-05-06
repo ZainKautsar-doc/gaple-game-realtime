@@ -40,7 +40,7 @@ const features = [
 
 const steps = [
   'Masukkan nama pemain lalu pilih mau buat room atau join room.',
-  'Kalau bikin room, tentukan public/private, kapasitas, dan password bila perlu.',
+  'Kalau bikin room, tentukan public/private, lalu isi password kalau room-nya private.',
   'Semua pemain masuk ke lobby, ready satu-satu, lalu host mulai pertandingan.',
   'Pasang kartu ke sisi kiri atau kanan. Kalau mentok, gunakan pass.',
   'Game selesai saat ada tangan habis atau semua pemain pass berturut-turut.',

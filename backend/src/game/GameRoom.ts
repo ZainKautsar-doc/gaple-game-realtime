@@ -27,13 +27,11 @@ interface CreateRoomOptions {
   code: string;
   type: RoomType;
   password?: string;
-  maxPlayers: 2 | 3 | 4;
+  maxPlayers: 4;
   createdAt?: number;
 }
 
-const POSITION_POOLS: Record<2 | 3 | 4, PlayerPosition[]> = {
-  2: ['south', 'north'],
-  3: ['south', 'west', 'east'],
+const POSITION_POOLS: Record<4, PlayerPosition[]> = {
   4: ['south', 'west', 'north', 'east'],
 };
 
@@ -46,7 +44,7 @@ export class GameRoom {
 
   readonly type: RoomType;
 
-  readonly maxPlayers: 2 | 3 | 4;
+  readonly maxPlayers: 4;
 
   readonly createdAt: number;
 
@@ -212,7 +210,7 @@ export class GameRoom {
   canStartGame(): boolean {
     return (
       this.gameState.status === 'waiting' &&
-      this.gameState.players.length >= 2 &&
+      this.gameState.players.length === this.maxPlayers &&
       this.gameState.players.every((player) => player.isReady)
     );
   }
@@ -226,7 +224,7 @@ export class GameRoom {
     if (!this.canStartGame()) {
       return {
         success: false,
-        error: 'Semua pemain harus siap dan minimal ada 2 pemain.',
+        error: 'Game hanya bisa dimulai jika room sudah penuh dan semua pemain siap.',
       };
     }
 
@@ -573,7 +571,11 @@ export class GameRoom {
     }
 
     const readyCount = this.gameState.players.filter((player) => player.isReady).length;
-    return `${readyCount}/${this.gameState.players.length} pemain siap. Host bisa mulai saat semua ready.`;
+    if (this.gameState.players.length < this.maxPlayers) {
+      return `Menunggu ${this.maxPlayers - this.gameState.players.length} pemain lagi. ${readyCount}/${this.gameState.players.length} pemain sudah ready.`;
+    }
+
+    return `${readyCount}/${this.maxPlayers} pemain siap. Host bisa mulai saat semua ready.`;
   }
 
   private createMove(input: Omit<GameMove, 'id' | 'timestamp'>): GameMove {

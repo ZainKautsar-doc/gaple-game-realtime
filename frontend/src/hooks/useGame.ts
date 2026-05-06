@@ -187,7 +187,7 @@ export function useGame() {
   const isHost = roomState?.hostId === myPlayerId;
   const everyoneReady =
     !!roomState &&
-    roomState.players.length >= 2 &&
+    roomState.players.length === roomState.maxPlayers &&
     roomState.players.every((player) => player.isReady);
 
   const ensureConnected = useCallback(() => {
@@ -201,7 +201,6 @@ export function useGame() {
     roomName?: string;
     type: 'public' | 'private';
     password?: string;
-    maxPlayers: 2 | 3 | 4;
   }) => {
     ensureConnected();
     setSubmitting(true);

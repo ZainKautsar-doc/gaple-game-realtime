@@ -10,7 +10,7 @@ export interface RoomState {
   type: RoomType;
   status: GameStatus;
   hostId: string | null;
-  maxPlayers: 2 | 3 | 4;
+  maxPlayers: 4;
   players: PublicPlayer[];
   currentPlayers: number;
   createdAt: number;
@@ -24,7 +24,7 @@ export interface RoomSummary {
   type: RoomType;
   status: GameStatus;
   currentPlayers: number;
-  maxPlayers: 2 | 3 | 4;
+  maxPlayers: 4;
   createdAt: number;
 }
 

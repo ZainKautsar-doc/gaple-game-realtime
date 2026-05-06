@@ -209,7 +209,7 @@ export function setupSocketHandlers(io: Server) {
         code: roomCode,
         type: parsed.data.type,
         password: parsed.data.password?.trim(),
-        maxPlayers: parsed.data.maxPlayers,
+        maxPlayers: 4,
       });
 
       rooms.set(room.id, room);

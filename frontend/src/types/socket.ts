@@ -30,7 +30,6 @@ export interface ClientToServerEvents {
     roomName?: string;
     type: 'public' | 'private';
     password?: string;
-    maxPlayers: 2 | 3 | 4;
   }) => void;
   'join-room': (payload: {
     roomCode: string;

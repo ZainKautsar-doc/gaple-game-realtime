@@ -172,7 +172,7 @@ export default function LobbyPage() {
             )}
             {isHost && !everyoneReady && (
               <p className="self-center text-sm text-slate-400">
-                Tunggu semua pemain siap dulu sebelum memulai.
+                Tunggu room penuh dan semua pemain siap dulu sebelum memulai.
               </p>
             )}
             {isHost && (
