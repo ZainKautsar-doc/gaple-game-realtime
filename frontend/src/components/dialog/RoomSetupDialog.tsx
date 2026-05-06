@@ -119,26 +119,15 @@ export function RoomSetupDialog({ isOpen, onClose, defaultMode = 'create' }: Roo
                   />
                 </div>
 
+                {/* Mode Create forced to 4 players per request */}
                 {mode === 'create' && (
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-300">Mau Berapa Orang?</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {[2, 3, 4].map((num) => (
-                        <button
-                          key={num}
-                          type="button"
-                          onClick={() => setPlayerCount(num)}
-                          className={`flex items-center justify-center gap-2 rounded-lg border py-2 text-sm transition-all ${
-                            playerCount === num
-                              ? 'border-brand-light bg-brand/10 text-brand-light font-bold'
-                              : 'border-white/10 bg-white/5 text-slate-400 hover:bg-white/10'
-                          }`}
-                        >
-                          <Users className="h-4 w-4" />
-                          {num}
-                        </button>
-                      ))}
+                    <label className="text-sm font-medium text-slate-300">Kapasitas Meja</label>
+                    <div className="flex items-center gap-3 rounded-lg border border-brand-light/20 bg-brand/5 p-3">
+                      <Users className="h-5 w-5 text-brand-light" />
+                      <span className="text-sm font-bold text-white">4 Orang (Standard)</span>
                     </div>
+                    <p className="text-[10px] text-slate-500 italic">Meja bakal auto-gas pas udah penuh 4 orang.</p>
                   </div>
                 )}
 

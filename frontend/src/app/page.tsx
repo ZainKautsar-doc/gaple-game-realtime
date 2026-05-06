@@ -73,7 +73,7 @@ export default function LandingPage() {
           </div>
           <h1 className="font-[var(--font-display)] text-6xl font-bold leading-tight tracking-tight text-white md:text-8xl">
             GAPLE <br className="md:hidden" />
-            <span className="bg-gradient-to-r from-brand-light to-white bg-clip-text text-transparent">
+            <span className="text-brand-light drop-shadow-[0_0_20px_rgba(74,144,226,0.6)]">
               ARENA
             </span>
           </h1>

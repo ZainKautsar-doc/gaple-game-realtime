@@ -13,13 +13,14 @@ import { RoomSetupDialog } from '@/components/dialog/RoomSetupDialog';
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  const { nickname, isSetupDialogOpen, setupDialogMode, setSetupDialog } = useGameStore();
+  const { nickname, setNickname, isSetupDialogOpen, setupDialogMode, setSetupDialog } = useGameStore();
   const { leaveRoom } = useGame();
   const router = useRouter();
   const pathname = usePathname();
 
   const handleLeave = () => {
     leaveRoom();
+    setNickname('');
     router.push('/');
   };
 

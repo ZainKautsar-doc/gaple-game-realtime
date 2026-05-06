@@ -93,21 +93,21 @@ export function DominoCard({
       onClick={interactive ? onClick : undefined}
       disabled={disabled}
       className={cn(
-        'relative overflow-hidden rounded-2xl border-2 bg-gradient-to-br from-slate-100 via-slate-50 to-slate-200 text-slate-900 transition',
+        'relative overflow-hidden rounded-2xl border-2 bg-gradient-to-br from-white via-slate-50 to-slate-200 text-slate-900 transition-all duration-300',
         sizeClasses[size],
         interactive ? 'cursor-pointer' : 'cursor-default',
         canPlay
-          ? 'border-mint shadow-[0_0_24px_rgba(61,245,191,0.35)]'
+          ? 'border-brand-light shadow-[0_0_24px_rgba(74,144,226,0.4)]'
           : 'border-slate-300/90',
-        selected && 'border-gold shadow-[0_0_24px_rgba(255,214,107,0.35)]',
-        disabled && 'opacity-60',
+        selected && 'border-gold shadow-[0_0_24px_rgba(255,214,107,0.4)] scale-[1.05] z-10',
+        disabled && 'opacity-60 grayscale-[0.5]',
         className
       )}
       aria-label={`Domino ${card.left}-${card.right}`}
     >
       {faceDown ? (
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(61,245,191,0.45),_transparent_35%),linear-gradient(135deg,_#0d1a22,_#14303d)]">
-          <div className="h-full w-full bg-grid bg-[length:16px_16px] opacity-25" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(6,83,182,0.4),_transparent_40%),linear-gradient(135deg,_#0a1219,_#152938)]">
+          <div className="h-full w-full bg-grid bg-[length:16px_16px] opacity-20" />
         </div>
       ) : (
         <div className="flex h-full flex-col">
@@ -117,7 +117,7 @@ export function DominoCard({
       )}
 
       {canPlay && (
-        <div className="pointer-events-none absolute inset-0 bg-mint/10 animate-pulse" />
+        <div className="pointer-events-none absolute inset-0 bg-brand-light/5 animate-pulse" />
       )}
     </motion.button>
   );
