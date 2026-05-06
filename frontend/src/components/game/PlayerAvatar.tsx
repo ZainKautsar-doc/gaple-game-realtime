@@ -23,18 +23,21 @@ export function PlayerAvatar({
     return (
       <div
         className={cn(
-          'rounded-3xl border border-dashed border-white/10 bg-white/[0.03] p-4',
+          'relative overflow-hidden rounded-3xl border border-dashed border-white/10 bg-white/[0.02] p-4',
           className
         )}
       >
-        <p className="text-xs uppercase tracking-[0.25em] text-slate-500">
+        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-brand/10 to-transparent" />
+        <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">
           {seatLabel}
         </p>
-        <div className="mt-3 flex items-center gap-3">
-          <Avatar className="border-dashed bg-transparent text-slate-500">?</Avatar>
-          <div>
-            <p className="font-semibold text-slate-400">Kursi kosong</p>
-            <p className="text-sm text-slate-500">Menunggu pemain join</p>
+        <div className="mt-3 flex items-center gap-3 opacity-50">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-dashed border-slate-700 bg-slate-900/50">
+            <span className="text-slate-600">?</span>
+          </div>
+          <div className="space-y-2">
+            <div className="h-4 w-24 rounded bg-slate-800/50" />
+            <div className="h-3 w-32 rounded bg-slate-900/50" />
           </div>
         </div>
       </div>
@@ -44,43 +47,42 @@ export function PlayerAvatar({
   return (
     <div
       className={cn(
-        'rounded-3xl border bg-white/[0.04] p-4 transition',
+        'rounded-3xl border bg-white/[0.04] p-4 transition-all duration-300',
         isCurrentTurn
-          ? 'border-mint/70 shadow-[0_0_28px_rgba(61,245,191,0.2)] animate-pulseGlow'
+          ? 'border-brand-light shadow-[0_0_28px_rgba(74,144,226,0.3)]'
           : 'border-white/10',
         className
       )}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <Avatar>{getInitials(player.nickname)}</Avatar>
+          <Avatar className="border-2 border-white/10">{getInitials(player.nickname)}</Avatar>
           <div>
-            <p className="text-xs uppercase tracking-[0.25em] text-slate-500">
+            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">
               {seatLabel}
             </p>
-            <p className="font-semibold text-white">
-              {player.nickname} {isSelf ? '(Kamu)' : ''}
+            <p className="font-bold text-white leading-tight">
+              {player.nickname} {isSelf ? <span className="text-brand-light ml-1 text-[10px] underline underline-offset-4">LU CUY</span> : ''}
             </p>
           </div>
         </div>
-        <Badge className="border-white/15 bg-white/8">{player.cardCount} kartu</Badge>
+        <Badge className="border-white/10 bg-white/5 text-[10px] font-black">{player.cardCount} KARTU</Badge>
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
         {isCurrentTurn && (
-          <Badge className="border-mint/30 bg-mint/10 text-mint">Giliran</Badge>
+          <Badge className="border-brand-light/30 bg-brand-light/10 text-brand-light font-black animate-pulse">LAGI JALAN</Badge>
         )}
         {player.hasPassed && (
-          <Badge className="border-amber-400/30 bg-amber-400/10 text-amber-200">
-            Pass
+          <Badge className="border-amber-400/30 bg-amber-400/10 text-amber-200 font-bold italic">
+            PASS
           </Badge>
         )}
         {!player.isConnected && (
-          <Badge className="border-rose-400/30 bg-rose-400/10 text-rose-100">
-            Offline
+          <Badge className="border-rose-400/30 bg-rose-400/10 text-rose-100 font-bold">
+            DC
           </Badge>
         )}
       </div>
     </div>
   );
 }
-

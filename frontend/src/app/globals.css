@@ -18,12 +18,12 @@ body {
   margin: 0;
   min-height: 100vh;
   color: #e7f5f7;
-  background-color: #071117;
+  background-color: #050a0f;
   background-image:
-    radial-gradient(circle at 20% 20%, rgba(61, 245, 191, 0.12), transparent 34%),
-    radial-gradient(circle at 80% 10%, rgba(110, 243, 255, 0.16), transparent 30%),
-    radial-gradient(circle at 50% 100%, rgba(255, 159, 103, 0.1), transparent 40%),
-    linear-gradient(135deg, #071117 0%, #091a22 42%, #041016 100%);
+    radial-gradient(circle at 20% 20%, rgba(6, 83, 182, 0.15), transparent 34%),
+    radial-gradient(circle at 80% 10%, rgba(74, 144, 226, 0.2), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(57, 255, 20, 0.05), transparent 40%),
+    linear-gradient(135deg, #050a0f 0%, #0a1219 42%, #03080c 100%);
 }
 
 body::before {
@@ -31,12 +31,12 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.18;
+  opacity: 0.15;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 72px 72px;
-  mask-image: radial-gradient(circle at center, black, transparent 80%);
+  mask-image: radial-gradient(circle at center, black, transparent 85%);
 }
 
 a {
@@ -49,7 +49,7 @@ a {
   h2,
   h3,
   h4 {
-    letter-spacing: -0.03em;
+    letter-spacing: -0.02em;
   }
 }
 
@@ -59,7 +59,7 @@ a {
   }
 
   .section-shell {
-    @apply glass-panel shadow-neon;
+    @apply glass-panel shadow-2xl;
   }
 }
 
@@ -80,4 +80,3 @@ a {
     @apply rounded-full bg-white/10 hover:bg-white/20 transition-colors;
   }
 }
-

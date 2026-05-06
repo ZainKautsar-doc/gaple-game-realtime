@@ -18,7 +18,7 @@ interface ChatBoxProps {
 }
 
 export function ChatBox({
-  title = 'Room Chat',
+  title = 'Bacotan Meja',
   messages,
   typingPlayers,
   currentPlayerId,
@@ -75,16 +75,16 @@ export function ChatBox({
   );
 
   return (
-    <Card className="section-shell flex h-full flex-col">
+    <Card className="section-shell flex h-full flex-col border-white/10 bg-[#0a1219]/80 backdrop-blur-xl overflow-hidden">
       <CardHeader className="pb-4">
-        <CardTitle>{title}</CardTitle>
+        <CardTitle className="text-white font-[var(--font-display)] text-xl tracking-tight">{title}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-4">
         <div className="flex max-h-[400px] min-h-[400px] flex-1 flex-col gap-3 overflow-y-auto rounded-[28px] border border-white/10 bg-black/20 p-4 custom-scrollbar">
           {messages.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center text-center">
-              <p className="text-sm text-slate-400">
-                Belum ada chat. Pecah suasana meja dulu.
+            <div className="flex h-full flex-col items-center justify-center text-center p-6">
+              <p className="text-sm text-slate-500 font-medium italic">
+                Belum ada bacotan nih. <br/> Pecah suasana meja dulu cuy!
               </p>
             </div>
           ) : (
@@ -97,9 +97,9 @@ export function ChatBox({
                   return (
                     <div
                       key={message.id}
-                      className="mx-auto rounded-full border border-white/5 bg-white/[0.05] px-4 py-1 text-[11px] font-medium uppercase tracking-wider text-slate-400"
+                      className="mx-auto rounded-full border border-white/5 bg-white/[0.05] px-4 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-500"
                     >
-                      {message.message}
+                      {message.message.replace('telah bergabung', 'masuk meja').replace('telah keluar', 'cabut')}
                     </div>
                   );
                 }
@@ -111,20 +111,20 @@ export function ChatBox({
                   >
                     <div className={`flex max-w-[85%] flex-col gap-1 ${isMe ? 'items-end' : 'items-start'}`}>
                       {!isMe && (
-                        <p className="px-1 text-[11px] font-semibold text-slate-400">
+                        <p className="px-1 text-[10px] font-black text-brand-light opacity-80">
                           {message.nickname}
                         </p>
                       )}
                       <div
-                        className={`rounded-2xl px-4 py-2 text-sm shadow-sm transition-all ${
+                        className={`rounded-2xl px-4 py-2 text-sm shadow-md transition-all ${
                           isMe
-                            ? 'rounded-tr-none bg-gradient-to-br from-mint/30 via-mint/20 to-mint/10 text-mint border border-mint/30 shadow-mint/10 hover:shadow-mint/20'
-                            : 'rounded-tl-none bg-white/[0.07] text-white border border-white/10 shadow-black/20 hover:bg-white/[0.1]'
+                            ? 'rounded-tr-none bg-brand text-white border border-brand-light/30 shadow-brand/10'
+                            : 'rounded-tl-none bg-white/[0.07] text-slate-200 border border-white/10'
                         }`}
                       >
                         {message.message}
                       </div>
-                      <span className="px-1 text-[10px] text-slate-500">
+                      <span className="px-1 text-[9px] font-bold text-slate-600">
                         {formatTime(message.timestamp)}
                       </span>
                     </div>
@@ -134,8 +134,8 @@ export function ChatBox({
             </div>
           )}
           {visibleTypingPlayers.length > 0 && (
-            <p className="animate-pulse text-xs text-aqua/70 italic">
-              {visibleTypingPlayers.map((player) => player.nickname).join(', ')} sedang mengetik...
+            <p className="animate-pulse text-[11px] text-brand-light font-bold italic px-2">
+              {visibleTypingPlayers.map((player) => player.nickname).join(', ')} lagi ngetik...
             </p>
           )}
           <div ref={messagesEndRef} />
@@ -145,8 +145,8 @@ export function ChatBox({
           <Textarea
             value={draft}
             onChange={(event) => handleDraftChange(event.target.value)}
-            placeholder="Ketik pesan ke meja..."
-            className="min-h-[96px]"
+            placeholder="Ketik bacotan lu..."
+            className="min-h-[96px] border-white/10 bg-white/5 focus:border-brand-light transition-all rounded-2xl"
             onKeyDown={(event) => {
               if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
@@ -155,12 +155,12 @@ export function ChatBox({
             }}
           />
           <Button
-            className="w-full"
+            className="w-full bg-brand hover:bg-brand-light text-white font-black rounded-xl border-none shadow-lg shadow-brand/20 transition-all"
             onClick={submitMessage}
             disabled={!draft.trim()}
           >
             <SendHorizontal className="mr-2 h-4 w-4" />
-            Kirim pesan
+            GAS KIRIM
           </Button>
         </div>
       </CardContent>

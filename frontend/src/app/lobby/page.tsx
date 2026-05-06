@@ -45,38 +45,39 @@ export default function LobbyPage() {
   }
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-7xl px-6 py-8">
+    <main className="mx-auto min-h-screen w-full max-w-7xl px-6 py-8 bg-[#050a0f]">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="text-sm uppercase tracking-[0.24em] text-slate-500">
-            Waiting Room
+          <p className="text-sm font-bold uppercase tracking-[0.24em] text-brand-light">
+            Lagi Nunggu Nih
           </p>
           <h1 className="mt-2 font-[var(--font-display)] text-4xl font-bold text-white">
-            Halo, {nickname}
+            Woi, {nickname}!
           </h1>
         </div>
         <div className="flex flex-wrap gap-3">
           {!joinedRoom && (
-            <Button variant="secondary" onClick={joinMainRoom}>
+            <Button variant="secondary" onClick={joinMainRoom} className="rounded-full border-brand/50 text-brand-light">
               <RefreshCcw className="mr-2 h-4 w-4" />
-              Coba Join Lagi
+              Gas Lagi Cuy
             </Button>
           )}
           <Button
             variant="danger"
+            className="rounded-full shadow-lg shadow-rose-500/20"
             onClick={() => {
               leaveRoom();
               router.replace('/');
             }}
           >
             <LogOut className="mr-2 h-4 w-4" />
-            Leave Room
+            Cabut Dulu
           </Button>
         </div>
       </div>
 
       {error && (
-        <div className="mb-6 rounded-2xl border border-rose-400/30 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
+        <div className="mb-6 rounded-2xl border border-rose-400/30 bg-rose-400/10 px-4 py-3 text-sm text-rose-100 font-medium">
           {error}
         </div>
       )}
@@ -93,7 +94,7 @@ export default function LobbyPage() {
 
         <div className="xl:sticky xl:top-8 h-fit">
           <ChatBox
-            title="Lobby Chat"
+            title="Bacotan Lobby"
             messages={messages}
             typingPlayers={typingPlayers}
             currentPlayerId={myPlayerId}
@@ -105,4 +106,3 @@ export default function LobbyPage() {
     </main>
   );
 }
-

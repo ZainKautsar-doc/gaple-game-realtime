@@ -13,12 +13,15 @@ const config: Config = {
         neon: '0 0 40px rgba(61, 245, 191, 0.25)',
       },
       colors: {
-        ink: '#071117',
-        panel: '#0d1a22',
-        line: '#183342',
-        mint: '#3df5bf',
-        aqua: '#6ef3ff',
-        ember: '#ff9f67',
+        ink: '#050a0f',
+        panel: '#0a1219',
+        line: '#152938',
+        brand: {
+          DEFAULT: '#0653b6',
+          light: '#4a90e2',
+          dark: '#043b82',
+        },
+        accent: '#39FF14', // Keeping a bit of neon green as secondary accent if needed, or I can use silver/white
         gold: '#ffd66b',
       },
       backgroundImage: {
@@ -42,6 +45,9 @@ const config: Config = {
           '0%': { transform: 'translate3d(-5%, 0, 0)' },
           '50%': { transform: 'translate3d(5%, -4%, 0)' },
           '100%': { transform: 'translate3d(-5%, 0, 0)' },
+        },
+        shimmer: {
+          '100%': { transform: 'translateX(100%)' },
         },
       },
     },

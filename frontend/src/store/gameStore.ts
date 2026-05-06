@@ -16,6 +16,8 @@ interface GameStore {
   isConnected: boolean;
   joinedRoom: boolean;
   error: string | null;
+  isSetupDialogOpen: boolean;
+  setupDialogMode: 'create' | 'join';
   setNickname: (nickname: string) => void;
   setMyPlayerId: (playerId: string | null) => void;
   setRoomState: (roomState: RoomState | null) => void;
@@ -23,6 +25,7 @@ interface GameStore {
   setIsConnected: (isConnected: boolean) => void;
   setJoinedRoom: (joinedRoom: boolean) => void;
   setError: (error: string | null) => void;
+  setSetupDialog: (isOpen: boolean, mode?: 'create' | 'join') => void;
   resetSession: () => void;
 }
 
@@ -34,6 +37,8 @@ export const useGameStore = create<GameStore>((set) => ({
   isConnected: false,
   joinedRoom: false,
   error: null,
+  isSetupDialogOpen: false,
+  setupDialogMode: 'create',
   setNickname: (nickname) => {
     const trimmedNickname = nickname.slice(0, 18);
     if (typeof window !== 'undefined') {
@@ -47,6 +52,10 @@ export const useGameStore = create<GameStore>((set) => ({
   setIsConnected: (isConnected) => set({ isConnected }),
   setJoinedRoom: (joinedRoom) => set({ joinedRoom }),
   setError: (error) => set({ error }),
+  setSetupDialog: (isOpen, mode) => set((state) => ({ 
+    isSetupDialogOpen: isOpen, 
+    setupDialogMode: mode ?? state.setupDialogMode 
+  })),
   resetSession: () =>
     set({
       myPlayerId: null,
