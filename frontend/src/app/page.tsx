@@ -17,90 +17,86 @@ import { useGameStore } from '@/store/gameStore';
 
 const features = [
   {
-    title: 'Room Public & Private',
-    description: 'Bikin room publik buat open mabar atau room private lengkap password buat sirkel sendiri.',
+    title: 'Public & Private Tables',
+    description: 'Create a public table for anyone to join, or set up a private, password-protected session.',
     icon: Lock,
   },
   {
-    title: 'Realtime Multiplayer',
-    description: 'Semua aksi jalan lewat socket server-authoritative biar state meja tetap sinkron.',
+    title: 'Real-time Multiplayer',
+    description: 'Instant synchronization powered by server-authoritative sockets for a seamless experience.',
     icon: Zap,
   },
   {
-    title: 'Host Controls',
-    description: 'Host bisa atur ready state, mulai game, sampai kick pemain langsung dari lobby.',
+    title: 'Dealer Controls',
+    description: 'Manage players, set readiness states, and control the flow of the game directly from the lobby.',
     icon: Users,
   },
   {
-    title: 'Auto Scoring',
-    description: 'Kalau game mentok, sistem otomatis hitung total poin sisa kartu dan tentukan pemenangnya.',
+    title: 'Automated Scoring',
+    description: 'Precise, automatic end-game calculations based on remaining tile values.',
     icon: BadgeCheck,
   },
 ];
 
 const steps = [
-  'Masukkan nama pemain lalu pilih mau buat room atau join room.',
-  'Kalau bikin room, tentukan public/private, lalu isi password kalau room-nya private.',
-  'Semua pemain masuk ke lobby, ready satu-satu, lalu host mulai pertandingan.',
-  'Pasang kartu ke sisi kiri atau kanan. Kalau mentok, gunakan pass.',
-  'Game selesai saat ada tangan habis atau semua pemain pass berturut-turut.',
+  'Enter your alias and choose to join an active table or host a new one.',
+  'If hosting, determine table visibility (public/private) and set a secure password if needed.',
+  'Players gather in the pre-game lobby, indicate readiness, and wait for the dealer to commence.',
+  'Strategically place your tiles on the board. Use the pass action if you have no valid moves.',
+  'Victory goes to the first player to empty their hand or the one with the lowest score in a block.',
 ];
 
 export default function LandingPage() {
   const { setSetupDialog } = useGameStore();
 
   return (
-    <main className="relative overflow-hidden">
-      <section className="relative mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-7xl items-center px-6 pb-20 pt-20 md:pt-24">
-        <div className="hero-orb left-[-80px] top-10 h-72 w-72 bg-brand/20" />
-        <div className="hero-orb right-0 top-20 h-72 w-72 bg-secondary/15" />
-        <div className="hero-orb bottom-0 left-1/3 h-72 w-72 bg-accent/10" />
+    <main className="relative overflow-hidden bg-casino-bg-primary">
+      {/* Vignette Overlay */}
+      <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(7,40,32,0.8)_100%)]" />
 
+      <section className="relative z-10 mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-7xl items-center px-6 pb-20 pt-20 md:pt-24">
         <div className="grid w-full items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
-            <div className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-4 py-2 text-sm text-brand-light">
+            <div className="inline-flex items-center gap-2 rounded-full border border-casino-gold/30 bg-casino-gold/10 px-4 py-2 text-sm text-casino-gold">
               <Sparkles className="h-4 w-4" />
-              Redesigned multiplayer domino lobby
+              Welcome to the high-stakes table
             </div>
-            <h1 className="mt-6 font-[var(--font-display)] text-5xl font-bold leading-[0.96] text-white md:text-7xl">
-              GAPLE GAME
-              <span className="mt-2 block bg-gradient-to-r from-brand via-white to-secondary bg-clip-text text-transparent">
-                Mabar Online Lebih Niat
-              </span>
+            <h1 className="mt-6 text-5xl font-bold leading-[1.1] text-casino-text-primary md:text-7xl tracking-tight">
+              Experience Classic <br />
+              <span className="text-casino-gold">Domino</span>
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-              Main domino multiplayer dengan room browser, lobby modern, host control, animasi halus,
-              dan sistem skor otomatis saat game mentok.
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-casino-text-secondary">
+              Premium multiplayer domino experience. A sophisticated environment featuring seamless real-time play, precise controls, and elegant table interactions.
             </p>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-              <Button size="lg" className="rounded-full px-7" onClick={() => setSetupDialog(true, 'create')}>
-                Buat Meja
+              <Button variant="primary" size="lg" className="rounded-full px-8" onClick={() => setSetupDialog(true, 'create')}>
+                Create Table
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button
                 size="lg"
                 variant="outline"
-                className="rounded-full px-7"
+                className="rounded-full px-8"
                 onClick={() => setSetupDialog(true, 'join')}
               >
                 <DoorOpen className="mr-2 h-5 w-5" />
-                Ikut Mabar
+                Join Table
               </Button>
             </div>
 
-            <div className="mt-10 grid gap-4 sm:grid-cols-3">
+            <div className="mt-12 grid gap-6 sm:grid-cols-3">
               {[
-                ['2K+', 'Player siap mabar'],
-                ['Public', 'Browser room instan'],
-                ['Smooth', 'Animasi dan flow baru'],
+                ['2K+', 'Active Players'],
+                ['Global', 'Public Tables'],
+                ['Premium', 'Smooth Flow'],
               ].map(([value, label]) => (
-                <div key={label} className="rounded-[28px] border border-white/10 bg-white/5 p-4">
-                  <p className="font-[var(--font-display)] text-3xl font-bold text-white">{value}</p>
-                  <p className="mt-1 text-sm text-slate-400">{label}</p>
+                <div key={label} className="casino-card text-center py-6 px-4">
+                  <p className="text-3xl font-bold text-casino-gold">{value}</p>
+                  <p className="mt-2 text-sm text-casino-text-secondary font-medium tracking-wide uppercase">{label}</p>
                 </div>
               ))}
             </div>
@@ -112,51 +108,51 @@ export default function LandingPage() {
             transition={{ duration: 0.7, delay: 0.1 }}
             className="relative"
           >
-            <div className="rounded-[36px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.35)] backdrop-blur-2xl">
+            <div className="casino-card p-6 border-casino-gold/40 shadow-casino-lg">
               <div className="grid gap-4">
-                <div className="rounded-[28px] border border-white/10 bg-black/15 p-5">
+                <div className="rounded-[16px] border border-casino-gold/20 bg-casino-bg-secondary p-5">
                   <div className="flex items-center justify-between gap-4">
                     <div>
-                      <p className="text-sm text-slate-400">Room Setup</p>
-                      <p className="mt-1 text-xl font-semibold text-white">Friday Night Gaple</p>
+                      <p className="text-sm font-medium text-casino-text-muted uppercase tracking-wider">Table Configuration</p>
+                      <p className="mt-1 text-xl font-semibold text-casino-text-primary">High Roller Suite</p>
                     </div>
-                    <span className="rounded-full border border-brand/20 bg-brand/10 px-3 py-1 text-xs text-brand-light">
+                    <span className="rounded-full border border-casino-gold/30 bg-casino-gold/10 px-3 py-1 text-xs font-semibold text-casino-gold">
                       Private
                     </span>
                   </div>
-                  <div className="mt-4 grid grid-cols-3 gap-3">
-                    <div className="rounded-2xl border border-white/10 bg-white/5 p-3 text-center">
-                      <Users className="mx-auto h-4 w-4 text-brand-light" />
-                      <p className="mt-2 text-sm font-medium text-white">4 player</p>
+                  <div className="mt-5 grid grid-cols-3 gap-3">
+                    <div className="rounded-xl border border-casino-gold/15 bg-casino-bg-surface p-3 text-center transition-colors hover:border-casino-gold/40">
+                      <Users className="mx-auto h-5 w-5 text-casino-gold" />
+                      <p className="mt-2 text-xs font-semibold text-casino-text-primary">4 Players</p>
                     </div>
-                    <div className="rounded-2xl border border-white/10 bg-white/5 p-3 text-center">
-                      <Layers3 className="mx-auto h-4 w-4 text-secondary" />
-                      <p className="mt-2 text-sm font-medium text-white">Lobby ready</p>
+                    <div className="rounded-xl border border-casino-gold/15 bg-casino-bg-surface p-3 text-center transition-colors hover:border-casino-gold/40">
+                      <Layers3 className="mx-auto h-5 w-5 text-casino-brass" />
+                      <p className="mt-2 text-xs font-semibold text-casino-text-primary">Ready</p>
                     </div>
-                    <div className="rounded-2xl border border-white/10 bg-white/5 p-3 text-center">
-                      <Lock className="mx-auto h-4 w-4 text-accent" />
-                      <p className="mt-2 text-sm font-medium text-white">Password</p>
+                    <div className="rounded-xl border border-casino-gold/15 bg-casino-bg-surface p-3 text-center transition-colors hover:border-casino-gold/40">
+                      <Lock className="mx-auto h-5 w-5 text-casino-gold-light" />
+                      <p className="mt-2 text-xs font-semibold text-casino-text-primary">Secured</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="rounded-[28px] border border-brand/20 bg-brand/10 p-5">
-                  <div className="flex items-center gap-3">
-                    <Gamepad2 className="h-5 w-5 text-brand-light" />
-                    <p className="text-sm text-slate-100">
-                      End-game otomatis menghitung poin terkecil sebagai pemenang dan balik ke lobby.
+                <div className="rounded-[16px] border border-casino-gold/30 bg-[linear-gradient(135deg,rgba(212,175,55,0.1),rgba(184,148,31,0.05))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+                  <div className="flex items-center gap-4">
+                    <Gamepad2 className="h-6 w-6 text-casino-gold" />
+                    <p className="text-sm font-medium text-casino-text-primary">
+                      Elegant interface, smooth card placements, and clear, decisive turn indicators.
                     </p>
                   </div>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
-                  <div className="rounded-[28px] border border-white/10 bg-white/5 p-5">
-                    <p className="text-sm text-slate-400">Turn Indicator</p>
-                    <p className="mt-2 text-lg font-semibold text-white">Giliran Budi</p>
+                  <div className="rounded-[16px] border border-casino-gold/20 bg-casino-bg-secondary p-5">
+                    <p className="text-xs font-medium uppercase tracking-wider text-casino-text-muted">Turn Indicator</p>
+                    <p className="mt-2 text-lg font-bold text-casino-gold">Player 1&apos;s Turn</p>
                   </div>
-                  <div className="rounded-[28px] border border-white/10 bg-white/5 p-5">
-                    <p className="text-sm text-slate-400">Score Preview</p>
-                    <p className="mt-2 font-mono text-lg font-semibold text-white">7 - 11 - 16 - 23</p>
+                  <div className="rounded-[16px] border border-casino-gold/20 bg-casino-bg-secondary p-5">
+                    <p className="text-xs font-medium uppercase tracking-wider text-casino-text-muted">Score Standings</p>
+                    <p className="mt-2 font-mono text-lg font-semibold text-casino-text-primary">7 - 11 - 16 - 23</p>
                   </div>
                 </div>
               </div>
@@ -165,51 +161,49 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="features" className="mx-auto max-w-7xl px-6 py-20">
-        <div className="mb-10 flex items-end justify-between gap-6">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.32em] text-brand-light">Feature</p>
-            <h2 className="mt-3 font-[var(--font-display)] text-3xl font-bold text-white md:text-5xl">
-              Upgrade yang bikin flow main jauh lebih enak
-            </h2>
-          </div>
+      <section id="features" className="relative z-10 mx-auto max-w-7xl px-6 py-24 border-t border-casino-gold/10">
+        <div className="mb-12 flex flex-col gap-4 text-center">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-casino-gold">Premium Features</p>
+          <h2 className="text-3xl font-bold text-casino-text-primary md:text-4xl">
+            Refined mechanics for serious play
+          </h2>
         </div>
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
-              <motion.div
+               <motion.div
                 key={feature.title}
                 initial={{ opacity: 0, y: 18 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.45, delay: index * 0.08 }}
-                className="rounded-[30px] border border-white/10 bg-white/5 p-6 transition hover:-translate-y-1 hover:border-brand/25 hover:bg-white/[0.07]"
+                className="casino-card"
               >
-                <div className="inline-flex rounded-2xl border border-white/10 bg-black/20 p-3">
-                  <Icon className="h-5 w-5 text-brand-light" />
+                <div className="mb-5 inline-flex rounded-xl border border-casino-gold/20 bg-casino-bg-secondary p-3">
+                  <Icon className="h-6 w-6 text-casino-gold" />
                 </div>
-                <h3 className="mt-5 text-xl font-semibold text-white">{feature.title}</h3>
-                <p className="mt-3 text-sm leading-7 text-slate-400">{feature.description}</p>
+                <h3 className="text-xl font-bold text-casino-text-primary">{feature.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-casino-text-secondary">{feature.description}</p>
               </motion.div>
             );
           })}
         </div>
       </section>
 
-      <section id="how-to-play" className="mx-auto max-w-7xl px-6 py-20">
-        <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+      <section id="how-to-play" className="relative z-10 mx-auto max-w-7xl px-6 py-24 border-t border-casino-gold/10">
+        <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] items-center">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.32em] text-brand-light">How to Play</p>
-            <h2 className="mt-3 font-[var(--font-display)] text-3xl font-bold text-white md:text-5xl">
-              Dari bikin room sampai hitung skor
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-casino-gold">How to Play</p>
+            <h2 className="mt-3 text-3xl font-bold text-casino-text-primary md:text-4xl leading-tight">
+              From table selection to victory calculation
             </h2>
-            <p className="mt-5 text-slate-400">
-              Flow baru sengaja dibuat lebih jelas: join lebih gampang, lobby lebih informatif, dan hasil akhir lebih transparan.
+            <p className="mt-5 text-lg leading-relaxed text-casino-text-secondary">
+              A streamlined flow designed for maximum focus. Clear indications, informative lobbies, and precise resolution.
             </p>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-5">
             {steps.map((step, index) => (
               <motion.div
                 key={step}
@@ -217,40 +211,39 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.35, delay: index * 0.08 }}
-                className="flex gap-4 rounded-[28px] border border-white/10 bg-white/5 p-5"
+                className="flex gap-5 rounded-2xl border border-casino-gold/15 bg-casino-bg-surface p-5 items-start"
               >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-brand/20 bg-brand/10 font-[var(--font-display)] text-lg font-bold text-brand-light">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-casino-gold/30 bg-casino-gold/10 text-base font-bold text-casino-gold shadow-[0_0_10px_rgba(212,175,55,0.15)]">
                   {index + 1}
                 </div>
-                <p className="pt-1 text-slate-300">{step}</p>
+                <p className="pt-2 text-sm font-medium leading-relaxed text-casino-text-primary">{step}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 pb-24 pt-8">
-        <div className="rounded-[36px] border border-white/10 bg-[linear-gradient(120deg,rgba(0,217,255,0.16),rgba(255,79,216,0.12))] p-8 shadow-[0_24px_80px_rgba(0,0,0,0.32)]">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <h2 className="font-[var(--font-display)] text-3xl font-bold text-white">
-                Siap bikin meja pertama?
-              </h2>
-              <p className="mt-2 text-slate-200">
-                Mulai dari room public atau private, lalu rasakan flow lobby dan game yang sudah di-upgrade.
-              </p>
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Button size="lg" className="rounded-full px-7" onClick={() => setSetupDialog(true, 'create')}>
-                Create Room
+      <section className="relative z-10 mx-auto max-w-7xl px-6 pb-32 pt-16">
+        <div className="casino-card text-center p-12 border-casino-gold/40 shadow-casino-lg relative overflow-hidden">
+          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(212,175,55,0.05),transparent)] pointer-events-none" />
+          <div className="relative z-10 flex flex-col items-center">
+            <h2 className="text-3xl font-bold text-casino-text-primary md:text-4xl">
+              Ready to take a seat?
+            </h2>
+            <p className="mt-4 max-w-2xl text-lg text-casino-text-secondary">
+              Step into the sophisticated world of classic domino multiplayer. The table is ready.
+            </p>
+            <div className="mt-10 flex flex-col gap-4 sm:flex-row justify-center w-full">
+              <Button variant="primary" size="lg" className="rounded-full px-10" onClick={() => setSetupDialog(true, 'create')}>
+                Create Table
               </Button>
               <Button
                 size="lg"
                 variant="outline"
-                className="rounded-full border-white/20 bg-white/10 px-7"
+                className="rounded-full px-10"
                 onClick={() => setSetupDialog(true, 'join')}
               >
-                Join Room
+                Join Table
               </Button>
             </div>
           </div>

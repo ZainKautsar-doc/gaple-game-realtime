@@ -84,18 +84,18 @@ export default function GamePage() {
   };
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-[1500px] px-4 pb-8 pt-6 lg:px-6">
-      <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.32)]">
+    <main className="mx-auto min-h-screen w-full max-w-[1500px] px-4 pb-8 pt-6 lg:px-6 bg-casino-bg-primary">
+      <div className="casino-card border-casino-gold/30 bg-[linear-gradient(135deg,rgba(13,59,47,1),rgba(17,71,58,1))] p-5 shadow-casino-lg">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="font-[var(--font-display)] text-3xl font-bold text-white">{roomState.name}</h1>
-              <span className="rounded-full border border-brand/20 bg-brand/10 px-3 py-1 text-xs text-brand-light">
+              <h1 className="text-3xl font-bold text-casino-text-primary tracking-tight">{roomState.name}</h1>
+              <span className="rounded-full border border-casino-gold/30 bg-casino-gold/10 px-3 py-1 text-xs font-bold text-casino-gold capitalize">
                 {formatRoomType(roomState.type)}
               </span>
             </div>
-            <p className="mt-2 text-slate-400">
-              Giliran sekarang: <span className="text-white">{currentPlayer?.nickname ?? '...'}</span>
+            <p className="mt-2 text-casino-text-secondary">
+              Current Turn: <span className="font-bold text-casino-gold">{currentPlayer?.nickname ?? '...'}</span>
             </p>
           </div>
 
@@ -103,9 +103,9 @@ export default function GamePage() {
             <button
               type="button"
               onClick={() => navigator.clipboard.writeText(roomState.code)}
-              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 transition hover:bg-white/10"
+              className="inline-flex items-center gap-2 rounded-full border border-casino-gold/20 bg-black/20 px-4 py-2 text-sm font-medium text-casino-text-primary transition hover:bg-casino-gold/10"
             >
-              <Copy className="h-4 w-4 text-brand-light" />
+              <Copy className="h-4 w-4 text-casino-gold" />
               {roomState.code}
             </button>
             <Button variant="outline" className="rounded-full" onClick={() => router.replace('/lobby')}>
@@ -115,7 +115,7 @@ export default function GamePage() {
               variant="outline"
               className="rounded-full"
               onClick={() => {
-                if (window.confirm('Keluar dari room sekarang?')) {
+                if (window.confirm('Leave the table now?')) {
                   leaveRoom();
                   router.replace('/');
                 }
@@ -129,7 +129,7 @@ export default function GamePage() {
       </div>
 
       {error && (
-        <div className="mt-6 rounded-2xl border border-rose-400/25 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
+        <div className="mt-6 rounded-lg border border-red-900/50 bg-red-900/20 px-4 py-3 text-sm text-red-200">
           {error}
         </div>
       )}
@@ -146,18 +146,20 @@ export default function GamePage() {
             ))}
           </div>
 
-          <div className="rounded-[32px] border border-white/10 bg-white/5 p-5">
+          <div className="casino-card border-casino-gold/15 p-5">
             <GameBoard board={gameState.board} leftEnd={gameState.leftEnd} rightEnd={gameState.rightEnd} />
 
             {selectedPlacements.length > 1 && (
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-5 rounded-[28px] border border-brand/25 bg-brand/10 p-4"
+                className="mt-5 rounded-xl border border-casino-gold/30 bg-casino-gold/10 p-4"
               >
-                <p className="font-medium text-white">Pilih sisi pemasangan kartu</p>
+                <p className="font-bold text-casino-text-primary">Select placement side</p>
                 <div className="mt-4 flex flex-wrap gap-3">
                   <Button
+                    variant="outline"
+                    className="rounded-full"
                     onClick={() => {
                       if (selectedCardId) {
                         playCard(selectedCardId, 'left');
@@ -166,10 +168,11 @@ export default function GamePage() {
                     }}
                   >
                     <ChevronLeft className="mr-2 h-4 w-4" />
-                    Pasang di Kiri
+                    Place Left
                   </Button>
                   <Button
-                    variant="secondary"
+                    variant="outline"
+                    className="rounded-full"
                     onClick={() => {
                       if (selectedCardId) {
                         playCard(selectedCardId, 'right');
@@ -177,7 +180,7 @@ export default function GamePage() {
                       }
                     }}
                   >
-                    Pasang di Kanan
+                    Place Right
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
@@ -186,18 +189,18 @@ export default function GamePage() {
           </div>
 
           <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
-            <div className="rounded-[32px] border border-white/10 bg-white/5 p-5">
+            <div className="casino-card border-casino-gold/15 p-5">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.32em] text-brand-light">Hand Section</p>
-                  <h2 className="mt-2 text-2xl font-semibold text-white">Kartu Kamu</h2>
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-casino-gold">Hand Section</p>
+                  <h2 className="mt-2 text-2xl font-bold text-casino-text-primary">Your Tiles</h2>
                 </div>
                 <div className="flex flex-wrap gap-3">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/15 px-4 py-2 text-sm text-slate-200">
-                    <Hand className="h-4 w-4 text-brand-light" />
-                    {myPlayer.hand.length} kartu
+                  <span className="inline-flex items-center gap-2 rounded-full border border-casino-gold/20 bg-black/20 px-4 py-2 text-sm font-medium text-casino-text-secondary">
+                    <Hand className="h-4 w-4 text-casino-gold" />
+                    {myPlayer.hand.length} tiles
                   </span>
-                  <Button variant="outline" onClick={passTurn} disabled={!canPass}>
+                  <Button variant="outline" className="rounded-full" onClick={passTurn} disabled={!canPass}>
                     <TimerReset className="mr-2 h-4 w-4" />
                     Pass
                   </Button>
@@ -223,7 +226,7 @@ export default function GamePage() {
 
         <aside className="min-h-[620px]">
           <ChatBox
-            title="Game Chat"
+            title="Table Chat"
             messages={messages}
             typingPlayers={typingPlayers}
             currentPlayerId={myPlayerId}

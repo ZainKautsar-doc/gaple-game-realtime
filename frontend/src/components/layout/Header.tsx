@@ -33,10 +33,10 @@ export function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full px-3 pt-3 md:px-6">
-      <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between rounded-full border border-white/10 bg-[#0c1330]/70 px-4 shadow-[0_18px_50px_rgba(2,6,23,0.35)] backdrop-blur-xl md:px-6">
+    <header className="sticky top-0 z-50 w-full bg-[#072820]/95 backdrop-blur-md border-b border-casino-gold/15">
+      <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2">
-          <div className="relative h-10 w-10 overflow-hidden rounded-full border border-white/10 bg-white/5 p-2 shadow-[0_0_24px_rgba(0,217,255,0.2)]">
+          <div className="relative h-10 w-10 overflow-hidden rounded-full border border-casino-gold/30 bg-casino-bg-surface p-2 shadow-[0_0_15px_rgba(212,175,55,0.2)]">
             <NextImage 
               src="/image/logo/gglogo.svg" 
               alt="Logo" 
@@ -45,10 +45,10 @@ export function Header() {
             />
           </div>
           <div>
-            <span className="font-[var(--font-display)] text-xl font-bold tracking-wider text-white">
+            <span className="text-xl font-bold tracking-wider text-casino-gold">
               GAPLE ARENA
             </span>
-            <p className="text-[10px] uppercase tracking-[0.28em] text-slate-400">
+            <p className="text-[10px] uppercase tracking-[0.28em] text-casino-text-muted">
               Domino Multiplayer Online
             </p>
           </div>
@@ -59,12 +59,12 @@ export function Header() {
             <Link
               key={link.name}
               href={link.href}
-              className={`group relative text-sm font-medium transition-colors hover:text-brand-light ${
-                pathname === link.href ? 'text-brand-light' : 'text-slate-300'
+              className={`group relative text-sm font-medium transition-colors hover:text-casino-gold-light ${
+                pathname === link.href ? 'text-casino-gold' : 'text-casino-text-secondary'
               }`}
             >
               {link.name}
-              <span className="absolute -bottom-1 left-0 h-px w-0 bg-brand transition-all duration-300 group-hover:w-full" />
+              <span className={`absolute -bottom-1 left-0 h-px transition-all duration-300 bg-casino-gold ${pathname === link.href ? 'w-full' : 'w-0 group-hover:w-full'}`} />
             </Link>
           ))}
         </nav>
@@ -72,11 +72,11 @@ export function Header() {
         <div className="hidden md:flex items-center gap-4">
           {nickname ? (
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
-                <User className="h-4 w-4 text-brand-light" />
-                <span className="text-sm font-medium text-white">{nickname}</span>
+              <div className="flex items-center gap-2 rounded-full border border-casino-gold/20 bg-casino-bg-surface px-3 py-1.5">
+                <User className="h-4 w-4 text-casino-gold" />
+                <span className="text-sm font-medium text-casino-text-primary">{nickname}</span>
                 {roomState?.code && (
-                  <span className="rounded-full border border-brand/20 bg-brand/10 px-2 py-0.5 text-[10px] text-brand-light">
+                  <span className="rounded-full border border-casino-gold/30 bg-casino-gold/10 px-2 py-0.5 text-[10px] text-casino-gold">
                     {roomState.code}
                   </span>
                 )}
@@ -95,13 +95,14 @@ export function Header() {
             <>
               <Button
                 variant="outline"
-                className="rounded-full border-brand/50 text-brand-light hover:bg-brand/10"
+                className="rounded-full"
                 onClick={() => setSetupDialog(true, 'join')}
               >
                 <DoorOpen className="mr-2 h-4 w-4" />
                 Join Room
               </Button>
               <Button
+                variant="primary"
                 className="rounded-full font-bold"
                 onClick={() => setSetupDialog(true, 'create')}
               >
@@ -113,7 +114,7 @@ export function Header() {
         </div>
 
         <button
-          className="md:hidden text-slate-300 hover:text-white"
+          className="md:hidden text-casino-text-secondary hover:text-casino-gold"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -126,29 +127,31 @@ export function Header() {
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
-            className="mx-auto mt-3 max-w-[1400px] rounded-[28px] border border-white/10 bg-[#0c1330]/88 p-4 shadow-[0_18px_50px_rgba(2,6,23,0.35)] backdrop-blur-xl md:hidden"
+            className="absolute top-16 left-0 w-full border-b border-casino-gold/15 bg-[#072820]/95 p-4 shadow-lg backdrop-blur-md md:hidden"
           >
-            <nav className="flex flex-col gap-4">
+            <nav className="flex flex-col gap-4 max-w-[1400px] mx-auto">
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className="text-sm font-medium text-slate-300 hover:text-brand-light"
+                  className={`text-sm font-medium hover:text-casino-gold-light ${
+                    pathname === link.href ? 'text-casino-gold' : 'text-casino-text-secondary'
+                  }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {link.name}
                 </Link>
               ))}
-              <div className="h-px w-full bg-white/10" />
+              <div className="h-px w-full bg-casino-gold/10" />
               {nickname ? (
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white">
+                  <div className="flex items-center justify-between rounded-2xl border border-casino-gold/20 bg-casino-bg-surface px-4 py-3 text-casino-text-primary">
                     <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-brand-light" />
+                      <User className="h-4 w-4 text-casino-gold" />
                       <span>{nickname}</span>
                     </div>
                     {roomState?.code && (
-                      <span className="text-xs font-mono tracking-[0.24em] text-brand-light">
+                      <span className="text-xs font-mono tracking-[0.24em] text-casino-gold">
                         {roomState.code}
                       </span>
                     )}
@@ -172,6 +175,7 @@ export function Header() {
                     Join Room
                   </Button>
                   <Button
+                    variant="primary"
                     className="w-full"
                     onClick={() => {
                       setIsMobileMenuOpen(false);

@@ -58,30 +58,30 @@ export default function LobbyPage() {
   const me = roomState.players.find((player) => player.id === myPlayerId);
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-7xl px-6 pb-10 pt-8">
+    <main className="mx-auto min-h-screen w-full max-w-7xl px-6 pb-10 pt-8 bg-casino-bg-primary">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03))] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.3)]"
+        className="casino-card border-casino-gold/30 bg-[linear-gradient(135deg,rgba(13,59,47,1),rgba(17,71,58,1))] p-6 shadow-casino-lg"
       >
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="font-[var(--font-display)] text-3xl font-bold text-white">{roomState.name}</h1>
-              <span className="rounded-full border border-brand/20 bg-brand/10 px-3 py-1 text-xs text-brand-light">
+              <h1 className="text-3xl font-bold text-casino-text-primary tracking-tight">{roomState.name}</h1>
+              <span className="rounded-full border border-casino-gold/30 bg-casino-gold/10 px-3 py-1 text-xs font-bold text-casino-gold capitalize">
                 {formatRoomType(roomState.type)}
               </span>
             </div>
-            <p className="mt-2 text-slate-400">{roomState.message}</p>
+            <p className="mt-2 text-casino-text-secondary">{roomState.message}</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
               onClick={() => navigator.clipboard.writeText(roomState.code)}
-              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 transition hover:bg-white/10"
+              className="inline-flex items-center gap-2 rounded-full border border-casino-gold/20 bg-black/20 px-4 py-2 text-sm font-medium text-casino-text-primary transition hover:bg-casino-gold/10"
             >
-              <Copy className="h-4 w-4 text-brand-light" />
+              <Copy className="h-4 w-4 text-casino-gold" />
               {roomState.code}
             </button>
             <Button
@@ -93,35 +93,35 @@ export default function LobbyPage() {
               }}
             >
               <DoorOpen className="mr-2 h-4 w-4" />
-              Leave Room
+              Leave Table
             </Button>
           </div>
         </div>
       </motion.div>
 
       {error && (
-        <div className="mt-6 rounded-2xl border border-rose-400/25 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
+        <div className="mt-6 rounded-lg border border-red-900/50 bg-red-900/20 px-4 py-3 text-sm text-red-200">
           {error}
         </div>
       )}
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-        <section className="rounded-[32px] border border-white/10 bg-white/5 p-6">
+        <section className="casino-card border-casino-gold/15 p-6">
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-brand-light">Player Management</p>
-              <h2 className="mt-2 text-2xl font-semibold text-white">Lobby Seats</h2>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-casino-gold">Player Management</p>
+              <h2 className="mt-2 text-2xl font-bold text-casino-text-primary">Table Seats</h2>
             </div>
             <div className="flex flex-wrap gap-3">
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200">
-                <Users className="h-4 w-4 text-brand-light" />
-                {roomState.currentPlayers}/{roomState.maxPlayers} pemain
+              <span className="inline-flex items-center gap-2 rounded-full border border-casino-gold/20 bg-black/20 px-4 py-2 text-sm font-medium text-casino-text-secondary">
+                <Users className="h-4 w-4 text-casino-gold" />
+                {roomState.currentPlayers}/{roomState.maxPlayers} players
               </span>
               <span
-                className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm ${
+                className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium ${
                   isConnected
-                    ? 'border-emerald-300/25 bg-emerald-400/10 text-emerald-200'
-                    : 'border-rose-400/25 bg-rose-400/10 text-rose-100'
+                    ? 'border-[#5a8f6a]/30 bg-[#5a8f6a]/10 text-[#5a8f6a]'
+                    : 'border-red-900/50 bg-red-900/20 text-red-200'
                 }`}
               >
                 <Power className="h-4 w-4" />
@@ -147,7 +147,7 @@ export default function LobbyPage() {
                   onKick={
                     player && isHost && player.id !== myPlayerId
                       ? () => {
-                          if (window.confirm(`Kick ${player.nickname} dari room ini?`)) {
+                          if (window.confirm(`Kick ${player.nickname} from the table?`)) {
                             kickPlayer(player.id);
                           }
                         }
@@ -158,58 +158,58 @@ export default function LobbyPage() {
             })}
           </div>
 
-          <div className="mt-6 flex flex-wrap gap-3 rounded-[28px] border border-white/10 bg-black/15 p-4">
+          <div className="mt-6 flex flex-wrap gap-3 rounded-xl border border-casino-gold/15 bg-black/20 p-4 items-center">
             {me && (
-              <Button variant={me.isReady ? 'secondary' : 'primary'} onClick={() => setReady(!me.isReady)}>
-                {me.isReady ? 'Batalkan Ready' : 'Saya Ready'}
+              <Button variant={me.isReady ? 'outline' : 'primary'} onClick={() => setReady(!me.isReady)} className="rounded-full px-6">
+                {me.isReady ? 'Cancel Ready' : 'I am Ready'}
               </Button>
             )}
             {isHost && (
-              <Button onClick={startGame} disabled={!everyoneReady}>
+              <Button variant="primary" onClick={startGame} disabled={!everyoneReady} className="rounded-full px-6">
                 <Play className="mr-2 h-4 w-4" />
                 Start Game
               </Button>
             )}
             {isHost && !everyoneReady && (
-              <p className="self-center text-sm text-slate-400">
-                Tunggu room penuh dan semua pemain siap dulu sebelum memulai.
+              <p className="self-center text-sm text-casino-text-muted">
+                Wait for the table to fill and all players to be ready.
               </p>
             )}
             {isHost && (
-              <span className="inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-amber-400/10 px-4 py-2 text-sm text-amber-100">
+              <span className="inline-flex items-center gap-2 rounded-full border border-casino-gold/30 bg-casino-gold/10 px-4 py-2 text-sm font-medium text-casino-gold ml-auto">
                 <Crown className="h-4 w-4" />
-                Kamu host room ini
+                Dealer
               </span>
             )}
           </div>
         </section>
 
         <aside className="space-y-6">
-          <section className="rounded-[32px] border border-white/10 bg-white/5 p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.32em] text-brand-light">Room Info</p>
+          <section className="casino-card border-casino-gold/15 p-6">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-casino-gold">Table Info</p>
             <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
-              <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
-                <p className="text-sm text-slate-400">Nama Room</p>
-                <p className="mt-1 text-lg font-semibold text-white">{roomState.name}</p>
+              <div className="rounded-xl border border-casino-gold/10 bg-black/20 p-4">
+                <p className="text-xs text-casino-text-muted uppercase">Table Name</p>
+                <p className="mt-1 text-lg font-bold text-casino-text-primary">{roomState.name}</p>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
-                <p className="text-sm text-slate-400">Tipe</p>
-                <p className="mt-1 text-lg font-semibold text-white">{formatRoomType(roomState.type)}</p>
+              <div className="rounded-xl border border-casino-gold/10 bg-black/20 p-4">
+                <p className="text-xs text-casino-text-muted uppercase">Type</p>
+                <p className="mt-1 text-lg font-bold text-casino-text-primary capitalize">{formatRoomType(roomState.type)}</p>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
-                <p className="text-sm text-slate-400">Kode</p>
-                <p className="mt-1 font-mono text-lg font-semibold tracking-[0.2em] text-brand-light">{roomState.code}</p>
+              <div className="rounded-xl border border-casino-gold/10 bg-black/20 p-4">
+                <p className="text-xs text-casino-text-muted uppercase">Code</p>
+                <p className="mt-1 font-mono text-lg font-bold tracking-[0.2em] text-casino-gold">{roomState.code}</p>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
-                <p className="text-sm text-slate-400">Kapasitas</p>
-                <p className="mt-1 text-lg font-semibold text-white">{roomState.maxPlayers} pemain</p>
+              <div className="rounded-xl border border-casino-gold/10 bg-black/20 p-4">
+                <p className="text-xs text-casino-text-muted uppercase">Capacity</p>
+                <p className="mt-1 text-lg font-bold text-casino-text-primary">{roomState.maxPlayers} players</p>
               </div>
             </div>
           </section>
 
           <div className="min-h-[420px]">
             <ChatBox
-              title="Lobby Chat"
+              title="Table Chat"
               messages={messages}
               typingPlayers={typingPlayers}
               currentPlayerId={myPlayerId}

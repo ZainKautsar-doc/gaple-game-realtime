@@ -17,43 +17,42 @@ export function PlayerPanel({
 }: PlayerPanelProps) {
   return (
     <div
-      className={`rounded-[28px] border p-4 transition ${
+      className={`rounded-xl border p-4 transition-all duration-300 ${
         isCurrentTurn
-          ? 'border-brand/40 bg-brand/10 shadow-[0_0_28px_rgba(0,217,255,0.14)]'
-          : 'border-white/10 bg-white/5'
+          ? 'border-casino-gold bg-casino-gold/10 shadow-casino-glow ring-1 ring-casino-gold/30'
+          : 'border-casino-gold/15 bg-casino-bg-surface'
       }`}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-slate-500">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-casino-text-secondary">
             {formatPosition(player.position)}
           </p>
-          <p className="mt-1 text-base font-semibold text-white">
-            {player.nickname} {isSelf ? <span className="text-xs text-brand-light">You</span> : null}
+          <p className="mt-1 text-base font-bold text-casino-text-primary">
+            {player.nickname} {isSelf ? <span className="text-xs font-medium text-casino-gold ml-1">You</span> : null}
           </p>
-          <p className="mt-1 text-xs text-slate-400">{getInitials(player.nickname)}</p>
         </div>
         {player.isHost ? (
-          <span className="rounded-full border border-amber-300/20 bg-amber-400/10 p-2 text-amber-200">
+          <span className="rounded-full border border-casino-gold/30 bg-casino-gold/10 p-2 text-casino-gold">
             <Crown className="h-4 w-4" />
           </span>
         ) : null}
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/15 px-3 py-1 text-xs text-slate-300">
+        <span className="inline-flex items-center gap-1 rounded-full border border-casino-gold/10 bg-black/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-casino-text-secondary">
           <Hand className="h-3.5 w-3.5" />
-          {player.cardCount} kartu
+          {player.cardCount} tiles
         </span>
         {player.hasPassed ? (
-          <span className="inline-flex items-center gap-1 rounded-full border border-amber-300/20 bg-amber-400/10 px-3 py-1 text-xs text-amber-100">
+          <span className="inline-flex items-center gap-1 rounded-full border border-casino-gold/30 bg-casino-gold/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-casino-gold">
             <SkipForward className="h-3.5 w-3.5" />
             Passed
           </span>
         ) : null}
         {isCurrentTurn ? (
-          <span className="inline-flex animate-glow items-center rounded-full border border-brand/20 bg-brand/15 px-3 py-1 text-xs text-brand-light">
-            Lagi jalan
+          <span className="inline-flex animate-glow items-center rounded-full border border-casino-gold/40 bg-casino-gold/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-casino-gold">
+            Thinking
           </span>
         ) : null}
       </div>

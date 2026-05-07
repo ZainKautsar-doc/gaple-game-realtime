@@ -15,10 +15,10 @@ interface PlayerCardProps {
 }
 
 const positionStyles = {
-  north: 'from-cyan-500/20 to-blue-500/5 border-cyan-400/25',
-  south: 'from-green-500/20 to-emerald-500/5 border-green-400/25',
-  east: 'from-amber-500/20 to-orange-500/5 border-amber-400/25',
-  west: 'from-fuchsia-500/20 to-pink-500/5 border-fuchsia-400/25',
+  north: 'border-casino-gold/30 bg-black/20',
+  south: 'border-casino-gold/30 bg-black/20',
+  east: 'border-casino-gold/30 bg-black/20',
+  west: 'border-casino-gold/30 bg-black/20',
 };
 
 export function PlayerCard({
@@ -30,12 +30,12 @@ export function PlayerCard({
 }: PlayerCardProps) {
   if (!player) {
     return (
-      <div className="rounded-[28px] border border-dashed border-white/10 bg-white/[0.03] p-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.32em] text-slate-500">Empty Seat</p>
-        <div className="mt-5 flex items-center gap-4 opacity-60">
-          <div className="h-14 w-14 rounded-2xl border border-dashed border-white/10 bg-black/20" />
+      <div className="rounded-[16px] border border-dashed border-casino-gold/20 bg-black/10 p-5">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-casino-text-muted">Empty Seat</p>
+        <div className="mt-5 flex items-center gap-4 opacity-40">
+          <div className="h-14 w-14 rounded-full border border-dashed border-casino-gold/30 bg-black/20" />
           <div className="space-y-2">
-            <div className="h-4 w-24 rounded-full bg-white/5" />
+            <div className="h-4 w-24 rounded-full bg-white/10" />
             <div className="h-3 w-28 rounded-full bg-white/5" />
           </div>
         </div>
@@ -45,27 +45,27 @@ export function PlayerCard({
 
   return (
     <div
-      className={`rounded-[28px] border bg-gradient-to-br p-5 shadow-lg transition ${
+      className={`rounded-[16px] border bg-gradient-to-br p-5 shadow-casino-sm transition ${
         positionStyles[player.position]
-      } ${isSelf ? 'shadow-[0_0_30px_rgba(0,217,255,0.18)] ring-1 ring-brand/30' : ''}`}
+      } ${isSelf ? 'border-casino-gold shadow-casino-glow ring-1 ring-casino-gold/30' : ''}`}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Avatar className="h-14 w-14 rounded-2xl text-base">
+          <Avatar className="h-14 w-14 rounded-full border border-casino-gold/50 bg-casino-gold/10 text-casino-gold text-base font-bold">
             {getInitials(player.nickname)}
           </Avatar>
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-slate-400">
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-casino-text-secondary">
               {formatPosition(player.position)}
             </p>
-            <p className="mt-1 text-lg font-semibold text-white">
+            <p className="mt-1 text-lg font-bold text-casino-text-primary">
               {player.nickname}
-              {isSelf && <span className="ml-2 text-xs text-brand-light">You</span>}
+              {isSelf && <span className="ml-2 text-xs font-medium text-casino-gold">You</span>}
             </p>
           </div>
         </div>
         {player.isHost && (
-          <span className="inline-flex items-center gap-1 rounded-full border border-amber-300/20 bg-amber-400/10 px-3 py-1 text-xs font-medium text-amber-200">
+          <span className="inline-flex items-center gap-1 rounded-full border border-casino-gold/30 bg-casino-gold/10 px-3 py-1 text-xs font-bold text-casino-gold">
             <Crown className="h-3.5 w-3.5" />
             Host
           </span>
@@ -74,29 +74,29 @@ export function PlayerCard({
 
       <div className="mt-5 flex flex-wrap gap-2">
         <span
-          className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs ${
+          className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wider ${
             player.isReady
-              ? 'border-emerald-300/25 bg-emerald-400/10 text-emerald-200'
-              : 'border-white/10 bg-white/5 text-slate-300'
+              ? 'border-casino-gold/50 bg-casino-gold/20 text-casino-gold'
+              : 'border-casino-gold/10 bg-black/20 text-casino-text-muted'
           }`}
         >
           <ShieldCheck className="h-3.5 w-3.5" />
-          {player.isReady ? 'Ready' : 'Belum ready'}
+          {player.isReady ? 'Ready' : 'Not Ready'}
         </span>
-        <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
+        <span className="inline-flex items-center gap-1 rounded-full border border-casino-gold/10 bg-black/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-casino-text-secondary">
           <Sparkles className="h-3.5 w-3.5" />
-          {player.cardCount} kartu
+          {player.cardCount} Tiles
         </span>
       </div>
 
       <div className="mt-5 flex flex-wrap gap-3">
         {isSelf && onToggleReady && (
-          <Button variant={player.isReady ? 'secondary' : 'primary'} onClick={onToggleReady}>
-            {player.isReady ? 'Batalkan Ready' : 'Saya Ready'}
+          <Button variant={player.isReady ? 'outline' : 'primary'} onClick={onToggleReady} size="sm" className="rounded-full">
+            {player.isReady ? 'Cancel Ready' : 'I am Ready'}
           </Button>
         )}
         {showKick && onKick && (
-          <Button variant="danger" onClick={onKick}>
+          <Button variant="danger" onClick={onKick} size="sm" className="rounded-full">
             <LogOut className="mr-2 h-4 w-4" />
             Kick
           </Button>
