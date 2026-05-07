@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 import NextImage from 'next/image';
@@ -13,12 +13,24 @@ import { RoomSetupDialog } from '@/components/dialog/RoomSetupDialog';
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeHash, setActiveHash] = useState('');
   
   const { nickname, setNickname, isSetupDialogOpen, setupDialogMode, setSetupDialog } =
     useGameStore();
   const { leaveRoom, roomState } = useGame();
   const router = useRouter();
   const pathname = usePathname();
+
+  // Update active hash on mount and when hash changes
+  useEffect(() => {
+    const handleHashChange = () => {
+      setActiveHash(window.location.hash);
+    };
+    
+    handleHashChange(); // Initial check
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   const handleLeave = () => {
     leaveRoom();
@@ -31,6 +43,45 @@ export function Header() {
     { name: 'How to Play', href: '/#how-to-play' },
     { name: 'Feature', href: '/#features' },
   ];
+
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/' && activeHash === '';
+    if (href.startsWith('/#')) {
+      const hash = href.split('#')[1];
+      return pathname === '/' && activeHash === `#${hash}`;
+    }
+    return pathname === href;
+  };
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    // Only handle smooth scroll if we're already on the home page
+    if (href.startsWith('/#') && pathname === '/') {
+      e.preventDefault();
+      const id = href.split('#')[1];
+      const element = document.getElementById(id);
+      if (element) {
+        const offset = 80; // Offset for sticky header
+        const bodyRect = document.body.getBoundingClientRect().top;
+        const elementRect = element.getBoundingClientRect().top;
+        const elementPosition = elementRect - bodyRect;
+        const offsetPosition = elementPosition - offset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth',
+        });
+
+        // Update URL hash without jumping and update state
+        window.history.pushState(null, '', href);
+        setActiveHash(`#${id}`);
+      }
+    } else if (href === '/' && pathname === '/') {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.history.pushState(null, '', '/');
+      setActiveHash('');
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full bg-[#072820]/95 backdrop-blur-md border-b border-casino-gold/15">
@@ -59,12 +110,13 @@ export function Header() {
             <Link
               key={link.name}
               href={link.href}
+              onClick={(e) => handleNavClick(e, link.href)}
               className={`group relative text-sm font-medium transition-colors hover:text-casino-gold-light ${
-                pathname === link.href ? 'text-casino-gold' : 'text-casino-text-secondary'
+                isActive(link.href) ? 'text-casino-gold' : 'text-casino-text-secondary'
               }`}
             >
               {link.name}
-              <span className={`absolute -bottom-1 left-0 h-px transition-all duration-300 bg-casino-gold ${pathname === link.href ? 'w-full' : 'w-0 group-hover:w-full'}`} />
+              <span className={`absolute -bottom-1 left-0 h-px transition-all duration-300 bg-casino-gold ${isActive(link.href) ? 'w-full' : 'w-0 group-hover:w-full'}`} />
             </Link>
           ))}
         </nav>
@@ -135,9 +187,12 @@ export function Header() {
                   key={link.name}
                   href={link.href}
                   className={`text-sm font-medium hover:text-casino-gold-light ${
-                    pathname === link.href ? 'text-casino-gold' : 'text-casino-text-secondary'
+                    isActive(link.href) ? 'text-casino-gold' : 'text-casino-text-secondary'
                   }`}
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={(e) => {
+                    handleNavClick(e, link.href);
+                    setIsMobileMenuOpen(false);
+                  }}
                 >
                   {link.name}
                 </Link>
