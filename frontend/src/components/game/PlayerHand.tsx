@@ -17,7 +17,7 @@ export function PlayerHand({
   canInteract,
 }: PlayerHandProps) {
   return (
-    <div className="flex flex-wrap justify-center gap-3 rounded-xl border border-casino-gold/10 bg-black/30 p-6 shadow-inner">
+    <div className="player-hand">
       {cards.length === 0 ? (
         <p className="py-4 text-sm font-bold text-casino-gold italic">All tiles played!</p>
       ) : (

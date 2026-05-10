@@ -51,7 +51,7 @@ export function PlayerPanel({
           </span>
         ) : null}
         {isCurrentTurn ? (
-          <span className="inline-flex animate-glow items-center rounded-full border border-casino-gold/40 bg-casino-gold/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-casino-gold">
+          <span className="inline-flex animate-pulse-glow items-center rounded-full border border-casino-gold/40 bg-casino-gold/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-casino-gold">
             Thinking
           </span>
         ) : null}
