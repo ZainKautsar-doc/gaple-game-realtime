@@ -1,10 +1,12 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { getPlayableMap } from '@/lib/game';
 import { useChatStore } from '@/store/chatStore';
 import { useGameStore } from '@/store/gameStore';
 import { useRoomStore } from '@/store/roomStore';
+import { useNavigationStore } from '@/store/navigationStore';
 import type {
   BoardSide,
   ChatMessage,
@@ -17,6 +19,7 @@ import type {
 import { useSocket } from './useSocket';
 
 export function useGame() {
+  const router = useRouter();
   const { socket, isConnected } = useSocket();
   const {
     nickname,
@@ -62,23 +65,40 @@ export function useGame() {
     setIsConnected(isConnected);
     if (isConnected) {
       socket.emit('get-rooms');
+      // Re-join logic for persistence/refresh
+      const { isInRoom, currentRoomId, currentRoomCode, playerName } = useNavigationStore.getState();
+      if (isInRoom && (currentRoomId || currentRoomCode)) {
+        socket.emit('rejoin-room', {
+          roomId: currentRoomId ?? undefined,
+          roomCode: currentRoomCode ?? undefined,
+          playerName: playerName ?? undefined
+        });
+      }
     }
   }, [isConnected, setIsConnected, socket]);
 
   useEffect(() => {
-    const handleJoinedRoom = ({ playerId }: { playerId: string; roomId: string }) => {
+    const handleJoinedRoom = ({ playerId, roomId }: { playerId: string; roomId: string }) => {
       setMyPlayerId(playerId);
       setJoinedRoom(true);
       setError(null);
       setInfoMessage(null);
       clearGameReset();
       setSubmitting(false);
+
+      // Set navigation state
+      const roomCode = useGameStore.getState().roomState?.code || '';
+      useNavigationStore.getState().setRoomInfo(roomId, roomCode, nickname);
     };
 
     const handleJoinFailed = ({ message }: { message: string }) => {
       setJoinedRoom(false);
       setError(message);
       setSubmitting(false);
+      // Clear navigation state if room not found
+      if (message === 'Room tidak ditemukan.') {
+        useNavigationStore.getState().clearRoomInfo();
+      }
     };
 
     const handleLookupResult = (payload: RoomLookupResult) => {
@@ -98,6 +118,12 @@ export function useGame() {
         clearGameReset();
       }
       setRoomState(nextRoomState);
+
+      // Ensure navigation store is in sync
+      const { currentRoomId, setRoomInfo } = useNavigationStore.getState();
+      if (nextRoomState.code && currentRoomId) {
+        setRoomInfo(currentRoomId, nextRoomState.code, nickname);
+      }
     };
 
     const handleGameState = (nextGameState: GameStateView) => {
@@ -114,6 +140,7 @@ export function useGame() {
       setRoomState(null);
       markGameReset();
       clearChat();
+      useNavigationStore.getState().clearRoomInfo();
     };
 
     const handleActionError = ({ message }: { message: string }) => {
@@ -137,6 +164,14 @@ export function useGame() {
       setIsConnected(false);
     };
 
+    const handleRoomDeleted = () => {
+      setError('Room telah dibubarkan oleh host.');
+      setJoinedRoom(false);
+      setRoomState(null);
+      useNavigationStore.getState().clearRoomInfo();
+      router.push('/');
+    };
+
     socket.on('joined-room', handleJoinedRoom);
     socket.on('join-failed', handleJoinFailed);
     socket.on('room-lookup-result', handleLookupResult);
@@ -149,6 +184,7 @@ export function useGame() {
     socket.on('chat-history', handleChatHistory);
     socket.on('chat-message', handleChatMessage);
     socket.on('typing-state', handleTypingState);
+    socket.on('room-deleted', handleRoomDeleted);
     socket.on('disconnect', handleDisconnect);
 
     return () => {
@@ -164,6 +200,7 @@ export function useGame() {
       socket.off('chat-history', handleChatHistory);
       socket.off('chat-message', handleChatMessage);
       socket.off('typing-state', handleTypingState);
+      socket.off('room-deleted', handleRoomDeleted);
       socket.off('disconnect', handleDisconnect);
     };
   }, [
@@ -243,6 +280,7 @@ export function useGame() {
     resetRoomUi();
     clearChat();
     resetSession();
+    useNavigationStore.getState().clearRoomInfo();
   };
 
   const setReady = (value: boolean) => {

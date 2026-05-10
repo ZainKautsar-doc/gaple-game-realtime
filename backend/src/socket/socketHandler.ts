@@ -289,6 +289,39 @@ export function setupSocketHandlers(io: Server) {
       syncRoomAfterMutation(io, room);
     });
 
+    socket.on(SOCKET_EVENTS.REJOIN_ROOM, (payload) => {
+      const { roomId, roomCode, playerName } = payload;
+      const room = roomCode ? findRoomByCode(roomCode) : (roomId ? rooms.get(roomId) : null);
+      
+      if (!room) {
+        socket.emit(SOCKET_EVENTS.JOIN_FAILED, {
+          message: 'Room tidak ditemukan.',
+        });
+        return;
+      }
+      
+      const result = room.addPlayer({
+        id: socket.id,
+        socketId: socket.id,
+        nickname: playerName || 'Guest',
+      });
+      
+      if (!result.success) {
+        socket.emit(SOCKET_EVENTS.JOIN_FAILED, {
+          message: result.error,
+        });
+        return;
+      }
+      
+      socket.join(room.id);
+      socket.emit(SOCKET_EVENTS.JOINED_ROOM, {
+        playerId: socket.id,
+        roomId: room.id,
+      });
+      emitChatHistory(socket, room);
+      syncRoomAfterMutation(io, room);
+    });
+
     socket.on(SOCKET_EVENTS.LEAVE_ROOM, () => {
       leaveExistingRoom(io, socket);
     });

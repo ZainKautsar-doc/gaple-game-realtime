@@ -25,4 +25,6 @@ export const SOCKET_EVENTS = {
   TYPING_START: 'typing-start',
   TYPING_STOP: 'typing-stop',
   TYPING_STATE: 'typing-state',
+  REJOIN_ROOM: 'rejoin-room',
+  ROOM_DELETED: 'room-deleted',
 } as const;

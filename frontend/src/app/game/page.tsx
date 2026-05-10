@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Copy, DoorOpen, Hand, TimerReset } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Copy, DoorOpen, Hand, Home, TimerReset } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ChatBox } from '@/components/chat/ChatBox';
 import { EndGameScreen } from '@/components/game/EndGameScreen';
@@ -13,6 +13,7 @@ import { PlayerHand } from '@/components/game/PlayerHand';
 import { Button } from '@/components/ui/button';
 import { formatRoomType } from '@/lib/game';
 import { useGame } from '@/hooks/useGame';
+import { useNavigationStore } from '@/store/navigationStore';
 
 export default function GamePage() {
   const router = useRouter();
@@ -111,11 +112,15 @@ export default function GamePage() {
             <Button variant="outline" className="rounded-full" onClick={() => router.replace('/lobby')}>
               Lobby
             </Button>
+            <Button variant="outline" className="rounded-full" onClick={() => router.push('/')}>
+              <Home className="mr-2 h-4 w-4" />
+              Ke Beranda
+            </Button>
             <Button
               variant="outline"
               className="rounded-full"
               onClick={() => {
-                if (window.confirm('Leave the table now?')) {
+                if (window.confirm('Apakah Anda yakin ingin meninggalkan room?')) {
                   leaveRoom();
                   router.replace('/');
                 }

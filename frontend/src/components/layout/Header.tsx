@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 import NextImage from 'next/image';
-import { Menu, Sparkles, X, LogOut, User, Plus, DoorOpen } from 'lucide-react';
+import { Menu, Sparkles, X, LogOut, User, Plus, DoorOpen, LayoutGrid, Loader2 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useGameStore } from '@/store/gameStore';
 import { useGame } from '@/hooks/useGame';
+import { useNavigationStore } from '@/store/navigationStore';
 import { RoomSetupDialog } from '@/components/dialog/RoomSetupDialog';
 
 export function Header() {
@@ -17,7 +18,8 @@ export function Header() {
   
   const { nickname, setNickname, isSetupDialogOpen, setupDialogMode, setSetupDialog } =
     useGameStore();
-  const { leaveRoom, roomState } = useGame();
+  const { isInRoom, currentRoomId } = useNavigationStore();
+  const { leaveRoom, roomState, joinRoom, isSubmitting, joinedRoom } = useGame();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -37,6 +39,29 @@ export function Header() {
     setNickname('');
     router.push('/');
   };
+
+  const handleGoToRoom = () => {
+    if (roomState) {
+      if (roomState.status === 'playing') {
+        router.push('/game');
+      } else {
+        router.push('/lobby');
+      }
+    } else if (isInRoom && currentRoomId) {
+      joinRoom({ roomCode: useNavigationStore.getState().currentRoomCode || '', playerName: nickname });
+    }
+  };
+
+  // Effect to navigate after re-joining
+  useEffect(() => {
+    if (joinedRoom && (pathname === '/' || pathname === '/#how-to-play' || pathname === '/#features')) {
+      if (roomState?.status === 'playing') {
+        router.push('/game');
+      } else if (roomState?.status === 'waiting') {
+        router.push('/lobby');
+      }
+    }
+  }, [joinedRoom, roomState?.status, router, pathname]);
 
   const navLinks = [
     { name: 'Home', href: '/' },
@@ -133,15 +158,32 @@ export function Header() {
                   </span>
                 )}
               </div>
-              <Button
-                variant="danger"
-                size="sm"
-                onClick={handleLeave}
-                className="rounded-full"
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Cabut
-              </Button>
+                {isInRoom && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGoToRoom}
+                    disabled={isSubmitting}
+                    className="rounded-full border-casino-gold/30 text-casino-gold hover:bg-casino-gold/10"
+                    title="Kembali ke Room"
+                  >
+                    {isSubmitting ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <LayoutGrid className="mr-2 h-4 w-4" />
+                    )}
+                    Room
+                  </Button>
+                )}
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={handleLeave}
+                  className="rounded-full"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Cabut
+                </Button>
             </div>
           ) : (
             <>
@@ -211,10 +253,30 @@ export function Header() {
                       </span>
                     )}
                   </div>
-                  <Button variant="danger" className="w-full" onClick={handleLeave}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Cabut Cuy
-                  </Button>
+                  <div className="flex gap-2">
+                    {isInRoom && (
+                      <Button 
+                        variant="outline" 
+                        className="flex-1 rounded-full border-casino-gold/30 text-casino-gold hover:bg-casino-gold/10" 
+                        onClick={() => {
+                          handleGoToRoom();
+                          setIsMobileMenuOpen(false);
+                        }}
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <LayoutGrid className="mr-2 h-4 w-4" />
+                        )}
+                        Room
+                      </Button>
+                    )}
+                    <Button variant="danger" className="flex-1 rounded-full" onClick={handleLeave}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Cabut
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="flex flex-col gap-3">

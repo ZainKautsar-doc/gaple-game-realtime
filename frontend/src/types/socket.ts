@@ -22,6 +22,7 @@ export interface ServerToClientEvents {
   'chat-history': (messages: ChatMessage[]) => void;
   'chat-message': (message: ChatMessage) => void;
   'typing-state': (players: TypingPlayer[]) => void;
+  'room-deleted': () => void;
 }
 
 export interface ClientToServerEvents {
@@ -48,4 +49,5 @@ export interface ClientToServerEvents {
   'chat-message': (payload: { message: string }) => void;
   'typing-start': () => void;
   'typing-stop': () => void;
+  'rejoin-room': (payload: { roomId?: string; roomCode?: string; playerName?: string }) => void;
 }

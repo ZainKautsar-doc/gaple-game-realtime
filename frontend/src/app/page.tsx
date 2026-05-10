@@ -7,13 +7,19 @@ import {
   DoorOpen,
   Gamepad2,
   Layers3,
+  LayoutGrid,
+  Loader2,
   Lock,
   Sparkles,
   Users,
   Zap,
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useGameStore } from '@/store/gameStore';
+import { useNavigationStore } from '@/store/navigationStore';
+import { useGame } from '@/hooks/useGame';
+import { useEffect } from 'react';
 
 const features = [
   {
@@ -47,7 +53,33 @@ const steps = [
 ];
 
 export default function LandingPage() {
-  const { setSetupDialog } = useGameStore();
+  const router = useRouter();
+  const { setSetupDialog, nickname, roomState } = useGameStore();
+  const { isInRoom, currentRoomId, currentRoomCode } = useNavigationStore();
+  const { joinRoom, isSubmitting, joinedRoom } = useGame();
+
+  const handleBackToRoom = () => {
+    if (roomState) {
+      if (roomState.status === 'playing') {
+        router.push('/game');
+      } else {
+        router.push('/lobby');
+      }
+    } else if (isInRoom && currentRoomCode) {
+      joinRoom({ roomCode: currentRoomCode, playerName: nickname });
+    }
+  };
+
+  // Effect to navigate after re-joining
+  useEffect(() => {
+    if (joinedRoom) {
+      if (roomState?.status === 'playing') {
+        router.push('/game');
+      } else if (roomState?.status === 'waiting') {
+        router.push('/lobby');
+      }
+    }
+  }, [joinedRoom, roomState?.status, router]);
 
   return (
     <main className="relative overflow-hidden bg-casino-bg-primary">
@@ -61,6 +93,35 @@ export default function LandingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
+            {/* Room Status Banner */}
+            {isInRoom && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="mb-8 flex items-center justify-between rounded-2xl border border-casino-gold/40 bg-casino-gold/10 p-4 backdrop-blur-sm"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-casino-gold/20 text-casino-gold">
+                    <BadgeCheck className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-casino-gold uppercase tracking-wider">Active Session</p>
+                    <p className="text-sm text-casino-text-primary">
+                      You are in a room <span className="font-mono font-bold text-casino-gold ml-1">(Code: {currentRoomCode})</span>
+                    </p>
+                  </div>
+                </div>
+                <Button 
+                  size="sm" 
+                  variant="primary" 
+                  className="rounded-full font-bold shadow-casino-sm"
+                  onClick={handleBackToRoom}
+                >
+                  Go Back
+                </Button>
+              </motion.div>
+            )}
+
             <div className="inline-flex items-center gap-2 rounded-full border border-casino-gold/30 bg-casino-gold/10 px-4 py-2 text-sm text-casino-gold">
               <Sparkles className="h-4 w-4" />
               Welcome to the high-stakes table
@@ -73,19 +134,38 @@ export default function LandingPage() {
               Premium multiplayer domino experience. A sophisticated environment featuring seamless real-time play, precise controls, and elegant table interactions.
             </p>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-              <Button variant="primary" size="lg" className="rounded-full px-8" onClick={() => setSetupDialog(true, 'create')}>
-                Create Table
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="rounded-full px-8"
-                onClick={() => setSetupDialog(true, 'join')}
-              >
-                <DoorOpen className="mr-2 h-5 w-5" />
-                Join Table
-              </Button>
+              {isInRoom ? (
+                <Button 
+                  variant="primary" 
+                  size="lg" 
+                  className="rounded-full px-10 font-bold" 
+                  onClick={handleBackToRoom}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  ) : (
+                    <LayoutGrid className="mr-2 h-5 w-5" />
+                  )}
+                  Back to Room
+                </Button>
+              ) : (
+                <>
+                  <Button variant="primary" size="lg" className="rounded-full px-8" onClick={() => setSetupDialog(true, 'create')}>
+                    Create Table
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="rounded-full px-8"
+                    onClick={() => setSetupDialog(true, 'join')}
+                  >
+                    <DoorOpen className="mr-2 h-5 w-5" />
+                    Join Table
+                  </Button>
+                </>
+              )}
             </div>
 
             <div className="mt-12 grid gap-6 sm:grid-cols-3">
@@ -234,17 +314,36 @@ export default function LandingPage() {
               Step into the sophisticated world of classic domino multiplayer. The table is ready.
             </p>
             <div className="mt-10 flex flex-col gap-4 sm:flex-row justify-center w-full">
-              <Button variant="primary" size="lg" className="rounded-full px-10" onClick={() => setSetupDialog(true, 'create')}>
-                Create Table
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="rounded-full px-10"
-                onClick={() => setSetupDialog(true, 'join')}
-              >
-                Join Table
-              </Button>
+              {isInRoom ? (
+                <Button 
+                  variant="primary" 
+                  size="lg" 
+                  className="rounded-full px-12 font-bold" 
+                  onClick={handleBackToRoom}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  ) : (
+                    <LayoutGrid className="mr-2 h-5 w-5" />
+                  )}
+                  Back to Room
+                </Button>
+              ) : (
+                <>
+                  <Button variant="primary" size="lg" className="rounded-full px-10" onClick={() => setSetupDialog(true, 'create')}>
+                    Create Table
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="rounded-full px-10"
+                    onClick={() => setSetupDialog(true, 'join')}
+                  >
+                    Join Table
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>

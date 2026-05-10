@@ -2,13 +2,14 @@
 
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Copy, Crown, DoorOpen, Play, Power, Users } from 'lucide-react';
+import { Copy, Crown, DoorOpen, Home, Play, Power, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ChatBox } from '@/components/chat/ChatBox';
 import { PlayerCard } from '@/components/lobby/PlayerCard';
 import { Button } from '@/components/ui/button';
 import { formatRoomType } from '@/lib/game';
 import { useGame } from '@/hooks/useGame';
+import { useNavigationStore } from '@/store/navigationStore';
 
 const boardPositions = ['north', 'west', 'east', 'south'] as const;
 
@@ -32,6 +33,7 @@ export default function LobbyPage() {
     sendChatMessage,
     setTyping,
   } = useGame();
+  const { clearRoomInfo } = useNavigationStore();
 
   useEffect(() => {
     if (!nickname) {
@@ -87,9 +89,19 @@ export default function LobbyPage() {
             <Button
               variant="outline"
               className="rounded-full"
+              onClick={() => router.push('/')}
+            >
+              <Home className="mr-2 h-4 w-4" />
+              Ke Beranda
+            </Button>
+            <Button
+              variant="outline"
+              className="rounded-full"
               onClick={() => {
-                leaveRoom();
-                router.replace('/');
+                if (window.confirm('Apakah Anda yakin ingin meninggalkan room?')) {
+                  leaveRoom();
+                  router.replace('/');
+                }
               }}
             >
               <DoorOpen className="mr-2 h-4 w-4" />
