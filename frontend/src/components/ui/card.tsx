@@ -3,13 +3,7 @@ import { cn } from '@/lib/utils';
 
 export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div
-      className={cn(
-        'casino-card',
-        className
-      )}
-      {...props}
-    />
+    <div className={cn('nb-card', className)} {...props} />
   );
 }
 
@@ -27,7 +21,7 @@ export function CardTitle({
   return (
     <h3
       className={cn(
-        'text-xl font-bold text-casino-text-primary tracking-tight',
+        'font-display text-xl uppercase tracking-wide text-nb-primary',
         className
       )}
       {...props}
@@ -39,7 +33,9 @@ export function CardDescription({
   className,
   ...props
 }: HTMLAttributes<HTMLParagraphElement>) {
-  return <p className={cn('text-sm text-casino-text-secondary', className)} {...props} />;
+  return (
+    <p className={cn('text-sm font-mono text-nb-on-surface', className)} {...props} />
+  );
 }
 
 export function CardContent({

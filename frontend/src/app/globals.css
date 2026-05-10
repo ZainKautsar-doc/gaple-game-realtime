@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 * {
@@ -14,18 +14,20 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Base */
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #0a3d2e;
-  color: #f5f0e8;
-  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #fbf8ff;
+  color: #1a1b26;
 }
 
 a {
-  color: inherit;
-  text-decoration: none;
+  color: #0001bb;
+  text-decoration: underline;
+}
+
+a:hover {
+  color: #e7e700;
 }
 
 @layer base {
@@ -33,118 +35,122 @@ a {
   h2,
   h3,
   h4 {
-    letter-spacing: -0.02em;
+    font-family: var(--font-anton), Impact, sans-serif;
+    font-weight: 400;
+    text-transform: uppercase;
+    color: #0001bb;
   }
 }
 
 @layer components {
-  /* Casino Card */
-  .casino-card {
-    background: #0d3b2f;
-    border: 1px solid rgba(212, 175, 55, 0.15);
-    border-radius: 12px;
+  .nb-card {
+    background: #ffffff;
+    border: 3px solid #000000;
+    border-radius: 0;
+    box-shadow: 4px 4px 0px #000000;
     padding: 24px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    transition: all 0.2s ease;
   }
 
-  .casino-card:hover {
-    border-color: rgba(212, 175, 55, 0.25);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  .nb-card-header {
+    background: #0001bb;
+    border-bottom: 3px solid #000000;
+    padding: 16px 24px;
+    margin: -24px -24px 24px -24px;
+    font-family: var(--font-anton), Impact, sans-serif;
+    font-size: 24px;
+    font-weight: 400;
+    text-transform: uppercase;
+    color: #ffffff;
+    letter-spacing: 0.02em;
   }
 
-  /* Gold Button */
-  .btn-casino-gold {
-    background: linear-gradient(135deg, #d4af37, #b8941f);
-    color: #0a3d2e;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 24px;
-    font-weight: 600;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 20px rgba(212, 175, 55, 0.3);
-    transition: all 0.2s ease;
-  }
-
-  .btn-casino-gold:hover {
-    background: linear-gradient(135deg, #f0d58c, #d4af37);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 30px rgba(212, 175, 55, 0.5);
-    transform: translateY(-1px);
-  }
-
-  /* Outline Button */
-  .btn-casino-outline {
-    background: transparent;
-    color: #d4af37;
-    border: 1px solid #d4af37;
-    border-radius: 8px;
-    padding: 12px 24px;
-    font-weight: 600;
-    transition: all 0.2s ease;
-  }
-
-  .btn-casino-outline:hover {
-    background: rgba(212, 175, 55, 0.1);
-    border-color: #f0d58c;
-    color: #f0d58c;
-  }
-
-  /* Input */
-  .input-casino {
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(212, 175, 55, 0.15);
-    border-radius: 8px;
+  .nb-input {
+    background: #ffffff;
+    border: 3px solid #000000;
+    border-radius: 0;
     padding: 12px 16px;
-    color: #f5f0e8;
-    transition: all 0.2s ease;
+    font-family: var(--font-space-mono), ui-monospace, monospace;
+    font-size: 14px;
+    font-weight: 400;
+    color: #1a1b26;
   }
 
-  .input-casino:focus {
-    border-color: #d4af37;
-    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+  .nb-input::placeholder {
+    color: #757589;
+  }
+
+  .nb-input:focus {
     outline: none;
+    background: #f5f2ff;
+    border-color: #0001bb;
   }
 
-  /* Table Texture (for game board) */
-  .casino-table {
-    background-color: #1a5c45;
-    background-image: 
-      repeating-linear-gradient(
-        90deg,
-        transparent,
-        transparent 2px,
-        rgba(0, 0, 0, 0.03) 2px,
-        rgba(0, 0, 0, 0.03) 4px
-      );
-    position: relative;
+  .nb-btn {
+    border: 3px solid #000000;
+    border-radius: 0;
+    box-shadow: 4px 4px 0px #000000;
+    font-family: var(--font-space-mono), ui-monospace, monospace;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
   }
 
-  .casino-table::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at center, transparent 40%, rgba(0, 0, 0, 0.3) 100%);
-    pointer-events: none;
+  .nb-btn:active:not(:disabled) {
+    transform: translate(4px, 4px);
+    box-shadow: none;
   }
 
-  /* Active Player Glow */
-  .player-active {
-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
-    border-color: #d4af37;
+  .nb-btn-primary {
+    background-color: #0001bb;
+    color: #ffffff;
   }
 
-  /* Domino Tile */
+  .nb-btn-primary:hover:not(:disabled) {
+    background-color: #e7e700;
+    color: #1a1b26;
+  }
+
+  .nb-btn-secondary {
+    background-color: #ffffff;
+    color: #1a1b26;
+  }
+
+  .nb-btn-secondary:hover:not(:disabled) {
+    background-color: #0001bb;
+    color: #ffffff;
+  }
+
+  .nb-btn-danger {
+    background-color: #9d0100;
+    color: #ffffff;
+  }
+
+  .nb-btn-danger:hover:not(:disabled) {
+    background-color: #e7e700;
+    color: #1a1b26;
+  }
+
+  /* Table surface (legacy class name kept for DOM hooks in game.css) */
   .domino-tile {
     background: #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    border: 3px solid #000000;
+    border-radius: 0;
+    box-shadow: 4px 4px 0px #000000;
   }
 
-  /* Selected Card */
   .card-selected {
-    transform: translateY(-8px);
-    border: 2px solid #d4af37;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4), 0 0 15px rgba(212, 175, 55, 0.5);
+    transform: translateY(-4px);
+    border: 4px solid #0001bb;
+    box-shadow: 4px 4px 0px #000000;
+  }
+
+  /* Player glow — solid yellow ring, no blur */
+  .player-active-nb {
+    border-color: #e7e700;
+    box-shadow: 4px 4px 0px #000000;
+    outline: 3px solid #e7e700;
+    outline-offset: 2px;
   }
 }
 
@@ -154,14 +160,16 @@ a {
   }
 
   .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    @apply bg-transparent;
+    background: #fbf8ff;
+    border-left: 2px solid #000000;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-white/10 hover:bg-white/20 transition-colors;
+    background: #0001bb;
+    border: 2px solid #000000;
   }
 }

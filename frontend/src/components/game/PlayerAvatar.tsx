@@ -23,21 +23,20 @@ export function PlayerAvatar({
     return (
       <div
         className={cn(
-          'relative overflow-hidden rounded-3xl border border-dashed border-white/10 bg-white/[0.02] p-4',
+          'relative overflow-hidden border-[3px] border-dashed border-nb-outline bg-nb-white p-4',
           className
         )}
       >
-        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-brand/10 to-transparent" />
-        <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">
+        <p className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-nb-placeholder">
           {seatLabel}
         </p>
-        <div className="mt-3 flex items-center gap-3 opacity-50">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-dashed border-slate-700 bg-slate-900/50">
-            <span className="text-slate-600">?</span>
+        <div className="mt-3 flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center border-[3px] border-dashed border-nb-outline bg-nb-surface">
+            <span className="font-mono font-bold text-nb-placeholder">?</span>
           </div>
           <div className="space-y-2">
-            <div className="h-4 w-24 rounded bg-slate-800/50" />
-            <div className="h-3 w-32 rounded bg-slate-900/50" />
+            <div className="h-4 w-24 border-[2px] border-nb-outline bg-nb-surface-low" />
+            <div className="h-3 w-32 border-[2px] border-nb-outline bg-nb-surface" />
           </div>
         </div>
       </div>
@@ -47,38 +46,43 @@ export function PlayerAvatar({
   return (
     <div
       className={cn(
-        'rounded-3xl border bg-white/[0.04] p-4 transition-all duration-300',
-        isCurrentTurn
-          ? 'border-brand-light shadow-[0_0_28px_rgba(74,144,226,0.3)]'
-          : 'border-white/10',
+        'rounded-none border-[3px] border-nb-outline bg-nb-white p-4 shadow-nb-sm',
+        isCurrentTurn ? 'outline outline-[3px] outline-nb-secondary outline-offset-2 bg-nb-secondary' : '',
         className
       )}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <Avatar className="border-2 border-white/10">{getInitials(player.nickname)}</Avatar>
+          <Avatar>{getInitials(player.nickname)}</Avatar>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-nb-placeholder">
               {seatLabel}
             </p>
-            <p className="font-bold text-white leading-tight">
-              {player.nickname} {isSelf ? <span className="text-brand-light ml-1 text-[10px] underline underline-offset-4">LU CUY</span> : ''}
+            <p className="font-display text-lg uppercase leading-tight text-nb-primary">
+              {player.nickname}{' '}
+              {isSelf ? (
+                <span className="font-mono text-[10px] font-bold uppercase text-nb-on-surface">(LU)</span>
+              ) : (
+                ''
+              )}
             </p>
           </div>
         </div>
-        <Badge className="border-white/10 bg-white/5 text-[10px] font-black">{player.cardCount} KARTU</Badge>
+        <Badge className="border-nb-outline bg-nb-primary text-nb-white font-black">{player.cardCount} KARTU</Badge>
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
         {isCurrentTurn && (
-          <Badge className="border-brand-light/30 bg-brand-light/10 text-brand-light font-black animate-pulse">LAGI JALAN</Badge>
+          <Badge className="border-nb-outline bg-nb-primary text-nb-white font-black animate-nb-pulse">
+            LAGI JALAN
+          </Badge>
         )}
         {player.hasPassed && (
-          <Badge className="border-amber-400/30 bg-amber-400/10 text-amber-200 font-bold italic">
+          <Badge className="border-nb-outline bg-nb-tertiary text-nb-white font-bold uppercase">
             PASS
           </Badge>
         )}
         {!player.isConnected && (
-          <Badge className="border-rose-400/30 bg-rose-400/10 text-rose-100 font-bold">
+          <Badge className="border-nb-outline bg-[#dcd8e8] text-nb-on-surface font-bold uppercase">
             DC
           </Badge>
         )}

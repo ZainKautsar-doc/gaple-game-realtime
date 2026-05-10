@@ -10,30 +10,26 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Background
-        'casino-bg-primary': '#0a3d2e',
-        'casino-bg-secondary': '#072820',
-        'casino-bg-surface': '#0d3b2f',
-        'casino-bg-elevated': '#11473a',
-        'casino-bg-table': '#1a5c45',
-        
-        // Accent
-        'casino-gold': '#d4af37',
-        'casino-gold-light': '#f0d58c',
-        'casino-gold-dark': '#b8941f',
-        'casino-brass': '#c5a572',
-        'casino-ivory': '#f5f0e8',
-        
-        // Text
-        'casino-text-primary': '#f5f0e8',
-        'casino-text-secondary': '#c4b5a0',
-        'casino-text-muted': '#8a7d6f',
+        nb: {
+          primary: '#0001bb',
+          'primary-pure': '#0000ff',
+          secondary: '#e7e700',
+          tertiary: '#9d0100',
+          'tertiary-dark': '#720100',
+          surface: '#fbf8ff',
+          'surface-low': '#f5f2ff',
+          'on-surface': '#1a1b26',
+          outline: '#000000',
+          white: '#ffffff',
+          placeholder: '#757589',
+        },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-space-mono)', 'ui-monospace', 'monospace'],
+        display: ['var(--font-anton)', 'Impact', 'sans-serif'],
+        mono: ['var(--font-space-mono)', 'ui-monospace', 'monospace'],
       },
       spacing: {
-        // 8px grid based system
         '1': '4px',
         '2': '8px',
         '3': '12px',
@@ -48,24 +44,22 @@ const config: Config = {
         '24': '96px',
       },
       borderRadius: {
-        'casino': '12px',
-        'casino-sm': '8px',
+        none: '0px',
+        full: '9999px',
       },
       boxShadow: {
-        'casino-sm': '0 2px 4px rgba(0, 0, 0, 0.3)',
-        'casino-md': '0 4px 12px rgba(0, 0, 0, 0.4)',
-        'casino-lg': '0 8px 24px rgba(0, 0, 0, 0.5)',
-        'casino-glow': '0 0 20px rgba(212, 175, 55, 0.3)',
-        'casino-glow-strong': '0 0 30px rgba(212, 175, 55, 0.5)',
-      },
-      animation: {
-        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+        'nb-sm': '4px 4px 0px #000000',
+        'nb-md': '8px 8px 0px #000000',
+        nb: '4px 4px 0px #000000',
       },
       keyframes: {
-        'pulse-glow': {
-          '0%, 100%': { boxShadow: '0 0 15px rgba(212, 175, 55, 0.3)' },
-          '50%': { boxShadow: '0 0 25px rgba(212, 175, 55, 0.5)' },
+        'nb-block-pulse': {
+          '0%, 100%': { backgroundColor: '#f5f2ff' },
+          '50%': { backgroundColor: '#e7e700' },
         },
+      },
+      animation: {
+        'nb-pulse': 'nb-block-pulse 1s steps(2, jump-none) infinite',
       },
     },
   },

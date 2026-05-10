@@ -33,7 +33,6 @@ export default function LobbyPage() {
     sendChatMessage,
     setTyping,
   } = useGame();
-  const { clearRoomInfo } = useNavigationStore();
 
   useEffect(() => {
     if (!nickname) {
@@ -60,43 +59,39 @@ export default function LobbyPage() {
   const me = roomState.players.find((player) => player.id === myPlayerId);
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-7xl px-6 pb-10 pt-8 bg-casino-bg-primary">
+    <main className="mx-auto min-h-screen w-full max-w-7xl bg-nb-surface px-4 pb-10 pt-8 md:px-6">
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="casino-card border-casino-gold/30 bg-[linear-gradient(135deg,rgba(13,59,47,1),rgba(17,71,58,1))] p-6 shadow-casino-lg"
+        initial={false}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0 }}
+        className="nb-card mb-6"
       >
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-3xl font-bold text-casino-text-primary tracking-tight">{roomState.name}</h1>
-              <span className="rounded-full border border-casino-gold/30 bg-casino-gold/10 px-3 py-1 text-xs font-bold text-casino-gold capitalize">
+              <h1 className="font-display text-3xl uppercase text-nb-primary tracking-wide">{roomState.name}</h1>
+              <span className="border-[3px] border-nb-outline bg-nb-secondary px-3 py-1 font-mono text-xs font-bold uppercase text-nb-on-surface">
                 {formatRoomType(roomState.type)}
               </span>
             </div>
-            <p className="mt-2 text-casino-text-secondary">{roomState.message}</p>
+            <p className="mt-2 font-mono text-sm font-medium text-nb-on-surface">{roomState.message}</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
               onClick={() => navigator.clipboard.writeText(roomState.code)}
-              className="inline-flex items-center gap-2 rounded-full border border-casino-gold/20 bg-black/20 px-4 py-2 text-sm font-medium text-casino-text-primary transition hover:bg-casino-gold/10"
+              className="inline-flex items-center gap-2 border-[3px] border-nb-outline bg-nb-white px-4 py-2 font-mono text-sm font-bold uppercase text-nb-primary shadow-nb-sm hover:bg-nb-secondary"
             >
-              <Copy className="h-4 w-4 text-casino-gold" />
+              <Copy className="h-4 w-4" />
               {roomState.code}
             </button>
-            <Button
-              variant="outline"
-              className="rounded-full"
-              onClick={() => router.push('/')}
-            >
+            <Button variant="outline" onClick={() => router.push('/')}>
               <Home className="mr-2 h-4 w-4" />
               Ke Beranda
             </Button>
             <Button
               variant="outline"
-              className="rounded-full"
               onClick={() => {
                 if (window.confirm('Apakah Anda yakin ingin meninggalkan room?')) {
                   leaveRoom();
@@ -112,28 +107,30 @@ export default function LobbyPage() {
       </motion.div>
 
       {error && (
-        <div className="mt-6 rounded-lg border border-red-900/50 bg-red-900/20 px-4 py-3 text-sm text-red-200">
+        <div className="border-[3px] border-nb-outline bg-nb-tertiary px-4 py-3 font-mono text-sm font-bold uppercase text-nb-white">
           {error}
         </div>
       )}
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-        <section className="casino-card border-casino-gold/15 p-6">
+        <section className="nb-card">
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-casino-gold">Player Management</p>
-              <h2 className="mt-2 text-2xl font-bold text-casino-text-primary">Table Seats</h2>
+              <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-nb-primary">
+                Player Management
+              </p>
+              <h2 className="mt-2 font-display text-2xl uppercase text-nb-primary">Table Seats</h2>
             </div>
             <div className="flex flex-wrap gap-3">
-              <span className="inline-flex items-center gap-2 rounded-full border border-casino-gold/20 bg-black/20 px-4 py-2 text-sm font-medium text-casino-text-secondary">
-                <Users className="h-4 w-4 text-casino-gold" />
+              <span className="inline-flex items-center gap-2 border-[3px] border-nb-outline bg-nb-surface-low px-4 py-2 font-mono text-sm font-bold uppercase text-nb-on-surface">
+                <Users className="h-4 w-4 text-nb-primary" />
                 {roomState.currentPlayers}/{roomState.maxPlayers} players
               </span>
               <span
-                className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium ${
+                className={`inline-flex items-center gap-2 border-[3px] border-nb-outline px-4 py-2 font-mono text-sm font-bold uppercase ${
                   isConnected
-                    ? 'border-[#5a8f6a]/30 bg-[#5a8f6a]/10 text-[#5a8f6a]'
-                    : 'border-red-900/50 bg-red-900/20 text-red-200'
+                    ? 'bg-nb-secondary text-nb-on-surface'
+                    : 'bg-nb-tertiary text-nb-white'
                 }`}
               >
                 <Power className="h-4 w-4" />
@@ -170,25 +167,25 @@ export default function LobbyPage() {
             })}
           </div>
 
-          <div className="mt-6 flex flex-wrap gap-3 rounded-xl border border-casino-gold/15 bg-black/20 p-4 items-center">
+          <div className="mt-6 flex flex-wrap gap-3 border-[3px] border-nb-outline bg-nb-surface-low p-4 items-center">
             {me && (
-              <Button variant={me.isReady ? 'outline' : 'primary'} onClick={() => setReady(!me.isReady)} className="rounded-full px-6">
+              <Button variant={me.isReady ? 'outline' : 'primary'} onClick={() => setReady(!me.isReady)} className="px-6">
                 {me.isReady ? 'Cancel Ready' : 'I am Ready'}
               </Button>
             )}
             {isHost && (
-              <Button variant="primary" onClick={startGame} disabled={!everyoneReady} className="rounded-full px-6">
+              <Button variant="primary" onClick={startGame} disabled={!everyoneReady} className="px-6">
                 <Play className="mr-2 h-4 w-4" />
                 Start Game
               </Button>
             )}
             {isHost && !everyoneReady && (
-              <p className="self-center text-sm text-casino-text-muted">
-                Wait for the table to fill and all players to be ready.
+              <p className="self-center font-mono text-sm font-bold uppercase text-nb-placeholder">
+                Wait for all players ready.
               </p>
             )}
             {isHost && (
-              <span className="inline-flex items-center gap-2 rounded-full border border-casino-gold/30 bg-casino-gold/10 px-4 py-2 text-sm font-medium text-casino-gold ml-auto">
+              <span className="ml-auto inline-flex items-center gap-2 border-[3px] border-nb-outline bg-nb-secondary px-4 py-2 font-mono text-sm font-bold uppercase text-nb-on-surface">
                 <Crown className="h-4 w-4" />
                 Dealer
               </span>
@@ -197,24 +194,24 @@ export default function LobbyPage() {
         </section>
 
         <aside className="space-y-6">
-          <section className="casino-card border-casino-gold/15 p-6">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-casino-gold">Table Info</p>
+          <section className="nb-card">
+            <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-nb-primary">Table Info</p>
             <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
-              <div className="rounded-xl border border-casino-gold/10 bg-black/20 p-4">
-                <p className="text-xs text-casino-text-muted uppercase">Table Name</p>
-                <p className="mt-1 text-lg font-bold text-casino-text-primary">{roomState.name}</p>
+              <div className="border-[3px] border-nb-outline bg-nb-surface-low p-4 shadow-nb-sm">
+                <p className="font-mono text-xs font-bold uppercase text-nb-placeholder">Table Name</p>
+                <p className="mt-2 font-display text-lg uppercase text-nb-primary">{roomState.name}</p>
               </div>
-              <div className="rounded-xl border border-casino-gold/10 bg-black/20 p-4">
-                <p className="text-xs text-casino-text-muted uppercase">Type</p>
-                <p className="mt-1 text-lg font-bold text-casino-text-primary capitalize">{formatRoomType(roomState.type)}</p>
+              <div className="border-[3px] border-nb-outline bg-nb-surface-low p-4 shadow-nb-sm">
+                <p className="font-mono text-xs font-bold uppercase text-nb-placeholder">Type</p>
+                <p className="mt-2 font-display text-lg uppercase text-nb-primary">{formatRoomType(roomState.type)}</p>
               </div>
-              <div className="rounded-xl border border-casino-gold/10 bg-black/20 p-4">
-                <p className="text-xs text-casino-text-muted uppercase">Code</p>
-                <p className="mt-1 font-mono text-lg font-bold tracking-[0.2em] text-casino-gold">{roomState.code}</p>
+              <div className="border-[3px] border-nb-outline bg-nb-surface-low p-4 shadow-nb-sm">
+                <p className="font-mono text-xs font-bold uppercase text-nb-placeholder">Code</p>
+                <p className="mt-2 font-mono text-lg font-bold tracking-[0.15em] text-nb-primary">{roomState.code}</p>
               </div>
-              <div className="rounded-xl border border-casino-gold/10 bg-black/20 p-4">
-                <p className="text-xs text-casino-text-muted uppercase">Capacity</p>
-                <p className="mt-1 text-lg font-bold text-casino-text-primary">{roomState.maxPlayers} players</p>
+              <div className="border-[3px] border-nb-outline bg-nb-surface-low p-4 shadow-nb-sm">
+                <p className="font-mono text-xs font-bold uppercase text-nb-placeholder">Capacity</p>
+                <p className="mt-2 font-display text-lg uppercase text-nb-primary">{roomState.maxPlayers} players</p>
               </div>
             </div>
           </section>

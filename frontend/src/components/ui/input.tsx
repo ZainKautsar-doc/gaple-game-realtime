@@ -7,10 +7,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, ...props }, ref) => (
     <input
       ref={ref}
-      className={cn(
-        'input-casino w-full h-12',
-        className
-      )}
+      className={cn('nb-input w-full min-h-12', className)}
       {...props}
     />
   )

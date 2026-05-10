@@ -161,47 +161,49 @@ export function RoomSetupDialog({
       {isOpen && (
         <>
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={false}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-[#072820]/80 backdrop-blur-md"
+            exit={{ opacity: 1 }}
+            transition={{ duration: 0 }}
+            className="fixed inset-0 z-[60] bg-[#1a1b26]"
             onClick={onClose}
           />
           <motion.div
-            initial={{ opacity: 0, y: 28, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 28, scale: 0.96 }}
-            transition={{ duration: 0.22 }}
+            initial={false}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 1 }}
+            transition={{ duration: 0 }}
             className="fixed inset-x-0 top-4 z-[70] mx-auto w-[calc(100%-24px)] max-w-6xl"
           >
-            <div className="overflow-hidden rounded-[16px] border border-casino-gold/30 bg-casino-bg-primary shadow-[0_24px_80px_rgba(0,0,0,0.6)]">
-              <div className="flex items-center justify-between border-b border-casino-gold/15 bg-casino-bg-surface px-6 py-5">
+            <div className="overflow-hidden border-[3px] border-nb-outline bg-nb-white shadow-nb-md">
+              <div className="flex items-center justify-between border-b-[3px] border-nb-outline bg-nb-primary px-6 py-5">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-casino-gold">
+                  <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-nb-secondary">
                     Matchmaking
                   </p>
-                  <h2 className="mt-1 text-2xl font-bold text-casino-text-primary">
+                  <h2 className="mt-1 font-display text-2xl uppercase text-nb-white">
                     {mode === 'create' ? 'Create a Table' : 'Find a Table'}
                   </h2>
                 </div>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="rounded-full border border-casino-gold/20 p-2 text-casino-text-secondary transition hover:bg-casino-gold/10 hover:text-casino-gold"
+                  className="border-[3px] border-nb-outline bg-nb-tertiary p-2 text-nb-white shadow-nb-sm hover:bg-nb-secondary hover:text-nb-on-surface"
+                  aria-label="Close"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
               <div className="grid gap-0 lg:grid-cols-[280px_minmax(0,1fr)]">
-                <aside className="border-b border-casino-gold/15 bg-casino-bg-secondary p-5 lg:border-b-0 lg:border-r">
-                  <div className="rounded-xl border border-casino-gold/10 bg-casino-bg-surface p-2">
+                <aside className="border-b-[3px] border-nb-outline bg-nb-surface-low p-5 lg:border-b-0 lg:border-r-[3px] lg:border-nb-outline">
+                  <div className="border-[3px] border-nb-outline bg-nb-white p-2 shadow-nb-sm">
                     <button
                       type="button"
-                      className={`flex w-full items-center justify-between rounded-lg px-4 py-3 text-left text-sm font-semibold transition ${
+                      className={`flex w-full items-center justify-between border-[3px] border-nb-outline px-4 py-3 text-left font-mono text-sm font-bold uppercase shadow-nb-sm ${
                         mode === 'create'
-                          ? 'bg-gradient-to-r from-casino-gold to-casino-gold-dark text-casino-bg-primary shadow-lg'
-                          : 'text-casino-text-secondary hover:bg-casino-gold/10'
+                          ? 'bg-nb-secondary text-nb-on-surface'
+                          : 'bg-nb-white text-nb-on-surface hover:bg-nb-primary hover:text-nb-white'
                       }`}
                       onClick={() => setMode('create')}
                     >
@@ -210,10 +212,10 @@ export function RoomSetupDialog({
                     </button>
                     <button
                       type="button"
-                      className={`mt-2 flex w-full items-center justify-between rounded-lg px-4 py-3 text-left text-sm font-semibold transition ${
+                      className={`mt-2 flex w-full items-center justify-between border-[3px] border-nb-outline px-4 py-3 text-left font-mono text-sm font-bold uppercase shadow-nb-sm ${
                         mode === 'join'
-                          ? 'bg-gradient-to-r from-casino-gold to-casino-gold-dark text-casino-bg-primary shadow-lg'
-                          : 'text-casino-text-secondary hover:bg-casino-gold/10'
+                          ? 'bg-nb-secondary text-nb-on-surface'
+                          : 'bg-nb-white text-nb-on-surface hover:bg-nb-primary hover:text-nb-white'
                       }`}
                       onClick={() => setMode('join')}
                     >
@@ -222,11 +224,11 @@ export function RoomSetupDialog({
                     </button>
                   </div>
 
-                  <div className="mt-6 rounded-xl border border-casino-gold/10 bg-casino-bg-surface p-5">
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-casino-text-muted">
+                  <div className="mt-6 border-[3px] border-nb-outline bg-nb-white p-5 shadow-nb-sm">
+                    <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-nb-placeholder">
                       Player Identity
                     </p>
-                    <label className="mt-4 block text-sm font-medium text-casino-text-primary">
+                    <label className="mt-4 block font-mono text-sm font-bold uppercase text-nb-on-surface">
                       Alias
                     </label>
                     <Input
@@ -236,33 +238,35 @@ export function RoomSetupDialog({
                       placeholder="Enter your alias"
                       className="mt-2"
                     />
-                    <p className="mt-3 text-xs text-casino-text-secondary">
+                    <p className="mt-3 font-mono text-xs font-medium text-nb-on-surface">
                       This name will be displayed at the table.
                     </p>
                   </div>
 
                   {activeError && (
-                    <div className="mt-4 rounded-lg border border-red-900/50 bg-red-900/20 px-4 py-3 text-sm text-red-200">
+                    <div className="mt-4 border-[3px] border-nb-outline bg-nb-tertiary px-4 py-3 font-mono text-sm font-bold uppercase text-nb-white">
                       {activeError}
                     </div>
                   )}
                 </aside>
 
-                <div className="max-h-[80vh] overflow-y-auto px-6 py-6 custom-scrollbar bg-casino-bg-primary">
+                <div className="max-h-[80vh] overflow-y-auto px-6 py-6 custom-scrollbar bg-nb-surface">
                   {mode === 'create' ? (
                     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
                       <div className="space-y-6">
-                        <section className="casino-card p-6">
+                        <section className="nb-card">
                           <div className="mb-5">
-                            <h3 className="text-lg font-bold text-casino-text-primary">Table Configuration</h3>
-                            <p className="mt-1 text-sm text-casino-text-secondary">
+                            <h3 className="font-display text-lg uppercase text-nb-primary">Table Configuration</h3>
+                            <p className="mt-2 font-mono text-sm font-medium text-nb-on-surface">
                               Set up a public table for open play or a private one for your circle.
                             </p>
                           </div>
 
                           <div className="grid gap-5 md:grid-cols-2">
                             <div className="md:col-span-2">
-                              <label className="text-sm font-medium text-casino-text-primary">Table Name</label>
+                              <label className="font-mono text-sm font-bold uppercase text-nb-on-surface">
+                                Table Name
+                              </label>
                               <Input
                                 value={roomName}
                                 onChange={(event) => setRoomName(event.target.value)}
@@ -272,22 +276,24 @@ export function RoomSetupDialog({
                               />
                             </div>
 
-                            <div>
-                              <p className="text-sm font-medium text-casino-text-primary">Visibility</p>
+                            <div className="md:col-span-2">
+                              <p className="font-mono text-sm font-bold uppercase text-nb-on-surface">
+                                Visibility
+                              </p>
                               <div className="mt-2 grid grid-cols-2 gap-3">
                                 {(['public', 'private'] as const).map((value) => (
                                   <button
                                     key={value}
                                     type="button"
-                                    className={`rounded-xl border p-4 text-left transition ${
+                                    className={`border-[3px] border-nb-outline p-4 text-left font-mono shadow-nb-sm ${
                                       roomType === value
-                                        ? 'border-casino-gold bg-casino-gold/10 text-casino-gold shadow-[0_0_15px_rgba(212,175,55,0.15)]'
-                                        : 'border-casino-gold/15 bg-black/20 text-casino-text-secondary hover:bg-casino-gold/5'
+                                        ? 'bg-nb-secondary text-nb-on-surface'
+                                        : 'bg-nb-white text-nb-on-surface hover:bg-nb-surface-low'
                                     }`}
                                     onClick={() => setRoomType(value)}
                                   >
-                                    <p className="font-bold capitalize">{formatRoomType(value)}</p>
-                                    <p className="mt-1 text-xs text-casino-text-muted">
+                                    <p className="font-bold uppercase">{formatRoomType(value)}</p>
+                                    <p className="mt-2 text-xs font-medium text-nb-placeholder uppercase">
                                       {value === 'public'
                                         ? 'Listed in the lobby'
                                         : 'Code & password required'}
@@ -300,7 +306,9 @@ export function RoomSetupDialog({
                             {roomType === 'private' && (
                               <>
                                 <div>
-                                  <label className="text-sm font-medium text-casino-text-primary">Password</label>
+                                  <label className="font-mono text-sm font-bold uppercase text-nb-on-surface">
+                                    Password
+                                  </label>
                                   <Input
                                     value={password}
                                     type="password"
@@ -310,7 +318,7 @@ export function RoomSetupDialog({
                                   />
                                 </div>
                                 <div>
-                                  <label className="text-sm font-medium text-casino-text-primary">
+                                  <label className="font-mono text-sm font-bold uppercase text-nb-on-surface">
                                     Confirm Password
                                   </label>
                                   <Input
@@ -327,12 +335,7 @@ export function RoomSetupDialog({
                         </section>
 
                         <div className="flex flex-wrap gap-3">
-                          <Button
-                            variant="primary"
-                            className="rounded-lg px-8 py-3"
-                            onClick={handleCreateRoom}
-                            disabled={isSubmitting}
-                          >
+                          <Button variant="primary" className="px-8 py-3" onClick={handleCreateRoom} disabled={isSubmitting}>
                             {isSubmitting ? (
                               <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -342,45 +345,52 @@ export function RoomSetupDialog({
                               'Host & Join Table'
                             )}
                           </Button>
-                          <Button variant="outline" className="rounded-lg px-8 py-3" onClick={onClose}>
+                          <Button variant="outline" className="px-8 py-3" onClick={onClose}>
                             Cancel
                           </Button>
                         </div>
                       </div>
 
-                      <aside className="casino-card p-6 bg-[linear-gradient(135deg,rgba(13,59,47,1),rgba(17,71,58,1))]">
-                        <p className="text-xs font-bold uppercase tracking-[0.2em] text-casino-gold">
+                      <aside className="nb-card bg-nb-secondary">
+                        <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-nb-on-surface">
                           Table Preview
                         </p>
                         <div className="mt-5 space-y-4">
-                          <div className="rounded-xl border border-casino-gold/15 bg-black/20 p-4">
-                            <p className="text-xs text-casino-text-muted uppercase">Table Name</p>
-                            <p className="mt-1 text-lg font-bold text-casino-text-primary">
+                          <div className="border-[3px] border-nb-outline bg-nb-white p-4 shadow-nb-sm">
+                            <p className="font-mono text-xs font-bold uppercase text-nb-placeholder">
+                              Table Name
+                            </p>
+                            <p className="mt-2 font-display text-lg uppercase text-nb-primary">
                               {roomName.trim() || 'Unnamed Table'}
                             </p>
                           </div>
                           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
-                            <div className="rounded-xl border border-casino-gold/15 bg-black/20 p-4">
-                              <p className="text-xs text-casino-text-muted uppercase">Type</p>
-                              <p className="mt-1 font-bold text-casino-text-primary">{formatRoomType(roomType)}</p>
+                            <div className="border-[3px] border-nb-outline bg-nb-white p-4 shadow-nb-sm">
+                              <p className="font-mono text-xs font-bold uppercase text-nb-placeholder">Type</p>
+                              <p className="mt-2 font-mono font-bold uppercase text-nb-on-surface">
+                                {formatRoomType(roomType)}
+                              </p>
                             </div>
-                            <div className="rounded-xl border border-casino-gold/15 bg-black/20 p-4">
-                              <p className="text-xs text-casino-text-muted uppercase">Capacity</p>
-                              <p className="mt-1 font-bold text-casino-text-primary">4 players</p>
+                            <div className="border-[3px] border-nb-outline bg-nb-white p-4 shadow-nb-sm">
+                              <p className="font-mono text-xs font-bold uppercase text-nb-placeholder">Capacity</p>
+                              <p className="mt-2 font-mono font-bold uppercase text-nb-on-surface">4 players</p>
                             </div>
                           </div>
-                          <div className="rounded-xl border border-casino-gold/30 bg-casino-gold/5 p-4">
+                          <div className="border-[3px] border-nb-outline bg-nb-primary p-4 shadow-nb-sm">
                             <div className="flex items-center justify-between gap-3">
                               <div>
-                                <p className="text-xs text-casino-gold uppercase">Access Code</p>
-                                <p className="mt-1 font-mono text-lg font-bold tracking-[0.2em] text-casino-text-primary">
+                                <p className="font-mono text-xs font-bold uppercase text-nb-secondary">
+                                  Access Code
+                                </p>
+                                <p className="mt-2 font-mono text-lg font-bold tracking-[0.15em] text-nb-white">
                                   {generatedPreviewCode}
                                 </p>
                               </div>
                               <button
                                 type="button"
-                                className="rounded-full border border-casino-gold/30 p-2 text-casino-gold transition hover:bg-casino-gold/10"
+                                className="border-[3px] border-nb-outline bg-nb-secondary p-2 text-nb-primary shadow-nb-sm hover:bg-nb-white"
                                 onClick={() => navigator.clipboard.writeText(generatedPreviewCode)}
+                                aria-label="Copy code"
                               >
                                 <Copy className="h-4 w-4" />
                               </button>
@@ -391,20 +401,15 @@ export function RoomSetupDialog({
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      <section className="casino-card p-6">
+                      <section className="nb-card">
                         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                           <div>
-                            <h3 className="text-lg font-bold text-casino-text-primary">Active Tables</h3>
-                            <p className="mt-1 text-sm text-casino-text-secondary">
+                            <h3 className="font-display text-lg uppercase text-nb-primary">Active Tables</h3>
+                            <p className="mt-2 font-mono text-sm font-medium text-nb-on-surface">
                               Join a public table to start playing immediately.
                             </p>
                           </div>
-                          <Button
-                            variant="outline"
-                            className="rounded-lg"
-                            onClick={refreshRooms}
-                            disabled={isRoomsLoading}
-                          >
+                          <Button variant="outline" onClick={refreshRooms} disabled={isRoomsLoading}>
                             <RefreshCcw className={`mr-2 h-4 w-4 ${isRoomsLoading ? 'animate-spin' : ''}`} />
                             Refresh
                           </Button>
@@ -412,7 +417,7 @@ export function RoomSetupDialog({
 
                         <div className="mt-5 grid gap-4 md:grid-cols-[minmax(0,1fr)_180px]">
                           <div className="relative">
-                            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-casino-text-muted" />
+                            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-nb-placeholder" />
                             <Input
                               value={searchQuery}
                               onChange={(event) => setSearchQuery(event.target.value)}
@@ -425,7 +430,7 @@ export function RoomSetupDialog({
                             onChange={(event) =>
                               setStatusFilter(event.target.value as 'all' | 'waiting' | 'playing')
                             }
-                            className="input-casino h-12"
+                            className="nb-input h-12"
                           >
                             <option value="all">All Status</option>
                             <option value="waiting">Waiting</option>
@@ -438,14 +443,16 @@ export function RoomSetupDialog({
                             Array.from({ length: 3 }).map((_, index) => (
                               <div
                                 key={`room-skeleton-${index}`}
-                                className="h-44 animate-pulse rounded-[16px] border border-casino-gold/10 bg-casino-bg-surface"
+                                className="h-44 animate-nb-pulse border-[3px] border-nb-outline bg-nb-surface-low"
                               />
                             ))}
 
                           {!isRoomsLoading && filteredRooms.length === 0 && (
-                            <div className="col-span-full rounded-[16px] border border-dashed border-casino-gold/20 bg-black/20 px-6 py-12 text-center">
-                              <p className="text-lg font-bold text-casino-text-primary">No public tables available</p>
-                              <p className="mt-2 text-sm text-casino-text-secondary">
+                            <div className="col-span-full border-[3px] border-dashed border-nb-outline bg-nb-white px-6 py-12 text-center shadow-nb-sm">
+                              <p className="font-display text-lg uppercase text-nb-primary">
+                                No public tables available
+                              </p>
+                              <p className="mt-3 font-mono text-sm font-bold uppercase text-nb-on-surface">
                                 Refresh the list or host a new table.
                               </p>
                             </div>
@@ -455,34 +462,39 @@ export function RoomSetupDialog({
                             filteredRooms.map((room) => (
                               <motion.div
                                 key={room.roomId}
-                                initial={{ opacity: 0, y: 18 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="rounded-[16px] border border-casino-gold/15 bg-casino-bg-surface p-5 shadow-casino-sm hover:border-casino-gold/30 transition-colors"
+                                initial={false}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0 }}
+                                className="border-[3px] border-nb-outline bg-nb-white p-5 shadow-nb-sm hover:bg-nb-surface-low"
                               >
                                 <div className="flex items-start justify-between gap-4">
                                   <div>
-                                    <p className="text-lg font-bold text-casino-text-primary">{room.name}</p>
-                                    <p className="mt-1 font-mono text-xs tracking-[0.2em] text-casino-gold">
+                                    <p className="font-display text-lg uppercase text-nb-primary">{room.name}</p>
+                                    <p className="mt-2 font-mono text-xs font-bold tracking-[0.15em] text-nb-primary">
                                       {room.code}
                                     </p>
                                   </div>
-                                  <div className="rounded-lg border border-casino-gold/20 bg-black/30 px-3 py-1 text-xs font-bold text-casino-text-secondary">
+                                  <div className="border-[3px] border-nb-outline bg-nb-secondary px-3 py-1 font-mono text-xs font-bold uppercase text-nb-on-surface">
                                     {room.currentPlayers}/{room.maxPlayers}
                                   </div>
                                 </div>
                                 <div className="mt-5 flex flex-wrap gap-2">
-                                  <span className={`rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wider ${
-                                    room.status === 'waiting' ? 'border-[#5a8f6a] text-[#5a8f6a] bg-[#5a8f6a]/10' : 'border-casino-gold text-casino-gold bg-casino-gold/10'
-                                  }`}>
+                                  <span
+                                    className={`border-[3px] border-nb-outline px-3 py-1 font-mono text-xs font-bold uppercase ${
+                                      room.status === 'waiting'
+                                        ? 'bg-nb-secondary text-nb-on-surface'
+                                        : 'bg-nb-primary text-nb-white'
+                                    }`}
+                                  >
                                     {formatRoomStatus(room.status)}
                                   </span>
-                                  <span className="rounded-full border border-casino-gold/20 bg-black/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-casino-text-secondary">
+                                  <span className="border-[3px] border-nb-outline bg-nb-surface px-3 py-1 font-mono text-xs font-bold uppercase text-nb-on-surface">
                                     {formatRoomType(room.type)}
                                   </span>
                                 </div>
                                 <Button
                                   variant="primary"
-                                  className="mt-6 w-full rounded-lg"
+                                  className="mt-6 w-full"
                                   onClick={() => handleJoinRoom(room.code)}
                                   disabled={room.status !== 'waiting' || isSubmitting}
                                 >
@@ -493,12 +505,12 @@ export function RoomSetupDialog({
                         </div>
                       </section>
 
-                      <section className="casino-card p-6">
+                      <section className="nb-card">
                         <div className="flex items-center gap-3">
-                          <Lock className="h-5 w-5 text-casino-gold" />
+                          <Lock className="h-5 w-5 text-nb-primary" />
                           <div>
-                            <h3 className="text-lg font-bold text-casino-text-primary">Join via Code</h3>
-                            <p className="mt-1 text-sm text-casino-text-secondary">
+                            <h3 className="font-display text-lg uppercase text-nb-primary">Join via Code</h3>
+                            <p className="mt-2 font-mono text-sm font-medium text-nb-on-surface">
                               Enter an access code to join a private table.
                             </p>
                           </div>
@@ -530,11 +542,13 @@ export function RoomSetupDialog({
                         </div>
 
                         {lookupResult?.found && lookupResult.room && (
-                          <div className="mt-5 rounded-xl border border-casino-gold/30 bg-casino-gold/5 p-5">
+                          <div className="mt-5 border-[3px] border-nb-outline bg-nb-secondary p-5 shadow-nb-sm">
                             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                               <div>
-                                <p className="text-xl font-bold text-casino-text-primary">{lookupResult.room.name}</p>
-                                <p className="mt-1 text-sm text-casino-text-secondary">
+                                <p className="font-display text-xl uppercase text-nb-primary">
+                                  {lookupResult.room.name}
+                                </p>
+                                <p className="mt-2 font-mono text-sm font-bold uppercase text-nb-on-surface">
                                   {formatRoomType(lookupResult.room.type)} •{' '}
                                   {lookupResult.room.currentPlayers}/{lookupResult.room.maxPlayers} players
                                 </p>

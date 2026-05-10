@@ -107,21 +107,21 @@ export default function GamePage() {
   };
 
   return (
-    <main className="bg-casino-bg-primary min-h-screen">
+    <main className="min-h-screen bg-nb-surface">
       <div className="game-layout">
         {/* ===== TOP BAR ===== */}
         <div className="game-topbar">
           <div className="game-topbar-left">
             <h1>{roomState.name}</h1>
-            <span className="rounded-full border border-casino-gold/30 bg-casino-gold/10 px-3 py-1 text-[11px] font-bold text-casino-gold capitalize">
+            <span className="border-[3px] border-nb-outline bg-nb-secondary px-3 py-1 font-mono text-[11px] font-bold uppercase text-nb-on-surface">
               {formatRoomType(roomState.type)}
             </span>
             <button
               type="button"
               onClick={() => navigator.clipboard.writeText(roomState.code)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-casino-gold/20 bg-black/20 px-3 py-1.5 text-xs font-medium text-casino-text-primary transition hover:bg-casino-gold/10"
+              className="inline-flex items-center gap-1.5 border-[3px] border-nb-outline bg-nb-white px-3 py-1.5 font-mono text-xs font-bold uppercase text-nb-primary shadow-nb-sm hover:bg-nb-secondary"
             >
-              <Copy className="h-3.5 w-3.5 text-casino-gold" />
+              <Copy className="h-3.5 w-3.5" />
               {roomState.code}
             </button>
           </div>
@@ -130,7 +130,7 @@ export default function GamePage() {
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="rounded-full text-xs" 
+                className="text-xs uppercase" 
                 onClick={() => {
                   if (window.confirm('Kembali ke lobby akan meriset permainan. Lanjutkan?')) {
                     returnToLobby();
@@ -140,14 +140,14 @@ export default function GamePage() {
                 Return to Lobby
               </Button>
             )}
-            <Button variant="outline" size="sm" className="rounded-full text-xs" onClick={() => router.push('/')}>
+            <Button variant="outline" size="sm" className="text-xs uppercase" onClick={() => router.push('/')}>
               <Home className="mr-1.5 h-3.5 w-3.5" />
               Ke Beranda
             </Button>
             <Button
               variant="outline"
               size="sm"
-              className="rounded-full text-xs"
+              className="text-xs uppercase"
               onClick={() => {
                 if (window.confirm('Apakah Anda yakin ingin meninggalkan room?')) {
                   leaveRoom();
@@ -163,7 +163,7 @@ export default function GamePage() {
 
         {/* Error display */}
         {error && (
-          <div className="col-span-full rounded-lg border border-red-900/50 bg-red-900/20 px-4 py-3 text-sm text-red-200">
+          <div className="col-span-full border-[3px] border-nb-outline bg-nb-tertiary px-4 py-3 font-mono text-sm font-bold uppercase text-nb-white">
             {error}
           </div>
         )}
@@ -245,12 +245,12 @@ export default function GamePage() {
                 {myPlayer.hand.length} tiles
               </div>
               {isMyTurn && (
-                <span className="rounded-full bg-casino-gold/15 border border-casino-gold/30 px-3 py-1 text-[11px] font-bold text-casino-gold uppercase tracking-wider animate-pulse">
+                <span className="animate-nb-pulse border-[3px] border-nb-outline bg-nb-secondary px-3 py-1 font-mono text-[11px] font-bold uppercase text-nb-on-surface">
                   Your Turn
                 </span>
               )}
               {isHost && (
-                <span className="rounded-full bg-casino-gold/10 border border-casino-gold/30 px-3 py-1 text-[11px] font-bold text-casino-gold uppercase tracking-wider">
+                <span className="border-[3px] border-nb-outline bg-nb-primary px-3 py-1 font-mono text-[11px] font-bold uppercase text-nb-white">
                   Host
                 </span>
               )}
@@ -259,7 +259,6 @@ export default function GamePage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="rounded-full"
                 onClick={passTurn}
                 disabled={!canPass}
               >
@@ -280,16 +279,11 @@ export default function GamePage() {
 
           {/* Side selection if needed */}
           {selectedPlacements.length > 1 && (
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="placement-selector"
-            >
+            <motion.div initial={false} animate={{ opacity: 1 }} transition={{ duration: 0 }} className="placement-selector">
               <p>Select placement side:</p>
               <Button
                 variant="outline"
                 size="sm"
-                className="rounded-full"
                 onClick={() => {
                   if (selectedCardId) {
                     playCard(selectedCardId, 'left');
@@ -303,7 +297,6 @@ export default function GamePage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="rounded-full"
                 onClick={() => {
                   if (selectedCardId) {
                     playCard(selectedCardId, 'right');

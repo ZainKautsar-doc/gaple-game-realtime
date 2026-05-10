@@ -75,16 +75,16 @@ export function ChatBox({
   );
 
   return (
-    <div className="casino-card flex h-full flex-col border-casino-gold/15 bg-casino-bg-surface overflow-hidden">
-      <div className="border-b border-casino-gold/10 p-4">
-        <h3 className="text-xl font-bold text-casino-gold tracking-tight">{title}</h3>
+    <div className="flex h-full flex-col overflow-hidden border-[3px] border-nb-outline bg-nb-white shadow-nb-sm">
+      <div className="border-b-[3px] border-nb-outline bg-nb-primary px-4 py-4">
+        <h3 className="font-display text-xl uppercase tracking-wide text-nb-white">{title}</h3>
       </div>
-      <div className="flex flex-1 flex-col gap-4 p-4">
-        <div className="flex max-h-[400px] min-h-[400px] flex-1 flex-col gap-3 overflow-y-auto rounded-xl border border-casino-gold/10 bg-black/20 p-4 custom-scrollbar">
+      <div className="flex flex-1 flex-col gap-4 p-4 bg-nb-surface">
+        <div className="flex max-h-[400px] min-h-[400px] flex-1 flex-col gap-3 overflow-y-auto border-[3px] border-nb-outline bg-nb-white p-4 custom-scrollbar">
           {messages.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center p-6">
-              <p className="text-sm text-casino-text-muted font-bold italic">
-                No messages yet. <br/> Start the conversation!
+              <p className="font-mono text-sm font-bold text-nb-placeholder uppercase">
+                No messages yet. <br /> Start the conversation!
               </p>
             </div>
           ) : (
@@ -98,10 +98,10 @@ export function ChatBox({
                     return (
                       <motion.div
                         key={message.id}
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -8 }}
-                        className="mx-auto rounded-full border border-casino-gold/10 bg-black/30 px-4 py-1 text-[10px] font-bold uppercase tracking-widest text-casino-text-secondary"
+                        initial={false}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 1 }}
+                        className="mx-auto border-[3px] border-nb-outline bg-nb-surface-low px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-widest text-nb-on-surface text-center max-w-[95%]"
                       >
                         {message.message}
                       </motion.div>
@@ -111,27 +111,27 @@ export function ChatBox({
                   return (
                     <motion.div
                       key={message.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
+                      initial={false}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 1 }}
                       className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}
                     >
                       <div className={`flex max-w-[85%] flex-col gap-1 ${isMe ? 'items-end' : 'items-start'}`}>
                         {!isMe && (
-                          <p className="px-1 text-[10px] font-bold text-casino-gold opacity-80">
+                          <p className="px-1 font-mono text-[10px] font-bold uppercase text-nb-primary">
                             {message.nickname}
                           </p>
                         )}
                         <div
-                          className={`rounded-2xl px-4 py-2 text-sm shadow-sm transition-all ${
+                          className={`border-[3px] border-nb-outline px-4 py-2 font-mono text-sm font-medium ${
                             isMe
-                              ? 'rounded-tr-none bg-casino-gold text-black border border-casino-gold/30 shadow-casino-glow'
-                              : 'rounded-tl-none bg-black/40 text-casino-text-primary border border-casino-gold/20'
+                              ? 'bg-nb-white text-nb-on-surface'
+                              : 'bg-nb-surface-low text-nb-on-surface'
                           }`}
                         >
                           {message.message}
                         </div>
-                        <span className="px-1 text-[9px] font-bold text-casino-text-muted">
+                        <span className="px-1 font-mono text-[9px] font-bold text-nb-placeholder uppercase">
                           {formatTime(message.timestamp)}
                         </span>
                       </div>
@@ -142,7 +142,7 @@ export function ChatBox({
             </div>
           )}
           {visibleTypingPlayers.length > 0 && (
-            <p className="animate-pulse text-[11px] text-casino-gold font-bold italic px-2">
+            <p className="animate-nb-pulse font-mono text-[11px] font-bold uppercase px-2 text-nb-primary border-[3px] border-nb-outline py-2">
               {visibleTypingPlayers.map((player) => player.nickname).join(', ')} is typing...
             </p>
           )}
@@ -154,7 +154,7 @@ export function ChatBox({
             value={draft}
             onChange={(event) => handleDraftChange(event.target.value)}
             placeholder="Type a message..."
-            className="min-h-[96px] input-casino rounded-xl resize-none"
+            className="min-h-[96px]"
             onKeyDown={(event) => {
               if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
@@ -164,7 +164,7 @@ export function ChatBox({
           />
           <Button
             variant="primary"
-            className="w-full rounded-xl"
+            className="w-full"
             onClick={submitMessage}
             disabled={!draft.trim()}
           >

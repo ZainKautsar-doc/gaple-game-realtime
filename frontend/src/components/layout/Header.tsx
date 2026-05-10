@@ -23,13 +23,12 @@ export function Header() {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Update active hash on mount and when hash changes
   useEffect(() => {
     const handleHashChange = () => {
       setActiveHash(window.location.hash);
     };
     
-    handleHashChange(); // Initial check
+    handleHashChange();
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
@@ -52,7 +51,6 @@ export function Header() {
     }
   };
 
-  // Effect to navigate after re-joining
   useEffect(() => {
     if (joinedRoom && (pathname === '/' || pathname === '/#how-to-play' || pathname === '/#features')) {
       if (roomState?.status === 'playing') {
@@ -79,13 +77,12 @@ export function Header() {
   };
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    // Only handle smooth scroll if we're already on the home page
     if (href.startsWith('/#') && pathname === '/') {
       e.preventDefault();
       const id = href.split('#')[1];
       const element = document.getElementById(id);
       if (element) {
-        const offset = 80; // Offset for sticky header
+        const offset = 80;
         const bodyRect = document.body.getBoundingClientRect().top;
         const elementRect = element.getBoundingClientRect().top;
         const elementPosition = elementRect - bodyRect;
@@ -96,7 +93,6 @@ export function Header() {
           behavior: 'smooth',
         });
 
-        // Update URL hash without jumping and update state
         window.history.pushState(null, '', href);
         setActiveHash(`#${id}`);
       }
@@ -108,52 +104,56 @@ export function Header() {
     }
   };
 
+  const navLinkClass = (href: string) =>
+    `font-mono text-sm font-bold uppercase tracking-wide border-[3px] border-transparent px-3 py-2 ${
+      isActive(href)
+        ? 'bg-nb-primary text-nb-white border-nb-outline shadow-nb-sm'
+        : 'text-nb-on-surface hover:bg-nb-primary hover:text-nb-white hover:border-nb-outline'
+    }`;
+
   return (
-    <header className="sticky top-0 z-50 w-full bg-[#072820]/95 backdrop-blur-md border-b border-casino-gold/15">
+    <header className="sticky top-0 z-50 w-full border-b-[3px] border-nb-outline bg-nb-surface">
       <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-4 md:px-6">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="relative h-10 w-10 overflow-hidden rounded-full border border-casino-gold/30 bg-casino-bg-surface p-2 shadow-[0_0_15px_rgba(212,175,55,0.2)]">
+        <Link href="/" className="flex items-center gap-3">
+          <div className="relative h-10 w-10 overflow-hidden rounded-none border-[3px] border-nb-outline bg-nb-white p-2 shadow-nb-sm">
             <NextImage 
               src="/image/logo/gglogo.svg" 
               alt="Logo" 
               fill
-              className="object-contain p-2"
+              className="object-contain p-1"
             />
           </div>
           <div>
-            <span className="text-xl font-bold tracking-wider text-casino-gold">
-              GAPLE ARENA
+            <span className="font-display text-xl uppercase tracking-wide text-nb-primary">
+              Gaple Arena
             </span>
-            <p className="text-[10px] uppercase tracking-[0.28em] text-casino-text-muted">
-              Domino Multiplayer Online
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-nb-on-surface">
+              Domino multiplayer online
             </p>
           </div>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-2">
           {navLinks.map((link) => (
             <Link
               key={link.name}
               href={link.href}
               onClick={(e) => handleNavClick(e, link.href)}
-              className={`group relative text-sm font-medium transition-colors hover:text-casino-gold-light ${
-                isActive(link.href) ? 'text-casino-gold' : 'text-casino-text-secondary'
-              }`}
+              className={navLinkClass(link.href)}
             >
               {link.name}
-              <span className={`absolute -bottom-1 left-0 h-px transition-all duration-300 bg-casino-gold ${isActive(link.href) ? 'w-full' : 'w-0 group-hover:w-full'}`} />
             </Link>
           ))}
         </nav>
 
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-3">
           {nickname ? (
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 rounded-full border border-casino-gold/20 bg-casino-bg-surface px-3 py-1.5">
-                <User className="h-4 w-4 text-casino-gold" />
-                <span className="text-sm font-medium text-casino-text-primary">{nickname}</span>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 rounded-none border-[3px] border-nb-outline bg-nb-white px-3 py-2 shadow-nb-sm">
+                <User className="h-4 w-4 text-nb-primary" />
+                <span className="font-mono text-sm font-bold text-nb-on-surface">{nickname}</span>
                 {roomState?.code && (
-                  <span className="rounded-full border border-casino-gold/30 bg-casino-gold/10 px-2 py-0.5 text-[10px] text-casino-gold">
+                  <span className="rounded-none border-[2px] border-nb-outline bg-nb-secondary px-2 py-0.5 font-mono text-[10px] font-bold uppercase text-nb-on-surface">
                     {roomState.code}
                   </span>
                 )}
@@ -164,7 +164,6 @@ export function Header() {
                     size="sm"
                     onClick={handleGoToRoom}
                     disabled={isSubmitting}
-                    className="rounded-full border-casino-gold/30 text-casino-gold hover:bg-casino-gold/10"
                     title="Kembali ke Room"
                   >
                     {isSubmitting ? (
@@ -179,7 +178,6 @@ export function Header() {
                   variant="danger"
                   size="sm"
                   onClick={handleLeave}
-                  className="rounded-full"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Cabut
@@ -189,7 +187,6 @@ export function Header() {
             <>
               <Button
                 variant="outline"
-                className="rounded-full"
                 onClick={() => setSetupDialog(true, 'join')}
               >
                 <DoorOpen className="mr-2 h-4 w-4" />
@@ -197,7 +194,6 @@ export function Header() {
               </Button>
               <Button
                 variant="primary"
-                className="rounded-full font-bold"
                 onClick={() => setSetupDialog(true, 'create')}
               >
                 <Plus className="mr-2 h-4 w-4" />
@@ -208,8 +204,10 @@ export function Header() {
         </div>
 
         <button
-          className="md:hidden text-casino-text-secondary hover:text-casino-gold"
+          type="button"
+          className="md:hidden border-[3px] border-nb-outline bg-nb-white p-2 shadow-nb-sm text-nb-on-surface hover:bg-nb-secondary"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-expanded={isMobileMenuOpen}
         >
           {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
@@ -218,19 +216,18 @@ export function Header() {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            className="absolute top-16 left-0 w-full border-b border-casino-gold/15 bg-[#072820]/95 p-4 shadow-lg backdrop-blur-md md:hidden"
+            initial={{ height: 0, opacity: 1 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 1 }}
+            transition={{ duration: 0 }}
+            className="overflow-hidden border-b-[3px] border-nb-outline bg-nb-surface md:hidden"
           >
-            <nav className="flex flex-col gap-4 max-w-[1400px] mx-auto">
+            <nav className="flex flex-col gap-2 max-w-[1400px] mx-auto p-4">
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`text-sm font-medium hover:text-casino-gold-light ${
-                    isActive(link.href) ? 'text-casino-gold' : 'text-casino-text-secondary'
-                  }`}
+                  className={`${navLinkClass(link.href)} text-left`}
                   onClick={(e) => {
                     handleNavClick(e, link.href);
                     setIsMobileMenuOpen(false);
@@ -239,16 +236,16 @@ export function Header() {
                   {link.name}
                 </Link>
               ))}
-              <div className="h-px w-full bg-casino-gold/10" />
+              <div className="h-px w-full bg-nb-outline border-0" />
               {nickname ? (
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between rounded-2xl border border-casino-gold/20 bg-casino-bg-surface px-4 py-3 text-casino-text-primary">
+                  <div className="flex items-center justify-between rounded-none border-[3px] border-nb-outline bg-nb-white px-4 py-3 shadow-nb-sm text-nb-on-surface">
                     <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-casino-gold" />
-                      <span>{nickname}</span>
+                      <User className="h-4 w-4 text-nb-primary" />
+                      <span className="font-mono text-sm font-bold">{nickname}</span>
                     </div>
                     {roomState?.code && (
-                      <span className="text-xs font-mono tracking-[0.24em] text-casino-gold">
+                      <span className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-nb-primary">
                         {roomState.code}
                       </span>
                     )}
@@ -257,7 +254,7 @@ export function Header() {
                     {isInRoom && (
                       <Button 
                         variant="outline" 
-                        className="flex-1 rounded-full border-casino-gold/30 text-casino-gold hover:bg-casino-gold/10" 
+                        className="flex-1" 
                         onClick={() => {
                           handleGoToRoom();
                           setIsMobileMenuOpen(false);
@@ -272,7 +269,7 @@ export function Header() {
                         Room
                       </Button>
                     )}
-                    <Button variant="danger" className="flex-1 rounded-full" onClick={handleLeave}>
+                    <Button variant="danger" className="flex-1" onClick={handleLeave}>
                       <LogOut className="mr-2 h-4 w-4" />
                       Cabut
                     </Button>

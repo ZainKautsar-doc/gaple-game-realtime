@@ -61,11 +61,11 @@ interface DominoCardProps {
 
 function CardHalf({ value }: { value: number }) {
   return (
-    <div className="relative flex-1 border-b-[1.5px] border-[#d4af37]/30 last:border-b-0">
+    <div className="relative flex-1 border-b-[3px] border-nb-outline last:border-b-0">
       {pipPositions[value].map((position, index) => (
         <span
           key={`${value}-${index}`}
-          className="absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-gray-900 to-black shadow-[inset_0_-1px_1px_rgba(255,255,255,0.3)]"
+          className="absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-none bg-nb-outline"
           style={position}
         />
       ))}
@@ -88,32 +88,30 @@ export function DominoCard({
   return (
     <motion.button
       type="button"
-      whileHover={interactive ? { y: -8, scale: 1.05 } : undefined}
-      whileTap={interactive ? { scale: 0.95 } : undefined}
+      whileHover={interactive ? { x: 0, y: -2 } : undefined}
+      whileTap={interactive ? { x: 2, y: 2 } : undefined}
+      transition={{ duration: 0 }}
       onClick={interactive ? onClick : undefined}
       disabled={disabled}
       className={cn(
-        'relative overflow-hidden rounded-[10px] border-2 transition-all duration-300 transform-gpu',
+        'relative overflow-hidden rounded-none border-[3px] border-nb-outline shadow-nb-sm',
         sizeClasses[size],
-        interactive ? 'cursor-pointer' : 'cursor-default',
-        faceDown 
-          ? 'bg-[linear-gradient(135deg,#0a3d2e,#072820)] border-casino-gold/40' 
-          : 'bg-[linear-gradient(135deg,#fdfbf7,#f0e6d2)] border-[#d4af37]/50 shadow-[2px_4px_8px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.8)]',
-        canPlay && !selected
-          ? 'border-casino-gold shadow-[0_0_20px_rgba(212,175,55,0.5),2px_4px_8px_rgba(0,0,0,0.4)]'
+        interactive ? 'cursor-pointer hover:border-nb-primary' : 'cursor-default',
+        !disabled && !faceDown && 'bg-nb-white',
+        !disabled && faceDown && 'bg-nb-primary',
+        disabled && 'cursor-not-allowed bg-[#dcd8e8] border-nb-placeholder',
+        canPlay && !selected && !disabled
+          ? 'border-l-[6px] border-l-nb-secondary border-r-[6px] border-r-nb-secondary border-t-nb-outline border-b-nb-outline'
           : '',
-        selected && 'border-casino-gold shadow-[0_0_24px_rgba(212,175,55,0.8),4px_8px_12px_rgba(0,0,0,0.5)] scale-[1.1] z-20',
-        disabled && 'opacity-60 grayscale-[0.3]',
+        selected &&
+          !disabled &&
+          'border-nb-primary z-20 outline outline-[4px] outline-nb-outline outline-offset-[-6px]',
         className
       )}
       aria-label={`Domino ${card.left}-${card.right}`}
     >
       {faceDown ? (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="h-[80%] w-[80%] rounded-[6px] border border-casino-gold/20 bg-casino-gold/5 flex items-center justify-center">
-            <div className="h-[50%] w-[50%] bg-casino-gold/20 rounded-full blur-[2px]" />
-          </div>
-        </div>
+        <div className="absolute inset-[10%] border-[3px] border-nb-white bg-nb-secondary" />
       ) : (
         <div className="flex h-full flex-col">
           <CardHalf value={card.left} />
@@ -121,10 +119,9 @@ export function DominoCard({
         </div>
       )}
 
-      {canPlay && !selected && (
-        <div className="pointer-events-none absolute inset-0 bg-casino-gold/10 animate-pulse" />
+      {canPlay && !selected && !faceDown && (
+        <div className="pointer-events-none absolute bottom-1 left-0 right-0 top-auto h-2 bg-nb-secondary border-t-[2px] border-nb-outline" />
       )}
     </motion.button>
   );
 }
-

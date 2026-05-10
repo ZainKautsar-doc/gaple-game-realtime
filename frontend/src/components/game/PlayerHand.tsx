@@ -19,7 +19,9 @@ export function PlayerHand({
   return (
     <div className="player-hand">
       {cards.length === 0 ? (
-        <p className="py-4 text-sm font-bold text-casino-gold italic">All tiles played!</p>
+        <p className="py-4 font-mono text-sm font-bold uppercase text-nb-primary">
+          All tiles played!
+        </p>
       ) : (
         cards.map((card) => (
           <DominoCard

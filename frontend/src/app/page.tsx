@@ -24,17 +24,20 @@ import { useEffect } from 'react';
 const features = [
   {
     title: 'Public & Private Tables',
-    description: 'Create a public table for anyone to join, or set up a private, password-protected session.',
+    description:
+      'Create a public table for anyone to join, or set up a private, password-protected session.',
     icon: Lock,
   },
   {
     title: 'Real-time Multiplayer',
-    description: 'Instant synchronization powered by server-authoritative sockets for a seamless experience.',
+    description:
+      'Instant synchronization powered by server-authoritative sockets for a seamless experience.',
     icon: Zap,
   },
   {
     title: 'Dealer Controls',
-    description: 'Manage players, set readiness states, and control the flow of the game directly from the lobby.',
+    description:
+      'Manage players, set readiness states, and control the flow of the game directly from the lobby.',
     icon: Users,
   },
   {
@@ -70,7 +73,6 @@ export default function LandingPage() {
     }
   };
 
-  // Effect to navigate after re-joining
   useEffect(() => {
     if (joinedRoom) {
       if (roomState?.status === 'playing') {
@@ -82,65 +84,57 @@ export default function LandingPage() {
   }, [joinedRoom, roomState?.status, router]);
 
   return (
-    <main className="relative overflow-hidden bg-casino-bg-primary">
-      {/* Vignette Overlay */}
-      <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(7,40,32,0.8)_100%)]" />
-
-      <section className="relative z-10 mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-7xl items-center px-6 pb-20 pt-20 md:pt-24">
+    <main className="relative overflow-hidden bg-nb-surface">
+      <section className="relative z-10 mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-7xl items-center px-4 pb-16 pt-16 md:px-6 md:pt-24">
         <div className="grid w-full items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
+            initial={false}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0 }}
           >
-            {/* Room Status Banner */}
             {isInRoom && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="mb-8 flex items-center justify-between rounded-2xl border border-casino-gold/40 bg-casino-gold/10 p-4 backdrop-blur-sm"
-              >
+              <div className="mb-8 flex flex-col gap-4 border-[3px] border-nb-outline bg-nb-secondary p-4 shadow-nb-sm sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-casino-gold/20 text-casino-gold">
+                  <div className="flex h-11 w-11 items-center justify-center border-[3px] border-nb-outline bg-nb-white text-nb-primary">
                     <BadgeCheck className="h-6 w-6" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-casino-gold uppercase tracking-wider">Active Session</p>
-                    <p className="text-sm text-casino-text-primary">
-                      You are in a room <span className="font-mono font-bold text-casino-gold ml-1">(Code: {currentRoomCode})</span>
+                    <p className="font-mono text-sm font-bold uppercase text-nb-on-surface">
+                      Active Session
+                    </p>
+                    <p className="font-mono text-sm font-medium text-nb-on-surface">
+                      You are in a room{' '}
+                      <span className="font-bold text-nb-primary">({currentRoomCode})</span>
                     </p>
                   </div>
                 </div>
-                <Button 
-                  size="sm" 
-                  variant="primary" 
-                  className="rounded-full font-bold shadow-casino-sm"
-                  onClick={handleBackToRoom}
-                >
+                <Button size="sm" variant="primary" onClick={handleBackToRoom}>
                   Go Back
                 </Button>
-              </motion.div>
+              </div>
             )}
 
-            <div className="inline-flex items-center gap-2 rounded-full border border-casino-gold/30 bg-casino-gold/10 px-4 py-2 text-sm text-casino-gold">
+            <div className="inline-flex items-center gap-2 border-[3px] border-nb-outline bg-nb-secondary px-4 py-2 font-mono text-sm font-bold uppercase text-nb-on-surface shadow-nb-sm">
               <Sparkles className="h-4 w-4" />
-              Welcome to the high-stakes table
+              Welcome to the table
             </div>
-            <h1 className="mt-6 text-5xl font-bold leading-[1.1] text-casino-text-primary md:text-7xl tracking-tight">
+            <h1 className="mt-6 font-display text-5xl uppercase leading-none text-nb-primary md:text-7xl">
               Experience Classic <br />
-              <span className="text-casino-gold">Domino</span>
+              <span className="text-nb-primary-pure bg-nb-secondary inline-block px-2 border-[3px] border-nb-outline mt-2">
+                Domino
+              </span>
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-casino-text-secondary">
-              Premium multiplayer domino experience. A sophisticated environment featuring seamless real-time play, precise controls, and elegant table interactions.
+            <p className="mt-6 max-w-2xl font-mono text-lg font-medium leading-relaxed text-nb-on-surface">
+              Premium multiplayer domino. Real-time play, precise controls, clear turn flow.
             </p>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
               {isInRoom ? (
-                <Button 
-                  variant="primary" 
-                  size="lg" 
-                  className="rounded-full px-10 font-bold" 
+                <Button
+                  variant="primary"
+                  size="lg"
                   onClick={handleBackToRoom}
                   disabled={isSubmitting}
+                  className="px-10"
                 >
                   {isSubmitting ? (
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -151,16 +145,11 @@ export default function LandingPage() {
                 </Button>
               ) : (
                 <>
-                  <Button variant="primary" size="lg" className="rounded-full px-8" onClick={() => setSetupDialog(true, 'create')}>
+                  <Button variant="primary" size="lg" className="px-8" onClick={() => setSetupDialog(true, 'create')}>
                     Create Table
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="rounded-full px-8"
-                    onClick={() => setSetupDialog(true, 'join')}
-                  >
+                  <Button size="lg" variant="outline" className="px-8" onClick={() => setSetupDialog(true, 'join')}>
                     <DoorOpen className="mr-2 h-5 w-5" />
                     Join Table
                   </Button>
@@ -174,65 +163,73 @@ export default function LandingPage() {
                 ['Global', 'Public Tables'],
                 ['Premium', 'Smooth Flow'],
               ].map(([value, label]) => (
-                <div key={label} className="casino-card text-center py-6 px-4">
-                  <p className="text-3xl font-bold text-casino-gold">{value}</p>
-                  <p className="mt-2 text-sm text-casino-text-secondary font-medium tracking-wide uppercase">{label}</p>
+                <div key={label} className="nb-card text-center py-8 px-4">
+                  <p className="font-display text-3xl uppercase text-nb-primary">{value}</p>
+                  <p className="mt-2 font-mono text-sm font-bold uppercase text-nb-on-surface">{label}</p>
                 </div>
               ))}
             </div>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.94 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.7, delay: 0.1 }}
+            initial={false}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0 }}
             className="relative"
           >
-            <div className="casino-card p-6 border-casino-gold/40 shadow-casino-lg">
+            <div className="nb-card p-6">
               <div className="grid gap-4">
-                <div className="rounded-[16px] border border-casino-gold/20 bg-casino-bg-secondary p-5">
+                <div className="border-[3px] border-nb-outline bg-nb-surface-low p-5 shadow-nb-sm">
                   <div className="flex items-center justify-between gap-4">
                     <div>
-                      <p className="text-sm font-medium text-casino-text-muted uppercase tracking-wider">Table Configuration</p>
-                      <p className="mt-1 text-xl font-semibold text-casino-text-primary">High Roller Suite</p>
+                      <p className="font-mono text-xs font-bold uppercase tracking-wider text-nb-placeholder">
+                        Table Configuration
+                      </p>
+                      <p className="mt-2 font-display text-xl uppercase text-nb-primary">
+                        High Roller Suite
+                      </p>
                     </div>
-                    <span className="rounded-full border border-casino-gold/30 bg-casino-gold/10 px-3 py-1 text-xs font-semibold text-casino-gold">
+                    <span className="border-[3px] border-nb-outline bg-nb-secondary px-3 py-1 font-mono text-xs font-bold uppercase">
                       Private
                     </span>
                   </div>
-                  <div className="mt-5 grid grid-cols-3 gap-3">
-                    <div className="rounded-xl border border-casino-gold/15 bg-casino-bg-surface p-3 text-center transition-colors hover:border-casino-gold/40">
-                      <Users className="mx-auto h-5 w-5 text-casino-gold" />
-                      <p className="mt-2 text-xs font-semibold text-casino-text-primary">4 Players</p>
+                  <div className="mt-6 grid grid-cols-3 gap-3">
+                    <div className="border-[3px] border-nb-outline bg-nb-white py-4 text-center shadow-nb-sm hover:bg-nb-surface-low">
+                      <Users className="mx-auto h-5 w-5 text-nb-primary" />
+                      <p className="mt-2 font-mono text-xs font-bold uppercase">4 Players</p>
                     </div>
-                    <div className="rounded-xl border border-casino-gold/15 bg-casino-bg-surface p-3 text-center transition-colors hover:border-casino-gold/40">
-                      <Layers3 className="mx-auto h-5 w-5 text-casino-brass" />
-                      <p className="mt-2 text-xs font-semibold text-casino-text-primary">Ready</p>
+                    <div className="border-[3px] border-nb-outline bg-nb-white py-4 text-center shadow-nb-sm hover:bg-nb-surface-low">
+                      <Layers3 className="mx-auto h-5 w-5 text-nb-primary" />
+                      <p className="mt-2 font-mono text-xs font-bold uppercase">Ready</p>
                     </div>
-                    <div className="rounded-xl border border-casino-gold/15 bg-casino-bg-surface p-3 text-center transition-colors hover:border-casino-gold/40">
-                      <Lock className="mx-auto h-5 w-5 text-casino-gold-light" />
-                      <p className="mt-2 text-xs font-semibold text-casino-text-primary">Secured</p>
+                    <div className="border-[3px] border-nb-outline bg-nb-white py-4 text-center shadow-nb-sm hover:bg-nb-surface-low">
+                      <Lock className="mx-auto h-5 w-5 text-nb-primary-pure" />
+                      <p className="mt-2 font-mono text-xs font-bold uppercase">Secured</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="rounded-[16px] border border-casino-gold/30 bg-[linear-gradient(135deg,rgba(212,175,55,0.1),rgba(184,148,31,0.05))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+                <div className="border-[3px] border-nb-outline bg-nb-primary p-5 shadow-nb-sm">
                   <div className="flex items-center gap-4">
-                    <Gamepad2 className="h-6 w-6 text-casino-gold" />
-                    <p className="text-sm font-medium text-casino-text-primary">
-                      Elegant interface, smooth card placements, and clear, decisive turn indicators.
+                    <Gamepad2 className="h-6 w-6 text-nb-secondary" />
+                    <p className="font-mono text-sm font-bold uppercase text-nb-white">
+                      Clear interface, sharp placements, decisive turn cues.
                     </p>
                   </div>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
-                  <div className="rounded-[16px] border border-casino-gold/20 bg-casino-bg-secondary p-5">
-                    <p className="text-xs font-medium uppercase tracking-wider text-casino-text-muted">Turn Indicator</p>
-                    <p className="mt-2 text-lg font-bold text-casino-gold">Player 1&apos;s Turn</p>
+                  <div className="border-[3px] border-nb-outline bg-nb-surface-low p-5 shadow-nb-sm">
+                    <p className="font-mono text-xs font-bold uppercase tracking-wider text-nb-placeholder">
+                      Turn Indicator
+                    </p>
+                    <p className="mt-2 font-display text-lg uppercase text-nb-primary">Player 1&apos;s Turn</p>
                   </div>
-                  <div className="rounded-[16px] border border-casino-gold/20 bg-casino-bg-secondary p-5">
-                    <p className="text-xs font-medium uppercase tracking-wider text-casino-text-muted">Score Standings</p>
-                    <p className="mt-2 font-mono text-lg font-semibold text-casino-text-primary">7 - 11 - 16 - 23</p>
+                  <div className="border-[3px] border-nb-outline bg-nb-surface-low p-5 shadow-nb-sm">
+                    <p className="font-mono text-xs font-bold uppercase tracking-wider text-nb-placeholder">
+                      Score Standings
+                    </p>
+                    <p className="mt-2 font-mono text-lg font-bold text-nb-primary">7 - 11 - 16 - 23</p>
                   </div>
                 </div>
               </div>
@@ -241,110 +238,91 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="features" className="relative z-10 mx-auto max-w-7xl px-6 py-24 border-t border-casino-gold/10">
+      <section id="features" className="relative z-10 mx-auto max-w-7xl border-t-[3px] border-nb-outline px-4 py-20 md:px-6">
         <div className="mb-12 flex flex-col gap-4 text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-casino-gold">Premium Features</p>
-          <h2 className="text-3xl font-bold text-casino-text-primary md:text-4xl">
+          <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-nb-primary">Premium Features</p>
+          <h2 className="font-display text-3xl uppercase text-nb-primary md:text-4xl">
             Refined mechanics for serious play
           </h2>
         </div>
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {features.map((feature, index) => {
+          {features.map((feature) => {
             const Icon = feature.icon;
             return (
-               <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.45, delay: index * 0.08 }}
-                className="casino-card"
-              >
-                <div className="mb-5 inline-flex rounded-xl border border-casino-gold/20 bg-casino-bg-secondary p-3">
-                  <Icon className="h-6 w-6 text-casino-gold" />
+              <div key={feature.title} className="nb-card">
+                <div className="mb-5 inline-flex border-[3px] border-nb-outline bg-nb-secondary p-3 shadow-nb-sm">
+                  <Icon className="h-6 w-6 text-nb-primary" />
                 </div>
-                <h3 className="text-xl font-bold text-casino-text-primary">{feature.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-casino-text-secondary">{feature.description}</p>
-              </motion.div>
+                <h3 className="font-display text-xl uppercase text-nb-primary">{feature.title}</h3>
+                <p className="mt-3 font-mono text-sm font-medium leading-relaxed text-nb-on-surface">
+                  {feature.description}
+                </p>
+              </div>
             );
           })}
         </div>
       </section>
 
-      <section id="how-to-play" className="relative z-10 mx-auto max-w-7xl px-6 py-24 border-t border-casino-gold/10">
-        <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] items-center">
+      <section id="how-to-play" className="relative z-10 mx-auto max-w-7xl border-t-[3px] border-nb-outline px-4 py-20 md:px-6">
+        <div className="grid gap-12 items-center lg:grid-cols-[0.85fr_1.15fr]">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-casino-gold">How to Play</p>
-            <h2 className="mt-3 text-3xl font-bold text-casino-text-primary md:text-4xl leading-tight">
+            <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-nb-primary">How to Play</p>
+            <h2 className="mt-3 font-display text-3xl uppercase text-nb-primary md:text-4xl leading-tight">
               From table selection to victory calculation
             </h2>
-            <p className="mt-5 text-lg leading-relaxed text-casino-text-secondary">
-              A streamlined flow designed for maximum focus. Clear indications, informative lobbies, and precise resolution.
+            <p className="mt-5 font-mono text-lg font-medium leading-relaxed text-nb-on-surface">
+              A streamlined flow designed for focus: clear indications, informative lobbies, precise resolution.
             </p>
           </div>
 
           <div className="space-y-5">
             {steps.map((step, index) => (
-              <motion.div
+              <div
                 key={step}
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.35, delay: index * 0.08 }}
-                className="flex gap-5 rounded-2xl border border-casino-gold/15 bg-casino-bg-surface p-5 items-start"
+                className="flex gap-5 border-[3px] border-nb-outline bg-nb-white p-5 shadow-nb-sm items-start"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-casino-gold/30 bg-casino-gold/10 text-base font-bold text-casino-gold shadow-[0_0_10px_rgba(212,175,55,0.15)]">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center border-[3px] border-nb-outline bg-nb-secondary font-mono text-base font-bold text-nb-on-surface shadow-nb-sm">
                   {index + 1}
                 </div>
-                <p className="pt-2 text-sm font-medium leading-relaxed text-casino-text-primary">{step}</p>
-              </motion.div>
+                <p className="pt-2 font-mono text-sm font-bold leading-relaxed text-nb-on-surface">{step}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="relative z-10 mx-auto max-w-7xl px-6 pb-32 pt-16">
-        <div className="casino-card text-center p-12 border-casino-gold/40 shadow-casino-lg relative overflow-hidden">
-          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(212,175,55,0.05),transparent)] pointer-events-none" />
-          <div className="relative z-10 flex flex-col items-center">
-            <h2 className="text-3xl font-bold text-casino-text-primary md:text-4xl">
-              Ready to take a seat?
-            </h2>
-            <p className="mt-4 max-w-2xl text-lg text-casino-text-secondary">
-              Step into the sophisticated world of classic domino multiplayer. The table is ready.
-            </p>
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row justify-center w-full">
-              {isInRoom ? (
-                <Button 
-                  variant="primary" 
-                  size="lg" 
-                  className="rounded-full px-12 font-bold" 
-                  onClick={handleBackToRoom}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  ) : (
-                    <LayoutGrid className="mr-2 h-5 w-5" />
-                  )}
-                  Back to Room
+      <section className="relative z-10 mx-auto max-w-7xl px-4 pb-28 pt-12 md:px-6">
+        <div className="nb-card p-12 text-center">
+          <h2 className="font-display text-3xl uppercase text-nb-primary md:text-4xl">Ready to take a seat?</h2>
+          <p className="mt-4 max-w-2xl mx-auto font-mono text-lg font-medium text-nb-on-surface">
+            Classic domino multiplayer. The table is ready.
+          </p>
+          <div className="mt-10 flex flex-col gap-4 sm:flex-row justify-center w-full">
+            {isInRoom ? (
+              <Button
+                variant="primary"
+                size="lg"
+                className="px-12"
+                onClick={handleBackToRoom}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                ) : (
+                  <LayoutGrid className="mr-2 h-5 w-5" />
+                )}
+                Back to Room
+              </Button>
+            ) : (
+              <>
+                <Button variant="primary" size="lg" className="px-10" onClick={() => setSetupDialog(true, 'create')}>
+                  Create Table
                 </Button>
-              ) : (
-                <>
-                  <Button variant="primary" size="lg" className="rounded-full px-10" onClick={() => setSetupDialog(true, 'create')}>
-                    Create Table
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="rounded-full px-10"
-                    onClick={() => setSetupDialog(true, 'join')}
-                  >
-                    Join Table
-                  </Button>
-                </>
-              )}
-            </div>
+                <Button size="lg" variant="outline" className="px-10" onClick={() => setSetupDialog(true, 'join')}>
+                  Join Table
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </section>
