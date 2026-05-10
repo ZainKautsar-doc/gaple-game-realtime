@@ -6,6 +6,8 @@ import { SendHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { formatTime } from '@/lib/game';
+import { getAvatarById } from '@/lib/avatars';
+import { Avatar } from '@/components/ui/avatar';
 import type { ChatMessage, TypingPlayer } from '@/types/game';
 
 interface ChatBoxProps {
@@ -122,14 +124,28 @@ export function ChatBox({
                             {message.nickname}
                           </p>
                         )}
-                        <div
-                          className={`border-[3px] border-nb-outline px-4 py-2 font-mono text-sm font-medium ${
-                            isMe
-                              ? 'bg-nb-white text-nb-on-surface'
-                              : 'bg-nb-surface-low text-nb-on-surface'
-                          }`}
-                        >
-                          {message.message}
+                        <div className="flex gap-2 items-end">
+                          {!isMe && message.avatarId && (
+                            <Avatar className="h-8 w-8 text-sm shrink-0 mb-1">
+                              {getAvatarById(message.avatarId).emoji}
+                            </Avatar>
+                          )}
+                          <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                            <div
+                              className={`border-[3px] border-nb-outline px-4 py-2 font-mono text-sm font-medium ${
+                                isMe
+                                  ? 'bg-nb-white text-nb-on-surface shadow-nb-sm'
+                                  : 'bg-nb-surface-low text-nb-on-surface shadow-nb-sm'
+                              }`}
+                            >
+                              {message.message}
+                            </div>
+                          </div>
+                          {isMe && message.avatarId && (
+                            <Avatar className="h-8 w-8 text-sm shrink-0 mb-1">
+                              {getAvatarById(message.avatarId).emoji}
+                            </Avatar>
+                          )}
                         </div>
                         <span className="px-1 font-mono text-[9px] font-bold text-nb-placeholder uppercase">
                           {formatTime(message.timestamp)}

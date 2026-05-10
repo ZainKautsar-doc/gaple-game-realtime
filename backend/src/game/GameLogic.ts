@@ -97,6 +97,7 @@ export class GameLogic {
       ),
       rank: 0,
       remainingCards: [...player.hand],
+      avatarId: player.avatarId,
     }));
 
     scores.sort((left, right) => {

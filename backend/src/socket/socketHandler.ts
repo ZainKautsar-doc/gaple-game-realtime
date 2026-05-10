@@ -220,6 +220,7 @@ export function setupSocketHandlers(io: Server) {
         id: socket.id,
         socketId: socket.id,
         nickname: parsed.data.playerName.trim(),
+        avatarId: parsed.data.avatarId,
       });
       room.addSystemMessage(`${parsed.data.playerName.trim()} membuat room.`);
 
@@ -264,6 +265,7 @@ export function setupSocketHandlers(io: Server) {
           id: socket.id,
           socketId: socket.id,
           nickname: parsed.data.playerName.trim(),
+          avatarId: parsed.data.avatarId,
         },
         parsed.data.password?.trim()
       );
@@ -304,6 +306,7 @@ export function setupSocketHandlers(io: Server) {
         id: socket.id,
         socketId: socket.id,
         nickname: playerName || 'Guest',
+        avatarId: payload.avatarId || '1',
       });
       
       if (!result.success) {

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Crown, LogOut, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { msToSecondsLabel } from '@/lib/game';
+import { getAvatarById } from '@/lib/avatars';
 import type { GameResult } from '@/types/game';
 
 interface EndGameScreenProps {
@@ -53,12 +54,15 @@ export function EndGameScreen({
               >
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-none border-[3px] border-nb-outline bg-nb-white font-mono text-lg font-bold text-nb-primary">
-                      #{entry.rank}
+                    <div className="flex h-12 w-12 items-center justify-center rounded-none border-[3px] border-nb-outline bg-nb-white font-mono text-2xl shadow-nb-sm">
+                      {getAvatarById(entry.avatarId).emoji}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="font-display text-lg uppercase text-nb-primary">{entry.nickname}</p>
+                        <p className="font-display text-lg uppercase text-nb-primary">
+                          <span className="font-mono text-sm font-bold text-nb-placeholder mr-1">#{entry.rank}</span>
+                          {entry.nickname}
+                        </p>
                         {entry.rank === 1 ? <Crown className="h-4 w-4 text-nb-primary" /> : null}
                       </div>
                       <p className="font-mono text-sm font-medium text-nb-on-surface">

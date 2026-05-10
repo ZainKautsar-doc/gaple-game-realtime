@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Anton, Space_Mono } from 'next/font/google';
 import { Header } from '@/components/layout/Header';
+import { GameEventsProvider } from '@/components/providers/GameEventsProvider';
 import './globals.css';
 import '@/styles/game.css';
 
@@ -32,8 +33,10 @@ export default function RootLayout({
         className={`${anton.variable} ${spaceMono.variable} font-sans antialiased bg-nb-surface text-nb-on-surface`}
       >
         <div className="relative min-h-screen flex flex-col">
-          <Header />
-          <div className="flex-1">{children}</div>
+          <GameEventsProvider>
+            <Header />
+            <div className="flex-1">{children}</div>
+          </GameEventsProvider>
         </div>
       </body>
     </html>

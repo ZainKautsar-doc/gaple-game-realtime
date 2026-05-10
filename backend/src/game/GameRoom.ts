@@ -367,6 +367,7 @@ export class GameRoom {
       nickname: player.nickname,
       message,
       timestamp: Date.now(),
+      avatarId: player.avatarId,
     };
 
     this.chatMessages = [...this.chatMessages.slice(-59), chatMessage];
@@ -548,6 +549,7 @@ export class GameRoom {
       isReady: player.isReady,
       isHost: player.isHost,
       score: player.score,
+      avatarId: player.avatarId,
     }));
   }
 

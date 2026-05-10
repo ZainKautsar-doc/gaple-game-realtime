@@ -18,6 +18,8 @@ import { Input } from '@/components/ui/input';
 import { useGame } from '@/hooks/useGame';
 import { formatRoomStatus, formatRoomType } from '@/lib/game';
 import { useGameStore } from '@/store/gameStore';
+import { AVATAR_TEMPLATES } from '@/lib/avatars';
+import { Avatar } from '@/components/ui/avatar';
 
 interface RoomSetupDialogProps {
   isOpen: boolean;
@@ -31,7 +33,7 @@ export function RoomSetupDialog({
   defaultMode = 'create',
 }: RoomSetupDialogProps) {
   const router = useRouter();
-  const { nickname: savedNickname, setNickname } = useGameStore();
+  const { nickname: savedNickname, setNickname, avatarId: savedAvatarId, setAvatarId } = useGameStore();
   const {
     joinedRoom,
     error,
@@ -47,6 +49,7 @@ export function RoomSetupDialog({
 
   const [mode, setMode] = useState<'create' | 'join'>(defaultMode);
   const [playerName, setPlayerName] = useState(savedNickname);
+  const [localAvatarId, setLocalAvatarId] = useState(savedAvatarId);
   const [roomName, setRoomName] = useState('');
   const [roomType, setRoomType] = useState<'public' | 'private'>('public');
   const [password, setPassword] = useState('');
@@ -62,9 +65,10 @@ export function RoomSetupDialog({
     if (isOpen) {
       setMode(defaultMode);
       setPlayerName(savedNickname);
+      setLocalAvatarId(savedAvatarId);
       refreshRooms();
     }
-  }, [defaultMode, isOpen, refreshRooms, savedNickname]);
+  }, [defaultMode, isOpen, refreshRooms, savedNickname, savedAvatarId]);
 
   useEffect(() => {
     if (joinedRoom && isOpen) {
@@ -114,11 +118,13 @@ export function RoomSetupDialog({
 
     setLocalError(null);
     setNickname(trimmedPlayerName);
+    setAvatarId(localAvatarId);
     createRoom({
       playerName: trimmedPlayerName,
       roomName: trimmedRoomName,
       type: roomType,
       password: roomType === 'private' ? trimmedPassword : undefined,
+      avatarId: localAvatarId,
     });
   };
 
@@ -131,10 +137,12 @@ export function RoomSetupDialog({
 
     setLocalError(null);
     setNickname(trimmedPlayerName);
+    setAvatarId(localAvatarId);
     joinRoom({
       roomCode: code,
       playerName: trimmedPlayerName,
       password: suppliedPassword?.trim() || undefined,
+      avatarId: localAvatarId,
     });
   };
 
@@ -241,6 +249,27 @@ export function RoomSetupDialog({
                     <p className="mt-3 font-mono text-xs font-medium text-nb-on-surface">
                       This name will be displayed at the table.
                     </p>
+
+                    <label className="mt-6 block font-mono text-sm font-bold uppercase text-nb-on-surface">
+                      Avatar
+                    </label>
+                    <div className="mt-2 grid grid-cols-5 gap-2">
+                      {AVATAR_TEMPLATES.map((avatar) => (
+                        <button
+                          key={avatar.id}
+                          type="button"
+                          onClick={() => setLocalAvatarId(avatar.id)}
+                          className={`flex aspect-square items-center justify-center border-[3px] shadow-nb-sm transition-all ${
+                            localAvatarId === avatar.id
+                              ? 'border-nb-primary bg-nb-secondary scale-110 z-10'
+                              : 'border-nb-outline bg-nb-white hover:bg-nb-surface-low'
+                          }`}
+                          title={avatar.label}
+                        >
+                          <span className="text-xl">{avatar.emoji}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   {activeError && (

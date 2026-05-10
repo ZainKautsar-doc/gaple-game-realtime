@@ -20,7 +20,9 @@ interface GameStore {
   lastResetAt: number;
   isSetupDialogOpen: boolean;
   setupDialogMode: 'create' | 'join';
+  avatarId: string;
   setNickname: (nickname: string) => void;
+  setAvatarId: (avatarId: string) => void;
   setMyPlayerId: (playerId: string | null) => void;
   setRoomState: (roomState: RoomState | null) => void;
   setGameState: (gameState: GameStateView | null) => void;
@@ -46,12 +48,19 @@ export const useGameStore = create<GameStore>((set) => ({
   lastResetAt: 0,
   isSetupDialogOpen: false,
   setupDialogMode: 'create',
+  avatarId: typeof window !== 'undefined' ? window.localStorage.getItem('gaple-avatar') ?? '1' : '1',
   setNickname: (nickname) => {
     const trimmedNickname = nickname.slice(0, 20);
     if (typeof window !== 'undefined') {
       window.localStorage.setItem('gaple-nickname', trimmedNickname);
     }
     set({ nickname: trimmedNickname });
+  },
+  setAvatarId: (avatarId) => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('gaple-avatar', avatarId);
+    }
+    set({ avatarId });
   },
   setMyPlayerId: (myPlayerId) => set({ myPlayerId }),
   setRoomState: (roomState) => set({ roomState }),

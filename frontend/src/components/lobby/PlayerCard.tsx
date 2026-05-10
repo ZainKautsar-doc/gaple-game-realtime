@@ -3,7 +3,8 @@
 import { Crown, LogOut, ShieldCheck, Sparkles } from 'lucide-react';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { formatPosition, getInitials } from '@/lib/game';
+import { formatPosition } from '@/lib/game';
+import { getAvatarById } from '@/lib/avatars';
 import type { PublicPlayer } from '@/types/game';
 
 interface PlayerCardProps {
@@ -53,8 +54,8 @@ export function PlayerCard({
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Avatar className="h-14 w-14 text-lg border-nb-outline bg-nb-secondary text-nb-on-surface shadow-nb-sm">
-            {getInitials(player.nickname)}
+          <Avatar className="h-14 w-14 text-2xl border-nb-outline bg-nb-secondary shadow-nb-sm">
+            {getAvatarById(player.avatarId).emoji}
           </Avatar>
           <div>
             <p className="font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-nb-placeholder">

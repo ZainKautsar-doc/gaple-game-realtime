@@ -63,165 +63,7 @@ export function useGame() {
 
   useEffect(() => {
     setIsConnected(isConnected);
-    if (isConnected) {
-      socket.emit('get-rooms');
-      // Re-join logic for persistence/refresh
-      const { isInRoom, currentRoomId, currentRoomCode, playerName } = useNavigationStore.getState();
-      if (isInRoom && (currentRoomId || currentRoomCode)) {
-        socket.emit('rejoin-room', {
-          roomId: currentRoomId ?? undefined,
-          roomCode: currentRoomCode ?? undefined,
-          playerName: playerName ?? undefined
-        });
-      }
-    }
-  }, [isConnected, setIsConnected, socket]);
-
-  useEffect(() => {
-    const handleJoinedRoom = ({ playerId, roomId }: { playerId: string; roomId: string }) => {
-      setMyPlayerId(playerId);
-      setJoinedRoom(true);
-      setError(null);
-      setInfoMessage(null);
-      clearGameReset();
-      setSubmitting(false);
-
-      // Set navigation state
-      const roomCode = useGameStore.getState().roomState?.code || '';
-      useNavigationStore.getState().setRoomInfo(roomId, roomCode, nickname);
-    };
-
-    const handleJoinFailed = ({ message }: { message: string }) => {
-      setJoinedRoom(false);
-      setError(message);
-      setSubmitting(false);
-      // Clear navigation state if room not found
-      if (message === 'Room tidak ditemukan.') {
-        useNavigationStore.getState().clearRoomInfo();
-      }
-    };
-
-    const handleLookupResult = (payload: RoomLookupResult) => {
-      setLookupResult(payload);
-      setSubmitting(false);
-      if (!payload.found && payload.message) {
-        setError(payload.message);
-      }
-    };
-
-    const handleRoomsList = (nextRooms: RoomSummary[]) => {
-      setRooms(nextRooms);
-    };
-
-    const handleRoomState = (nextRoomState: RoomState) => {
-      if (nextRoomState.status === 'playing') {
-        clearGameReset();
-      }
-      setRoomState(nextRoomState);
-
-      // Ensure navigation store is in sync
-      const { currentRoomId, setRoomInfo } = useNavigationStore.getState();
-      if (nextRoomState.code && currentRoomId) {
-        setRoomInfo(currentRoomId, nextRoomState.code, nickname);
-      }
-    };
-
-    const handleGameState = (nextGameState: GameStateView) => {
-      setGameState(nextGameState);
-    };
-
-    const handleGameReset = () => {
-      markGameReset();
-    };
-
-    const handlePlayerKicked = ({ reason }: { playerName: string; reason: string }) => {
-      setError(reason);
-      setJoinedRoom(false);
-      setRoomState(null);
-      markGameReset();
-      clearChat();
-      useNavigationStore.getState().clearRoomInfo();
-    };
-
-    const handleActionError = ({ message }: { message: string }) => {
-      setError(message);
-      setSubmitting(false);
-    };
-
-    const handleChatHistory = (nextMessages: ChatMessage[]) => {
-      setMessages(nextMessages);
-    };
-
-    const handleChatMessage = (message: ChatMessage) => {
-      addMessage(message);
-    };
-
-    const handleTypingState = (players: TypingPlayer[]) => {
-      setTypingPlayers(players);
-    };
-
-    const handleDisconnect = () => {
-      setIsConnected(false);
-    };
-
-    const handleRoomDeleted = () => {
-      setError('Room telah dibubarkan oleh host.');
-      setJoinedRoom(false);
-      setRoomState(null);
-      useNavigationStore.getState().clearRoomInfo();
-      router.push('/');
-    };
-
-    socket.on('joined-room', handleJoinedRoom);
-    socket.on('join-failed', handleJoinFailed);
-    socket.on('room-lookup-result', handleLookupResult);
-    socket.on('rooms-list', handleRoomsList);
-    socket.on('room-state', handleRoomState);
-    socket.on('game-state', handleGameState);
-    socket.on('game-reset', handleGameReset);
-    socket.on('player-kicked', handlePlayerKicked);
-    socket.on('action-error', handleActionError);
-    socket.on('chat-history', handleChatHistory);
-    socket.on('chat-message', handleChatMessage);
-    socket.on('typing-state', handleTypingState);
-    socket.on('room-deleted', handleRoomDeleted);
-    socket.on('disconnect', handleDisconnect);
-
-    return () => {
-      socket.off('joined-room', handleJoinedRoom);
-      socket.off('join-failed', handleJoinFailed);
-      socket.off('room-lookup-result', handleLookupResult);
-      socket.off('rooms-list', handleRoomsList);
-      socket.off('room-state', handleRoomState);
-      socket.off('game-state', handleGameState);
-      socket.off('game-reset', handleGameReset);
-      socket.off('player-kicked', handlePlayerKicked);
-      socket.off('action-error', handleActionError);
-      socket.off('chat-history', handleChatHistory);
-      socket.off('chat-message', handleChatMessage);
-      socket.off('typing-state', handleTypingState);
-      socket.off('room-deleted', handleRoomDeleted);
-      socket.off('disconnect', handleDisconnect);
-    };
-  }, [
-    addMessage,
-    clearChat,
-    clearGameReset,
-    markGameReset,
-    setError,
-    setGameState,
-    setInfoMessage,
-    setIsConnected,
-    setJoinedRoom,
-    setLookupResult,
-    setMessages,
-    setMyPlayerId,
-    setRoomState,
-    setRooms,
-    setSubmitting,
-    setTypingPlayers,
-    socket,
-  ]);
+  }, [isConnected, setIsConnected]);
 
   const myPlayer = gameState?.players.find((player) => player.id === myPlayerId) ?? null;
   const currentPlayer = gameState?.players[gameState.currentTurnIndex] ?? null;
@@ -244,6 +86,7 @@ export function useGame() {
     roomName?: string;
     type: 'public' | 'private';
     password?: string;
+    avatarId: string;
   }) => {
     ensureConnected();
     setSubmitting(true);
@@ -255,6 +98,7 @@ export function useGame() {
     roomCode: string;
     playerName: string;
     password?: string;
+    avatarId: string;
   }) => {
     ensureConnected();
     setSubmitting(true);

@@ -33,6 +33,7 @@ export interface ScoreEntry {
   score: number;
   rank: number;
   remainingCards: DominoCard[];
+  avatarId: string;
 }
 
 export interface GameResult {
@@ -63,6 +64,7 @@ export interface PublicPlayer {
   isReady: boolean;
   isHost: boolean;
   score: number;
+  avatarId: string;
 }
 
 export interface PlayerView extends PublicPlayer {
@@ -97,4 +99,5 @@ export interface ChatMessage {
   nickname: string;
   message: string;
   timestamp: number;
+  avatarId?: string;
 }

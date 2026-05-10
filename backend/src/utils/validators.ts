@@ -21,6 +21,7 @@ const playerNameSchema = z
 export const createRoomSchema = z
   .object({
     playerName: playerNameSchema,
+    avatarId: z.string().min(1).max(20),
     roomName: optionalTrimmedString,
     type: z.enum(['public', 'private'], {
       required_error: 'Tipe room wajib dipilih.',
@@ -60,6 +61,7 @@ export const createRoomSchema = z
 export const joinRoomSchema = z.object({
   roomCode: z.string().trim().min(4).max(12),
   playerName: playerNameSchema,
+  avatarId: z.string().min(1).max(20),
   password: z.string().max(30).optional(),
 });
 

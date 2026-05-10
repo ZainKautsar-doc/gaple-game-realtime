@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import type { PublicPlayer } from '@/types/game';
-import { getInitials } from '@/lib/game';
+import { getAvatarById } from '@/lib/avatars';
 
 interface PlayerAvatarProps {
   player?: PublicPlayer;
@@ -53,7 +53,7 @@ export function PlayerAvatar({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <Avatar>{getInitials(player.nickname)}</Avatar>
+          <Avatar className="text-xl">{getAvatarById(player.avatarId).emoji}</Avatar>
           <div>
             <p className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-nb-placeholder">
               {seatLabel}

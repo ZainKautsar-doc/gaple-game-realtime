@@ -31,11 +31,13 @@ export interface ClientToServerEvents {
     roomName?: string;
     type: 'public' | 'private';
     password?: string;
+    avatarId: string;
   }) => void;
   'join-room': (payload: {
     roomCode: string;
     playerName: string;
     password?: string;
+    avatarId: string;
   }) => void;
   'lookup-room': (payload: { roomCode: string }) => void;
   'get-rooms': () => void;
@@ -49,5 +51,5 @@ export interface ClientToServerEvents {
   'chat-message': (payload: { message: string }) => void;
   'typing-start': () => void;
   'typing-stop': () => void;
-  'rejoin-room': (payload: { roomId?: string; roomCode?: string; playerName?: string }) => void;
+  'rejoin-room': (payload: { roomId?: string; roomCode?: string; playerName?: string; avatarId?: string }) => void;
 }
