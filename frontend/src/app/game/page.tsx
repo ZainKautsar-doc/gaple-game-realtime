@@ -14,7 +14,13 @@ import { formatRoomType, getInitials } from '@/lib/game';
 import { useGame } from '@/hooks/useGame';
 
 /* Position mapping for players around the table */
-const SLOT_ORDER = ['north', 'west', 'east'] as const;
+const SLOT_ORDER = ['west', 'north', 'east'] as const;
+const POSITION_ORDER: Record<string, number> = {
+  south: 0,
+  west: 1,
+  north: 2,
+  east: 3,
+};
 
 export default function GamePage() {
   const router = useRouter();
@@ -27,6 +33,7 @@ export default function GamePage() {
     myPlayer,
     currentPlayer,
     isMyTurn,
+    isHost,
     error,
     messages,
     typingPlayers,
@@ -64,7 +71,21 @@ export default function GamePage() {
 
   const selectedPlacements = selectedCardId ? playableCards.get(selectedCardId) ?? [] : [];
   const canPass = isMyTurn && playableCards.size === 0;
-  const sidePlayers = gameState.players.filter((player) => player.id !== myPlayerId);
+
+  // Sort side players relative to my position for a consistent circular view
+  const myPosIndex = POSITION_ORDER[myPlayer.position] ?? 0;
+  const sidePlayers = [...gameState.players]
+    .filter((player) => player.id !== myPlayerId)
+    .sort((a, b) => {
+      const aIdx = (POSITION_ORDER[a.position] ?? 0) - myPosIndex;
+      const bIdx = (POSITION_ORDER[b.position] ?? 0) - myPosIndex;
+      
+      // Normalize to 1-3 range
+      const aNorm = aIdx < 0 ? aIdx + 4 : aIdx;
+      const bNorm = bIdx < 0 ? bIdx + 4 : bIdx;
+      
+      return aNorm - bNorm;
+    });
 
   const handleSelectCard = (cardId: string) => {
     if (!isMyTurn) {
@@ -105,12 +126,23 @@ export default function GamePage() {
             </button>
           </div>
           <div className="game-topbar-actions">
-            <Button variant="outline" size="sm" className="rounded-full text-xs" onClick={() => router.replace('/lobby')}>
-              Lobby
-            </Button>
+            {isHost && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="rounded-full text-xs" 
+                onClick={() => {
+                  if (window.confirm('Kembali ke lobby akan meriset permainan. Lanjutkan?')) {
+                    returnToLobby();
+                  }
+                }}
+              >
+                Return to Lobby
+              </Button>
+            )}
             <Button variant="outline" size="sm" className="rounded-full text-xs" onClick={() => router.push('/')}>
               <Home className="mr-1.5 h-3.5 w-3.5" />
-              Home
+              Ke Beranda
             </Button>
             <Button
               variant="outline"
@@ -124,7 +156,7 @@ export default function GamePage() {
               }}
             >
               <DoorOpen className="mr-1.5 h-3.5 w-3.5" />
-              Leave
+              Leave Table
             </Button>
           </div>
         </div>
@@ -215,6 +247,11 @@ export default function GamePage() {
               {isMyTurn && (
                 <span className="rounded-full bg-casino-gold/15 border border-casino-gold/30 px-3 py-1 text-[11px] font-bold text-casino-gold uppercase tracking-wider animate-pulse">
                   Your Turn
+                </span>
+              )}
+              {isHost && (
+                <span className="rounded-full bg-casino-gold/10 border border-casino-gold/30 px-3 py-1 text-[11px] font-bold text-casino-gold uppercase tracking-wider">
+                  Host
                 </span>
               )}
             </div>
