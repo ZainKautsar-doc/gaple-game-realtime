@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
-import NextImage from 'next/image';
 import { Menu, Sparkles, X, LogOut, User, Plus, DoorOpen, LayoutGrid, Loader2 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -115,12 +114,13 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b-[3px] border-nb-outline bg-nb-surface">
       <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-3">
-          <div className="relative h-10 w-10 overflow-hidden rounded-none border-[3px] border-nb-outline bg-nb-white p-2 shadow-nb-sm">
-            <NextImage 
-              src="/image/logo/gglogo.svg" 
-              alt="Logo" 
-              fill
-              className="object-contain p-1"
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-none border-[3px] border-nb-outline bg-nb-white shadow-nb-sm">
+            <img
+              src="/image/logo/gaple-arena-logo.svg"
+              width={36}
+              height={36}
+              className="h-9 w-9 object-contain"
+              alt="Gaple Arena — ikon kopling gaple"
             />
           </div>
           <div>
