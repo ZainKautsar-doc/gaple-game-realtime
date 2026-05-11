@@ -180,4 +180,16 @@ a:hover {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  .player-hand-container::-webkit-scrollbar {
+    height: 12px;
+  }
+  .player-hand-container::-webkit-scrollbar-thumb {
+    background: #000000;
+    border: 1px solid #fbf8ff;
+  }
+  .player-hand-container::-webkit-scrollbar-track {
+    background: #f5f2ff;
+    border: 1px solid #000000;
+  }
 }

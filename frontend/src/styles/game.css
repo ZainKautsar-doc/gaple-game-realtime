@@ -4,19 +4,27 @@
 
 .game-layout {
   display: grid;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: 120px 1fr 120px 280px;
   grid-template-rows: auto 1fr auto;
   gap: 24px;
   min-height: calc(100vh - 80px);
-  padding: 16px 24px 24px;
-  max-width: 1500px;
+  padding: 24px;
+  max-width: 1600px;
   margin: 0 auto;
   background: #fbf8ff;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1024px) {
+  .game-layout {
+    grid-template-columns: 80px 1fr 80px;
+    grid-template-rows: auto 1fr auto;
+  }
+}
+
+@media (max-width: 768px) {
   .game-layout {
     grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr auto;
     padding: 12px;
   }
 }
@@ -66,27 +74,33 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 16px 0;
+  padding: 64px 0 16px; /* Added top padding to make room for north player */
+  flex: 1; /* Allow it to grow */
+  width: 100%;
 }
 
 .casino-table-container {
   position: relative;
   width: 100%;
-  max-width: 560px;
-  aspect-ratio: 1 / 1;
+  height: 100%;
+  min-height: 400px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   margin: 0 auto;
   background: #ffffff;
   border: 3px solid #000000;
   border-radius: 0;
   box-shadow: 8px 8px 0px #000000;
+  overflow: auto;
 }
 
 @media (max-width: 768px) {
   .casino-table-container {
     max-width: 100%;
-    max-height: 380px;
-    aspect-ratio: auto;
-    min-height: 320px;
+    height: 100%;
+    min-height: 400px;
+    flex: 1;
   }
 }
 
@@ -122,19 +136,27 @@
 }
 
 @media (max-width: 768px) {
-  .table-player-slot.slot-north {
-    top: -36px;
+  .table-player-slot {
+    position: static;
+    transform: none;
+    width: 100%;
+    margin-bottom: 8px;
   }
-  .table-player-slot.slot-south {
-    bottom: -36px;
-  }
-  .table-player-slot.slot-west {
-    left: 4px;
-    transform: translate(-100%, -50%);
-  }
+  .table-player-slot.slot-north,
+  .table-player-slot.slot-south,
+  .table-player-slot.slot-west,
   .table-player-slot.slot-east {
-    right: 4px;
-    transform: translate(100%, -50%);
+    top: auto;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    transform: none;
+  }
+  .player-card-compact {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    padding: 8px 16px;
   }
 }
 
@@ -272,7 +294,6 @@
   color: #0001bb;
 }
 
-/* ---- Board center ---- */
 .board-center {
   position: absolute;
   inset: 50px;
@@ -285,7 +306,11 @@
 
 @media (max-width: 768px) {
   .board-center {
-    inset: 36px;
+    position: relative;
+    inset: auto;
+    flex: 1;
+    min-height: 200px;
+    width: 100%;
   }
 }
 
@@ -405,9 +430,9 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 16px 20px;
+  padding: 24px;
   background: #ffffff;
-  border: 3px solid #000000;
+  border: 3px solid #e7e700;
   border-radius: 0;
   box-shadow: 4px 4px 0px #000000;
 }

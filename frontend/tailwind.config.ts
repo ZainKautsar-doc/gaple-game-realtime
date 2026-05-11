@@ -42,6 +42,11 @@ const config: Config = {
         '16': '64px',
         '20': '80px',
         '24': '96px',
+        'xs': '4px',
+        'sm': '12px',
+        'md': '24px',
+        'lg': '48px',
+        'xl': '80px',
       },
       borderRadius: {
         none: '0px',
