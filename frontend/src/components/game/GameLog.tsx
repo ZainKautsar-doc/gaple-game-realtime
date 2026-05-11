@@ -8,7 +8,7 @@ interface GameLogProps {
 }
 
 export function GameLog({ moves }: GameLogProps) {
-  const recentMoves = moves.slice(-8).reverse();
+  const recentMoves = moves.slice(-20).reverse();
 
   return (
     <div className="log-entries">

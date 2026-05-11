@@ -152,7 +152,7 @@ export default function GamePage() {
   };
 
   return (
-    <main className="min-h-screen bg-nb-surface">
+    <main className="min-h-screen bg-nb-surface overflow-hidden">
       <div className="game-layout">
         {/* ===== TOP BAR ===== */}
         <div className="game-topbar">
@@ -302,14 +302,14 @@ export default function GamePage() {
             <AnimatePresence>
               {(!isMobile || gameLogOpen || chatOpen) && (
                 <motion.div
-                  initial={isMobile ? { x: '100%' } : false}
-                  animate={{ x: 0 }}
-                  exit={isMobile ? { x: '100%' } : undefined}
+                  initial={isMobile ? { y: '100%' } : false}
+                  animate={{ y: 0 }}
+                  exit={isMobile ? { y: '100%' } : undefined}
                   transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                  className={`game-sidebar ${isMobile ? 'fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-nb-surface z-50 p-4 border-l-3 border-nb-outline shadow-nb-md overflow-y-auto' : ''}`}
+                  className={`game-sidebar ${isMobile ? 'fixed bottom-0 left-0 right-0 h-[60vh] bg-nb-surface z-50 p-4 border-t-3 border-nb-outline shadow-nb-md overflow-hidden' : ''}`}
                 >
                   {isMobile && (
-                    <div className="flex justify-between items-center mb-4">
+                    <div className="flex justify-between items-center mb-4 shrink-0">
                       <h2 className="font-display text-xl uppercase text-nb-primary">
                         {gameLogOpen ? 'Game Log' : 'Chat'}
                       </h2>
@@ -330,8 +330,8 @@ export default function GamePage() {
                     <div
                       className="sidebar-panel"
                       style={{
-                        flex: isMobile ? '1 1 auto' : '0 0 auto',
-                        maxHeight: isMobile ? 'none' : '260px',
+                        flex: isMobile ? '1 1 auto' : (chatOpen ? '0 1 40%' : '1 1 auto'),
+                        minHeight: 0,
                       }}
                     >
                       <div className="sidebar-panel-header">
@@ -346,8 +346,8 @@ export default function GamePage() {
                   {(!isMobile || chatOpen) && (
                     <div
                       style={{
-                        flex: '1 1 0',
-                        minHeight: '300px',
+                        flex: isMobile ? '1 1 auto' : (gameLogOpen ? '0 1 60%' : '1 1 auto'),
+                        minHeight: 0,
                         display: 'flex',
                         flexDirection: 'column',
                       }}
@@ -370,62 +370,73 @@ export default function GamePage() {
 
         {/* Mobile Toggle Buttons */}
         {isMobile && !gameLogOpen && !chatOpen && (
-          <div className="fixed bottom-24 right-4 z-40 flex flex-col gap-2">
+          <div className="fixed bottom-24 left-0 right-0 z-40 flex justify-center gap-4 px-4">
             <Button
               variant="primary"
               size="sm"
-              onClick={() => setGameLogOpen(true)}
-              className="border-3 border-nb-outline shadow-nb-sm"
+              onClick={() => {
+                setGameLogOpen(true);
+                setChatOpen(false);
+              }}
+              className="flex-1 border-3 border-nb-outline shadow-nb-sm uppercase"
             >
-              <ScrollText className="h-4 w-4 mr-2" /> LOG
+              <ScrollText className="h-4 w-4 mr-2" /> Log
             </Button>
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => setChatOpen(true)}
-              className="border-3 border-nb-outline shadow-nb-sm"
+              onClick={() => {
+                setChatOpen(true);
+                setGameLogOpen(false);
+              }}
+              className="flex-1 border-3 border-nb-outline shadow-nb-sm uppercase"
             >
-              <MessageSquare className="h-4 w-4 mr-2" /> CHAT
+              <MessageSquare className="h-4 w-4 mr-2" /> Chat
             </Button>
           </div>
         )}
 
         {/* ===== BOTTOM: Player Hand + Actions ===== */}
-        <div className="game-bottom shadow-nb-md col-span-full xl:col-span-3">
-          <div className="game-bottom-header">
-            <div className="game-bottom-title">
+        <div className="game-bottom shadow-nb-md">
+          <div className="flex flex-col lg:flex-row items-center gap-4 w-full">
+            <div className="game-bottom-title shrink-0">
               <div className="bg-nb-primary text-nb-white border-[3px] border-nb-outline px-3 py-1 font-display text-sm font-bold uppercase rounded-none">
                 {getInitials(myPlayer.nickname)}
               </div>
-              <h2>You</h2>
-              <span className="font-mono text-sm font-bold ml-2">
-                YOUR TURN
-              </span>
+              <h2 className="hidden sm:block">You</h2>
+              {isMyTurn && (
+                <span className="font-mono text-[10px] sm:text-sm font-bold ml-1 sm:ml-2 text-nb-primary animate-pulse">
+                  YOUR TURN
+                </span>
+              )}
             </div>
-            <div className="flex items-center gap-3">
-              <div className="tile-count">
-                {myPlayer.hand.length} cards remaining
+
+            <div className="flex-1 min-w-0 w-full overflow-hidden">
+              {/* Hand cards */}
+              <PlayerHand
+                cards={myPlayer.hand}
+                selectedCardId={selectedCardId}
+                playableCardIds={new Set(playableCards.keys())}
+                onSelectCard={handleSelectCard}
+                canInteract={isMyTurn && gameState.status === 'playing'}
+              />
+            </div>
+
+            <div className="flex items-center gap-3 shrink-0">
+              <div className="tile-count hidden md:flex">
+                {myPlayer.hand.length} cards
               </div>
               <Button
                 variant="danger"
                 size="sm"
                 onClick={passTurn}
                 disabled={!canPass}
-                className="font-display uppercase text-sm border-[3px] border-nb-outline"
+                className="font-display uppercase text-sm border-[3px] border-nb-outline px-6"
               >
                 PASS
               </Button>
             </div>
           </div>
-
-          {/* Hand cards */}
-          <PlayerHand
-            cards={myPlayer.hand}
-            selectedCardId={selectedCardId}
-            playableCardIds={new Set(playableCards.keys())}
-            onSelectCard={handleSelectCard}
-            canInteract={isMyTurn && gameState.status === 'playing'}
-          />
 
           {/* Side selection if needed */}
           {selectedPlacements.length > 1 && (

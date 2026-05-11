@@ -31,6 +31,7 @@ export function PlayerHand({
             canPlay={playableCardIds.has(card.id) && canInteract}
             selected={selectedCardId === card.id}
             disabled={!canInteract}
+            size="sm"
           />
         ))
       )}

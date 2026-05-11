@@ -82,7 +82,7 @@ export function ChatBox({
         <h3 className="font-display text-xl uppercase tracking-wide text-nb-white">{title}</h3>
       </div>
       <div className="flex flex-1 flex-col gap-4 p-4 bg-nb-surface">
-        <div className="flex max-h-[400px] min-h-[400px] flex-1 flex-col gap-3 overflow-y-auto border-[3px] border-nb-outline bg-nb-white p-4 custom-scrollbar">
+        <div className="flex flex-1 flex-col gap-3 overflow-y-auto border-[3px] border-nb-outline bg-nb-white p-4 custom-scrollbar">
           {messages.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center p-6">
               <p className="font-mono text-sm font-bold text-nb-placeholder uppercase">

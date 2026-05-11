@@ -88,7 +88,7 @@ function CardHalf({
       {pipPositions[value].map((position, index) => (
         <span
           key={`${value}-${index}`}
-          className="absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-none bg-nb-outline"
+          className="absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-nb-outline"
           style={position}
         />
       ))}
