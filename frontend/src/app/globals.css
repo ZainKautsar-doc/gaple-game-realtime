@@ -172,4 +172,12 @@ a:hover {
     background: #0001bb;
     border: 2px solid #000000;
   }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }

@@ -21,17 +21,25 @@ export function GameBoard({ board }: GameBoardProps) {
           </p>
         </div>
       ) : (
-        <div className="flex flex-wrap items-center justify-center gap-2 max-w-full overflow-hidden p-2">
-          {board.map((card, index) => (
-            <motion.div
-              key={`${card.id}-${index}`}
-              initial={false}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0 }}
-            >
-              <DominoCard card={card} size="sm" />
-            </motion.div>
-          ))}
+        <div className="flex flex-row flex-nowrap items-center justify-center gap-px max-w-full overflow-x-auto overflow-y-hidden p-8 min-h-[180px] scrollbar-hide">
+          {board.map((card, index) => {
+            const isBalak = card.left === card.right;
+            return (
+              <motion.div
+                key={`${card.id}-${index}`}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                className="flex-shrink-0"
+              >
+                <DominoCard
+                  card={card}
+                  size="sm"
+                  orientation={isBalak ? 'vertical' : 'horizontal'}
+                />
+              </motion.div>
+            );
+          })}
         </div>
       )}
     </div>

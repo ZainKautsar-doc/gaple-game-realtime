@@ -43,9 +43,18 @@ const pipPositions: Record<
 };
 
 const sizeClasses = {
-  sm: 'h-24 w-12',
-  md: 'h-32 w-16',
-  lg: 'h-40 w-20',
+  sm: {
+    vertical: 'h-24 w-12',
+    horizontal: 'w-24 h-12',
+  },
+  md: {
+    vertical: 'h-32 w-16',
+    horizontal: 'w-32 h-16',
+  },
+  lg: {
+    vertical: 'h-40 w-20',
+    horizontal: 'w-40 h-20',
+  },
 };
 
 interface DominoCardProps {
@@ -56,12 +65,26 @@ interface DominoCardProps {
   disabled?: boolean;
   faceDown?: boolean;
   size?: keyof typeof sizeClasses;
+  orientation?: 'vertical' | 'horizontal';
   className?: string;
 }
 
-function CardHalf({ value }: { value: number }) {
+function CardHalf({
+  value,
+  orientation,
+}: {
+  value: number;
+  orientation: 'vertical' | 'horizontal';
+}) {
+  const isVertical = orientation === 'vertical';
+
   return (
-    <div className="relative flex-1 border-b-[3px] border-nb-outline last:border-b-0">
+    <div
+      className={cn(
+        'relative flex-1 border-nb-outline',
+        isVertical ? 'border-b-[3px] last:border-b-0' : 'border-r-[3px] last:border-r-0'
+      )}
+    >
       {pipPositions[value].map((position, index) => (
         <span
           key={`${value}-${index}`}
@@ -81,9 +104,11 @@ export function DominoCard({
   disabled = false,
   faceDown = false,
   size = 'md',
+  orientation = 'vertical',
   className,
 }: DominoCardProps) {
   const interactive = Boolean(onClick) && !disabled;
+  const isVertical = orientation === 'vertical';
 
   return (
     <motion.button
@@ -95,7 +120,7 @@ export function DominoCard({
       disabled={disabled}
       className={cn(
         'relative overflow-hidden rounded-none border-[3px] border-nb-outline shadow-nb-sm',
-        sizeClasses[size],
+        sizeClasses[size][orientation],
         interactive ? 'cursor-pointer hover:border-nb-primary' : 'cursor-default',
         !disabled && !faceDown && 'bg-nb-white',
         !disabled && faceDown && 'bg-nb-primary',
@@ -113,9 +138,9 @@ export function DominoCard({
       {faceDown ? (
         <div className="absolute inset-[10%] border-[3px] border-nb-white bg-nb-secondary" />
       ) : (
-        <div className="flex h-full flex-col">
-          <CardHalf value={card.left} />
-          <CardHalf value={card.right} />
+        <div className={cn('flex h-full', isVertical ? 'flex-col' : 'flex-row')}>
+          <CardHalf value={card.left} orientation={orientation} />
+          <CardHalf value={card.right} orientation={orientation} />
         </div>
       )}
 
