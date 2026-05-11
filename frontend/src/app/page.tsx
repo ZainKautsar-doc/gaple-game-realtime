@@ -84,7 +84,7 @@ export default function LandingPage() {
   }, [joinedRoom, roomState?.status, router]);
 
   return (
-    <main className="relative overflow-hidden bg-nb-surface">
+    <main className="relative bg-nb-surface">
       <section className="relative z-10 mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-7xl items-center px-4 pb-16 pt-16 md:px-6 md:pt-24">
         <div className="grid w-full items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
           <motion.div

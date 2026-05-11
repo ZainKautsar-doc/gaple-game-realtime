@@ -37,8 +37,19 @@ export function PlayerPanel({
         {player.hasPassed && <span className="text-[10px] bg-nb-tertiary px-1">PASSED</span>}
       </div>
 
-      {/* Card Stack */}
-      <div className={`flex ${isHorizontal ? 'flex-row gap-1 justify-center flex-wrap' : 'flex-col gap-1 items-center'}`}>
+      {/* Mobile: show card count only */}
+      <div className={`lg:hidden flex items-center gap-1.5 border-[3px] border-nb-outline px-3 py-1.5 ${isCurrentTurn ? 'bg-nb-secondary' : 'bg-nb-white'}`}>
+        <Hand className="h-3.5 w-3.5 text-nb-primary shrink-0" />
+        <span className="font-mono text-xs font-bold text-nb-on-surface">
+          {player.cardCount} {player.cardCount === 1 ? 'card' : 'cards'}
+        </span>
+        {player.hasPassed && (
+          <span className="font-mono text-[9px] font-bold uppercase bg-nb-tertiary text-nb-white px-1">PASS</span>
+        )}
+      </div>
+
+      {/* Desktop: show card stack */}
+      <div className={`hidden lg:flex ${isHorizontal ? 'flex-row gap-1 justify-center flex-wrap' : 'flex-col gap-1 items-center'}`}>
         {Array.from({ length: player.cardCount }).map((_, idx) => (
           <div
             key={idx}

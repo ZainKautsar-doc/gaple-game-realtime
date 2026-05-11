@@ -183,7 +183,7 @@ export function RoomSetupDialog({
             transition={{ duration: 0 }}
             className="fixed inset-x-0 top-4 z-[70] mx-auto w-[calc(100%-24px)] max-w-6xl"
           >
-            <div className="overflow-hidden border-[3px] border-nb-outline bg-nb-white shadow-nb-md">
+            <div className="flex flex-col border-[3px] border-nb-outline bg-nb-white shadow-nb-md" style={{ maxHeight: 'calc(100dvh - 2rem)' }}>
               <div className="flex items-center justify-between border-b-[3px] border-nb-outline bg-nb-primary px-6 py-5">
                 <div>
                   <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-nb-secondary">
@@ -203,7 +203,7 @@ export function RoomSetupDialog({
                 </button>
               </div>
 
-              <div className="grid gap-0 lg:grid-cols-[280px_minmax(0,1fr)]">
+              <div className="grid gap-0 lg:grid-cols-[280px_minmax(0,1fr)] overflow-y-auto flex-1 min-h-0 custom-scrollbar">
                 <aside className="border-b-[3px] border-nb-outline bg-nb-surface-low p-5 lg:border-b-0 lg:border-r-[3px] lg:border-nb-outline">
                   <div className="border-[3px] border-nb-outline bg-nb-white p-2 shadow-nb-sm">
                     <button
@@ -279,7 +279,7 @@ export function RoomSetupDialog({
                   )}
                 </aside>
 
-                <div className="max-h-[80vh] overflow-y-auto px-6 py-6 custom-scrollbar bg-nb-surface">
+                <div className="px-6 py-6 bg-nb-surface">
                   {mode === 'create' ? (
                     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
                       <div className="space-y-6">

@@ -28,8 +28,13 @@ export function ChatBox({
   onTypingChange,
 }: ChatBoxProps) {
   const [draft, setDraft] = useState('');
+  const [isMounted, setIsMounted] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -76,23 +81,35 @@ export function ChatBox({
     (player) => player.playerId !== currentPlayerId
   );
 
+  // Only show the 50 most recent messages
+  const RECENT_LIMIT = 50;
+  const recentMessages = messages.slice(-RECENT_LIMIT);
+  const hasOlderMessages = messages.length > RECENT_LIMIT;
+
   return (
     <div className="flex h-full flex-col overflow-hidden border-[3px] border-nb-outline bg-nb-white shadow-nb-sm">
       <div className="border-b-[3px] border-nb-outline bg-nb-primary px-4 py-3 shrink-0">
         <h3 className="font-display text-lg uppercase tracking-wide text-nb-white">{title}</h3>
       </div>
-      <div className="flex flex-1 flex-col gap-4 p-4 bg-nb-surface">
-        <div className="flex flex-1 flex-col gap-3 overflow-y-auto border-[3px] border-nb-outline bg-nb-white p-4 custom-scrollbar">
+      <div className="flex flex-1 flex-col gap-4 p-4 bg-nb-surface min-h-0">
+        <div className="flex flex-1 flex-col gap-3 overflow-y-auto border-[3px] border-nb-outline bg-nb-white p-4 custom-scrollbar min-h-0">
           {messages.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center p-6">
               <p className="font-mono text-sm font-bold text-nb-placeholder uppercase">
                 No messages yet. <br /> Start the conversation!
               </p>
             </div>
-          ) : (
+          ) : isMounted ? (
             <div className="flex flex-col gap-3">
+              {hasOlderMessages && (
+                <div className="text-center">
+                  <span className="font-mono text-[10px] font-bold uppercase text-nb-placeholder border-[2px] border-nb-outline bg-nb-surface-low px-3 py-1">
+                    Showing last {RECENT_LIMIT} messages
+                  </span>
+                </div>
+              )}
               <AnimatePresence initial={false}>
-                {messages.map((message) => {
+                {recentMessages.map((message) => {
                   const isMe = message.playerId === currentPlayerId;
                   const isSystem = message.kind === 'system';
 
@@ -156,7 +173,8 @@ export function ChatBox({
                 })}
               </AnimatePresence>
             </div>
-          )}
+          ) : null}
+
           {visibleTypingPlayers.length > 0 && (
             <p className="animate-nb-pulse font-mono text-[11px] font-bold uppercase px-2 text-nb-primary border-[3px] border-nb-outline py-2">
               {visibleTypingPlayers.map((player) => player.nickname).join(', ')} is typing...

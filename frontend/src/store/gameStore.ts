@@ -3,11 +3,6 @@
 import { create } from 'zustand';
 import type { GameStateView, RoomState } from '@/types/game';
 
-const initialNickname =
-  typeof window !== 'undefined'
-    ? window.localStorage.getItem('gaple-nickname') ?? ''
-    : '';
-
 interface GameStore {
   nickname: string;
   myPlayerId: string | null;
@@ -34,10 +29,11 @@ interface GameStore {
   clearGameReset: () => void;
   setSetupDialog: (isOpen: boolean, mode?: 'create' | 'join') => void;
   resetSession: () => void;
+  rehydrateFromStorage: () => void;
 }
 
 export const useGameStore = create<GameStore>((set) => ({
-  nickname: initialNickname,
+  nickname: '',
   myPlayerId: null,
   roomState: null,
   gameState: null,
@@ -48,7 +44,7 @@ export const useGameStore = create<GameStore>((set) => ({
   lastResetAt: 0,
   isSetupDialogOpen: false,
   setupDialogMode: 'create',
-  avatarId: typeof window !== 'undefined' ? window.localStorage.getItem('gaple-avatar') ?? '1' : '1',
+  avatarId: '1',
   setNickname: (nickname) => {
     const trimmedNickname = nickname.slice(0, 20);
     if (typeof window !== 'undefined') {
@@ -89,4 +85,10 @@ export const useGameStore = create<GameStore>((set) => ({
       infoMessage: null,
       lastResetAt: 0,
     }),
+  rehydrateFromStorage: () => {
+    if (typeof window === 'undefined') return;
+    const savedNickname = window.localStorage.getItem('gaple-nickname') ?? '';
+    const savedAvatarId = window.localStorage.getItem('gaple-avatar') ?? '1';
+    set({ nickname: savedNickname, avatarId: savedAvatarId });
+  },
 }));

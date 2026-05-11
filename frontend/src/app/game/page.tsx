@@ -236,7 +236,7 @@ export default function GamePage() {
         </div>
 
         {/* ===== CENTER AREA (Top Player + Board) ===== */}
-        <div className="center-area flex flex-col gap-6">
+        <div className="center-area flex flex-col gap-2 min-h-0">
           {topPlayer && (
             <div className="flex justify-center">
               <PlayerPanel
@@ -247,7 +247,7 @@ export default function GamePage() {
             </div>
           )}
 
-          <div className="casino-table-container">
+          <div className="casino-table-container relative flex-1 min-h-0">
             {/* Turn indicator */}
             <div className="turn-indicator">
               <span className="turn-label">Current Turn</span>
@@ -255,6 +255,28 @@ export default function GamePage() {
                 {currentPlayer?.nickname ?? '...'}
               </span>
             </div>
+
+            {/* Mobile-only: side player info overlays inside board */}
+            {leftPlayer && (
+              <div className="lg:hidden absolute left-1 top-1/2 -translate-y-1/2 z-10 flex flex-col items-start gap-1">
+                <div className={`border-[2px] border-nb-outline px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase truncate max-w-[52px] ${leftPlayer.id === currentPlayer?.id ? 'bg-nb-secondary' : 'bg-nb-primary text-nb-white'}`}>
+                  {leftPlayer.nickname.slice(0, 5)}
+                </div>
+                <div className={`border-[2px] border-nb-outline px-1.5 py-0.5 font-mono text-[9px] font-bold ${leftPlayer.id === currentPlayer?.id ? 'bg-nb-secondary' : 'bg-nb-white'}`}>
+                  🖐 {leftPlayer.cardCount}
+                </div>
+              </div>
+            )}
+            {rightPlayer && (
+              <div className="lg:hidden absolute right-1 top-1/2 -translate-y-1/2 z-10 flex flex-col items-end gap-1">
+                <div className={`border-[2px] border-nb-outline px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase truncate max-w-[52px] ${rightPlayer.id === currentPlayer?.id ? 'bg-nb-secondary' : 'bg-nb-primary text-nb-white'}`}>
+                  {rightPlayer.nickname.slice(0, 5)}
+                </div>
+                <div className={`border-[2px] border-nb-outline px-1.5 py-0.5 font-mono text-[9px] font-bold ${rightPlayer.id === currentPlayer?.id ? 'bg-nb-secondary' : 'bg-nb-white'}`}>
+                  🖐 {rightPlayer.cardCount}
+                </div>
+              </div>
+            )}
 
             {/* Board center with tiles */}
             <div className="board-center">
@@ -275,6 +297,7 @@ export default function GamePage() {
           </div>
         </div>
 
+
         {/* ===== RIGHT PLAYER ===== */}
         <div className="right-player-area flex flex-col justify-center items-center">
           {rightPlayer && (
@@ -287,114 +310,140 @@ export default function GamePage() {
         </div>
 
         {/* ===== RIGHT: Sidebar (Game Log + Chat) ===== */}
-        {(!isMobile || gameLogOpen || chatOpen) && (
-          <>
-            {isMobile && (gameLogOpen || chatOpen) && (
-              <div
-                className="fixed inset-0 bg-nb-on-surface/50 z-40"
-                onClick={() => {
-                  setGameLogOpen(false);
-                  setChatOpen(false);
-                }}
+
+        {/* Desktop sidebar */}
+        {!isMobile && (
+          <div className="game-sidebar">
+            <div
+              className="sidebar-panel"
+              style={{ flex: '1 1 35%', minHeight: 0 }}
+            >
+              <div className="sidebar-panel-header">
+                <h3>Game Log</h3>
+              </div>
+              <div className="sidebar-panel-body">
+                <GameLog moves={gameState.gameLog} />
+              </div>
+            </div>
+
+            <div
+              style={{
+                flex: '1 1 65%',
+                minHeight: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+              }}
+            >
+              <ChatBox
+                title="Table Chat"
+                messages={messages}
+                typingPlayers={typingPlayers}
+                currentPlayerId={myPlayerId}
+                onSendMessage={sendChatMessage}
+                onTypingChange={setTyping}
               />
-            )}
-
-            <AnimatePresence>
-              {(!isMobile || gameLogOpen || chatOpen) && (
-                <motion.div
-                  initial={isMobile ? { y: '100%' } : false}
-                  animate={{ y: 0 }}
-                  exit={isMobile ? { y: '100%' } : undefined}
-                  transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                  className={`game-sidebar ${isMobile ? 'fixed bottom-0 left-0 right-0 h-[60vh] bg-nb-surface z-50 p-4 border-t-3 border-nb-outline shadow-nb-md overflow-hidden' : ''}`}
-                >
-                  {isMobile && (
-                    <div className="flex justify-between items-center mb-4 shrink-0">
-                      <h2 className="font-display text-xl uppercase text-nb-primary">
-                        {gameLogOpen ? 'Game Log' : 'Chat'}
-                      </h2>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setGameLogOpen(false);
-                          setChatOpen(false);
-                        }}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
-
-                  {(!isMobile || gameLogOpen) && (
-                    <div
-                      className="sidebar-panel"
-                      style={{
-                        flex: isMobile ? '1 1 auto' : '1 1 35%',
-                        minHeight: 0,
-                      }}
-                    >
-                      <div className="sidebar-panel-header">
-                        <h3>Game Log</h3>
-                      </div>
-                      <div className="sidebar-panel-body">
-                        <GameLog moves={gameState.gameLog} />
-                      </div>
-                    </div>
-                  )}
-
-                  {(!isMobile || chatOpen) && (
-                    <div
-                      style={{
-                        flex: isMobile ? '1 1 auto' : '1 1 65%',
-                        minHeight: 0,
-                        display: 'flex',
-                        flexDirection: 'column',
-                      }}
-                    >
-                      <ChatBox
-                        title="Table Chat"
-                        messages={messages}
-                        typingPlayers={typingPlayers}
-                        currentPlayerId={myPlayerId}
-                        onSendMessage={sendChatMessage}
-                        onTypingChange={setTyping}
-                      />
-                    </div>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </>
+            </div>
+          </div>
         )}
 
-        {/* Mobile Toggle Buttons */}
+        {/* Mobile: Game Log drawer (right side, same as lobby) */}
+        <AnimatePresence>
+          {isMobile && gameLogOpen && (
+            <>
+              <motion.div
+                key="gamelog-backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-nb-on-surface/50 z-40"
+                onClick={() => setGameLogOpen(false)}
+              />
+              <motion.aside
+                key="gamelog-drawer"
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                className="fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-nb-surface z-50 p-4 border-l-[3px] border-nb-outline shadow-[4px_0_0_#000] flex flex-col"
+              >
+                <div className="flex justify-between items-center mb-4 shrink-0">
+                  <h2 className="font-display text-xl uppercase text-nb-primary">Game Log</h2>
+                  <Button variant="outline" size="sm" onClick={() => setGameLogOpen(false)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="flex-1 min-h-0 overflow-y-auto sidebar-panel-body border-[3px] border-nb-outline">
+                  <GameLog moves={gameState.gameLog} />
+                </div>
+              </motion.aside>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* Mobile: Chat drawer (right side, same as lobby) */}
+        <AnimatePresence>
+          {isMobile && chatOpen && (
+            <>
+              <motion.div
+                key="chat-backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-nb-on-surface/50 z-40"
+                onClick={() => setChatOpen(false)}
+              />
+              <motion.aside
+                key="chat-drawer"
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                className="fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-nb-surface z-50 p-4 border-l-[3px] border-nb-outline shadow-[4px_0_0_#000] flex flex-col"
+              >
+                <div className="flex justify-between items-center mb-4 shrink-0">
+                  <h2 className="font-display text-xl uppercase text-nb-primary">Chat</h2>
+                  <Button variant="outline" size="sm" onClick={() => setChatOpen(false)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="flex-1 min-h-0">
+                  <ChatBox
+                    title="Table Chat"
+                    messages={messages}
+                    typingPlayers={typingPlayers}
+                    currentPlayerId={myPlayerId}
+                    onSendMessage={sendChatMessage}
+                    onTypingChange={setTyping}
+                  />
+                </div>
+              </motion.aside>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* Mobile Toggle Buttons — floating bottom bar */}
         {isMobile && !gameLogOpen && !chatOpen && (
-          <div className="fixed bottom-24 left-0 right-0 z-40 flex justify-center gap-4 px-4">
+          <div className="fixed bottom-20 right-4 z-40 flex flex-col gap-2">
             <Button
               variant="primary"
               size="sm"
-              onClick={() => {
-                setGameLogOpen(true);
-                setChatOpen(false);
-              }}
-              className="flex-1 border-3 border-nb-outline shadow-nb-sm uppercase"
+              onClick={() => { setGameLogOpen(true); setChatOpen(false); }}
+              className="border-[3px] border-nb-outline shadow-[4px_4px_0_#000] uppercase text-xs px-4 py-2 h-auto"
             >
-              <ScrollText className="h-4 w-4 mr-2" /> Log
+              <ScrollText className="h-4 w-4 mr-1.5" /> Log
             </Button>
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => {
-                setChatOpen(true);
-                setGameLogOpen(false);
-              }}
-              className="flex-1 border-3 border-nb-outline shadow-nb-sm uppercase"
+              onClick={() => { setChatOpen(true); setGameLogOpen(false); }}
+              className="border-[3px] border-nb-outline shadow-[4px_4px_0_#000] uppercase text-xs px-4 py-2 h-auto"
             >
-              <MessageSquare className="h-4 w-4 mr-2" /> Chat
+              <MessageSquare className="h-4 w-4 mr-1.5" /> Chat
             </Button>
           </div>
         )}
+
 
         {/* ===== BOTTOM: Player Hand + Actions ===== */}
         <div className="game-bottom shadow-nb-md">

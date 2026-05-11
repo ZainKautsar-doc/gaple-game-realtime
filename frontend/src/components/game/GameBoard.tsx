@@ -13,6 +13,7 @@ interface GameBoardProps {
 
 export function GameBoard({ board }: GameBoardProps) {
   const [boardScale, setBoardScale] = useState(1);
+  const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -20,23 +21,43 @@ export function GameBoard({ board }: GameBoardProps) {
     const calculateScale = () => {
       if (!containerRef.current || !contentRef.current) return;
 
-      const containerWidth = containerRef.current.clientWidth;
-      const contentWidth = contentRef.current.scrollWidth;
-      const padding = 40; // 20px on each side
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
 
-      if (contentWidth > containerWidth - padding) {
-        const calculatedScale = (containerWidth - padding) / contentWidth;
-        // Limit scale to prevent cards from becoming too small
-        setBoardScale(Math.max(calculatedScale, 0.4));
+      const containerWidth = containerRef.current.clientWidth;
+      const containerHeight = containerRef.current.clientHeight;
+      const contentWidth = contentRef.current.scrollWidth;
+      const contentHeight = contentRef.current.scrollHeight;
+      const padding = mobile ? 16 : 40;
+
+      // On mobile: scale based on both width AND card count (more aggressive zoom-out)
+      if (mobile) {
+        const tileCount = board.length;
+        // Each tile is ~56px wide; estimate needed width
+        const estimatedWidth = tileCount * 58;
+        const scaleByWidth = estimatedWidth > containerWidth - padding
+          ? (containerWidth - padding) / estimatedWidth
+          : 1;
+
+        // Also scale based on actual rendered content
+        const scaleByContent = contentWidth > containerWidth - padding
+          ? (containerWidth - padding) / contentWidth
+          : 1;
+
+        // Use the more aggressive (smaller) scale, min 0.2 on mobile
+        const finalScale = Math.min(scaleByWidth, scaleByContent);
+        setBoardScale(Math.max(finalScale, 0.2));
       } else {
-        setBoardScale(1);
+        // Desktop: original behavior
+        if (contentWidth > containerWidth - 40) {
+          setBoardScale(Math.max((containerWidth - 40) / contentWidth, 0.4));
+        } else {
+          setBoardScale(1);
+        }
       }
     };
 
-    // Calculate on mount and when board changes
     calculateScale();
-
-    // Recalculate on window resize
     window.addEventListener('resize', calculateScale);
     return () => window.removeEventListener('resize', calculateScale);
   }, [board.length]);
@@ -86,10 +107,10 @@ export function GameBoard({ board }: GameBoardProps) {
         </div>
       )}
 
-      {/* Scale indicator for debugging/info (optional but good for UX) */}
-      {boardScale < 1 && (
+      {/* Scale indicator — mobile only when zoomed out */}
+      {isMobile && boardScale < 0.95 && (
         <div className="absolute bottom-2 left-2 bg-nb-white/80 border-[2px] border-nb-outline px-2 py-0.5 font-mono text-[10px] font-bold uppercase pointer-events-none">
-          Scale: {(boardScale * 100).toFixed(0)}%
+          {(boardScale * 100).toFixed(0)}%
         </div>
       )}
     </div>

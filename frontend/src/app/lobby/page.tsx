@@ -251,29 +251,31 @@ export default function LobbyPage() {
                 animate={{ x: 0 }}
                 exit={isMobile ? { x: '100%' } : undefined}
                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                className={`lg:sticky lg:top-8 h-fit ${
-                  isMobile 
-                    ? 'fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-nb-surface z-50 p-4 border-l-3 border-nb-outline shadow-nb-md overflow-y-auto' 
-                    : ''
+                className={`lg:sticky lg:top-8 ${
+                  isMobile
+                    ? 'fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-nb-surface z-50 p-4 border-l-3 border-nb-outline shadow-nb-md overflow-y-auto flex flex-col'
+                    : 'flex flex-col h-[620px]'
                 }`}
               >
                 {isMobile && (
-                  <div className="flex justify-between items-center mb-4">
+                  <div className="flex justify-between items-center mb-4 shrink-0">
                     <h2 className="font-display text-xl uppercase text-nb-primary">Chat</h2>
                     <Button variant="outline" size="sm" onClick={() => setChatOpen(false)}>
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
                 )}
-                
-                <ChatBox
-                  title="Table Chat"
-                  messages={messages}
-                  typingPlayers={typingPlayers}
-                  currentPlayerId={myPlayerId}
-                  onSendMessage={sendChatMessage}
-                  onTypingChange={setTyping}
-                />
+
+                <div className={isMobile ? 'flex-1 min-h-0' : 'flex-1 min-h-0'}>
+                  <ChatBox
+                    title="Table Chat"
+                    messages={messages}
+                    typingPlayers={typingPlayers}
+                    currentPlayerId={myPlayerId}
+                    onSendMessage={sendChatMessage}
+                    onTypingChange={setTyping}
+                  />
+                </div>
               </motion.aside>
             </>
           )}
