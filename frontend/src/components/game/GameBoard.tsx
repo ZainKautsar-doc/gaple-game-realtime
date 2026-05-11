@@ -33,8 +33,8 @@ export function GameBoard({ board }: GameBoardProps) {
       // On mobile: scale based on both width AND card count (more aggressive zoom-out)
       if (mobile) {
         const tileCount = board.length;
-        // Each tile is ~56px wide; estimate needed width
-        const estimatedWidth = tileCount * 58;
+        // Each tile (xs) is ~40px wide on average; estimate needed width
+        const estimatedWidth = tileCount * 40;
         const scaleByWidth = estimatedWidth > containerWidth - padding
           ? (containerWidth - padding) / estimatedWidth
           : 1;
@@ -98,7 +98,7 @@ export function GameBoard({ board }: GameBoardProps) {
               >
                 <DominoCard
                   card={card}
-                  size="sm"
+                  size={isMobile ? 'xs' : 'sm'}
                   orientation={isBalak ? 'vertical' : 'horizontal'}
                 />
               </motion.div>

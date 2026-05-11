@@ -43,6 +43,10 @@ const pipPositions: Record<
 };
 
 const sizeClasses = {
+  xs: {
+    vertical: 'h-16 w-8',
+    horizontal: 'w-16 h-8',
+  },
   sm: {
     vertical: 'h-24 w-12',
     horizontal: 'w-24 h-12',
@@ -72,23 +76,34 @@ interface DominoCardProps {
 function CardHalf({
   value,
   orientation,
+  size = 'md',
 }: {
   value: number;
   orientation: 'vertical' | 'horizontal';
+  size?: keyof typeof sizeClasses;
 }) {
   const isVertical = orientation === 'vertical';
+  
+  // Adjust pip size based on card size
+  const pipSize = size === 'xs' ? 'h-1.5 w-1.5' : (size === 'sm' ? 'h-2 w-2' : 'h-2.5 w-2.5');
 
   return (
     <div
       className={cn(
         'relative flex-1 border-nb-outline',
-        isVertical ? 'border-b-[3px] last:border-b-0' : 'border-r-[3px] last:border-r-0'
+        isVertical 
+          ? (size === 'xs' ? 'border-b-[2px]' : 'border-b-[3px]') 
+          : (size === 'xs' ? 'border-r-[2px]' : 'border-r-[3px]'),
+        'last:border-none'
       )}
     >
       {pipPositions[value].map((position, index) => (
         <span
           key={`${value}-${index}`}
-          className="absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-nb-outline"
+          className={cn(
+            "absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-nb-outline",
+            pipSize
+          )}
           style={position}
         />
       ))}
@@ -119,7 +134,8 @@ export function DominoCard({
       onClick={interactive ? onClick : undefined}
       disabled={disabled}
       className={cn(
-        'relative overflow-hidden rounded-none border-[3px] border-nb-outline shadow-nb-sm',
+        'relative overflow-hidden rounded-none border-nb-outline',
+        size === 'xs' ? 'border-[2px] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' : 'border-[3px] shadow-nb-sm',
         sizeClasses[size][orientation],
         interactive ? 'cursor-pointer hover:border-nb-primary' : 'cursor-default',
         !disabled && !faceDown && 'bg-nb-white',
@@ -139,8 +155,8 @@ export function DominoCard({
         <div className="absolute inset-[10%] border-[3px] border-nb-white bg-nb-secondary" />
       ) : (
         <div className={cn('flex h-full', isVertical ? 'flex-col' : 'flex-row')}>
-          <CardHalf value={card.left} orientation={orientation} />
-          <CardHalf value={card.right} orientation={orientation} />
+          <CardHalf value={card.left} orientation={orientation} size={size} />
+          <CardHalf value={card.right} orientation={orientation} size={size} />
         </div>
       )}
 
