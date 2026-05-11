@@ -78,8 +78,8 @@ export function ChatBox({
 
   return (
     <div className="flex h-full flex-col overflow-hidden border-[3px] border-nb-outline bg-nb-white shadow-nb-sm">
-      <div className="border-b-[3px] border-nb-outline bg-nb-primary px-4 py-4">
-        <h3 className="font-display text-xl uppercase tracking-wide text-nb-white">{title}</h3>
+      <div className="border-b-[3px] border-nb-outline bg-nb-primary px-4 py-3 shrink-0">
+        <h3 className="font-display text-lg uppercase tracking-wide text-nb-white">{title}</h3>
       </div>
       <div className="flex flex-1 flex-col gap-4 p-4 bg-nb-surface">
         <div className="flex flex-1 flex-col gap-3 overflow-y-auto border-[3px] border-nb-outline bg-nb-white p-4 custom-scrollbar">
@@ -165,7 +165,7 @@ export function ChatBox({
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3 shrink-0">
           <Textarea
             value={draft}
             onChange={(event) => handleDraftChange(event.target.value)}

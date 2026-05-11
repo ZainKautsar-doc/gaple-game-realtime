@@ -330,7 +330,7 @@ export default function GamePage() {
                     <div
                       className="sidebar-panel"
                       style={{
-                        flex: isMobile ? '1 1 auto' : (chatOpen ? '0 1 40%' : '1 1 auto'),
+                        flex: isMobile ? '1 1 auto' : '1 1 35%',
                         minHeight: 0,
                       }}
                     >
@@ -346,7 +346,7 @@ export default function GamePage() {
                   {(!isMobile || chatOpen) && (
                     <div
                       style={{
-                        flex: isMobile ? '1 1 auto' : (gameLogOpen ? '0 1 60%' : '1 1 auto'),
+                        flex: isMobile ? '1 1 auto' : '1 1 65%',
                         minHeight: 0,
                         display: 'flex',
                         flexDirection: 'column',
