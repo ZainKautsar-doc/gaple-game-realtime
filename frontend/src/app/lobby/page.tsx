@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Copy, Crown, DoorOpen, Home, Play, Power, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Copy, Crown, DoorOpen, Home, MessageSquare, Play, Power, Users, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ChatBox } from '@/components/chat/ChatBox';
 import { PlayerCard } from '@/components/lobby/PlayerCard';
@@ -15,6 +15,25 @@ const boardPositions = ['north', 'west', 'east', 'south'] as const;
 
 export default function LobbyPage() {
   const router = useRouter();
+  const [isMobile, setIsMobile] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setChatOpen(true);
+      } else {
+        setChatOpen(false);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const {
     nickname,
     roomState,
@@ -217,16 +236,62 @@ export default function LobbyPage() {
           </section>
         </div>
 
-        <aside className="lg:sticky lg:top-8 h-fit">
-          <ChatBox
-            title="Table Chat"
-            messages={messages}
-            typingPlayers={typingPlayers}
-            currentPlayerId={myPlayerId}
-            onSendMessage={sendChatMessage}
-            onTypingChange={setTyping}
-          />
-        </aside>
+        <AnimatePresence>
+          {(!isMobile || chatOpen) && (
+            <>
+              {isMobile && (
+                <div 
+                  className="fixed inset-0 bg-nb-on-surface/50 z-40" 
+                  onClick={() => setChatOpen(false)}
+                />
+              )}
+              
+              <motion.aside
+                initial={isMobile ? { x: '100%' } : false}
+                animate={{ x: 0 }}
+                exit={isMobile ? { x: '100%' } : undefined}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                className={`lg:sticky lg:top-8 h-fit ${
+                  isMobile 
+                    ? 'fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-nb-surface z-50 p-4 border-l-3 border-nb-outline shadow-nb-md overflow-y-auto' 
+                    : ''
+                }`}
+              >
+                {isMobile && (
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="font-display text-xl uppercase text-nb-primary">Chat</h2>
+                    <Button variant="outline" size="sm" onClick={() => setChatOpen(false)}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+                
+                <ChatBox
+                  title="Table Chat"
+                  messages={messages}
+                  typingPlayers={typingPlayers}
+                  currentPlayerId={myPlayerId}
+                  onSendMessage={sendChatMessage}
+                  onTypingChange={setTyping}
+                />
+              </motion.aside>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* Mobile Chat Toggle Button */}
+        {isMobile && !chatOpen && (
+          <div className="fixed bottom-6 right-6 z-40">
+            <Button
+              variant="primary"
+              size="md"
+              onClick={() => setChatOpen(true)}
+              className="rounded-full h-14 w-14 border-3 border-nb-outline shadow-nb-md"
+            >
+              <MessageSquare className="h-6 w-6" />
+            </Button>
+          </div>
+        )}
       </div>
     </main>
   );
