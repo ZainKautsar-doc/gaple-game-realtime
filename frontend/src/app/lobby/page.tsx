@@ -112,91 +112,91 @@ export default function LobbyPage() {
         </div>
       )}
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-        <section className="nb-card">
-          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-nb-primary">
-                Player Management
-              </p>
-              <h2 className="mt-2 font-display text-2xl uppercase text-nb-primary">Table Seats</h2>
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_400px]">
+        <div className="flex flex-col gap-6">
+          <section className="nb-card">
+            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-nb-primary">
+                  Player Management
+                </p>
+                <h2 className="mt-2 font-display text-2xl uppercase text-nb-primary">Table Seats</h2>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <span className="inline-flex items-center gap-2 border-[3px] border-nb-outline bg-nb-surface-low px-4 py-2 font-mono text-sm font-bold uppercase text-nb-on-surface">
+                  <Users className="h-4 w-4 text-nb-primary" />
+                  {roomState.currentPlayers}/{roomState.maxPlayers} players
+                </span>
+                <span
+                  className={`inline-flex items-center gap-2 border-[3px] border-nb-outline px-4 py-2 font-mono text-sm font-bold uppercase ${
+                    isConnected
+                      ? 'bg-nb-secondary text-nb-on-surface'
+                      : 'bg-nb-tertiary text-nb-white'
+                  }`}
+                >
+                  <Power className="h-4 w-4" />
+                  {isConnected ? 'Connected' : 'Disconnected'}
+                </span>
+              </div>
             </div>
-            <div className="flex flex-wrap gap-3">
-              <span className="inline-flex items-center gap-2 border-[3px] border-nb-outline bg-nb-surface-low px-4 py-2 font-mono text-sm font-bold uppercase text-nb-on-surface">
-                <Users className="h-4 w-4 text-nb-primary" />
-                {roomState.currentPlayers}/{roomState.maxPlayers} players
-              </span>
-              <span
-                className={`inline-flex items-center gap-2 border-[3px] border-nb-outline px-4 py-2 font-mono text-sm font-bold uppercase ${
-                  isConnected
-                    ? 'bg-nb-secondary text-nb-on-surface'
-                    : 'bg-nb-tertiary text-nb-white'
-                }`}
-              >
-                <Power className="h-4 w-4" />
-                {isConnected ? 'Connected' : 'Disconnected'}
-              </span>
-            </div>
-          </div>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            {boardPositions.map((position) => {
-              const player = roomState.players.find((item) => item.position === position);
-              return (
-                <PlayerCard
-                  key={position}
-                  player={player}
-                  isSelf={player?.id === myPlayerId}
-                  showKick={!!player && isHost && player.id !== myPlayerId}
-                  onToggleReady={
-                    player?.id === myPlayerId && me
-                      ? () => setReady(!me.isReady)
-                      : undefined
-                  }
-                  onKick={
-                    player && isHost && player.id !== myPlayerId
-                      ? () => {
-                          if (window.confirm(`Kick ${player.nickname} from the table?`)) {
-                            kickPlayer(player.id);
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {boardPositions.map((position) => {
+                const player = roomState.players.find((item) => item.position === position);
+                return (
+                  <PlayerCard
+                    key={position}
+                    player={player}
+                    isSelf={player?.id === myPlayerId}
+                    showKick={!!player && isHost && player.id !== myPlayerId}
+                    onToggleReady={
+                      player?.id === myPlayerId && me
+                        ? () => setReady(!me.isReady)
+                        : undefined
+                    }
+                    onKick={
+                      player && isHost && player.id !== myPlayerId
+                        ? () => {
+                            if (window.confirm(`Kick ${player.nickname} from the table?`)) {
+                              kickPlayer(player.id);
+                            }
                           }
-                        }
-                      : undefined
-                  }
-                />
-              );
-            })}
-          </div>
+                        : undefined
+                    }
+                  />
+                );
+              })}
+            </div>
 
-          <div className="mt-6 flex flex-wrap gap-3 border-[3px] border-nb-outline bg-nb-surface-low p-4 items-center">
-            {me && (
-              <Button variant={me.isReady ? 'outline' : 'primary'} onClick={() => setReady(!me.isReady)} className="px-6">
-                {me.isReady ? 'Cancel Ready' : 'I am Ready'}
-              </Button>
-            )}
-            {isHost && (
-              <Button variant="primary" onClick={startGame} disabled={!everyoneReady} className="px-6">
-                <Play className="mr-2 h-4 w-4" />
-                Start Game
-              </Button>
-            )}
-            {isHost && !everyoneReady && (
-              <p className="self-center font-mono text-sm font-bold uppercase text-nb-placeholder">
-                Wait for all players ready.
-              </p>
-            )}
-            {isHost && (
-              <span className="ml-auto inline-flex items-center gap-2 border-[3px] border-nb-outline bg-nb-secondary px-4 py-2 font-mono text-sm font-bold uppercase text-nb-on-surface">
-                <Crown className="h-4 w-4" />
-                Dealer
-              </span>
-            )}
-          </div>
-        </section>
+            <div className="mt-6 flex flex-wrap gap-3 border-[3px] border-nb-outline bg-nb-surface-low p-4 items-center">
+              {me && (
+                <Button variant={me.isReady ? 'outline' : 'primary'} onClick={() => setReady(!me.isReady)} className="px-6">
+                  {me.isReady ? 'Cancel Ready' : 'I am Ready'}
+                </Button>
+              )}
+              {isHost && (
+                <Button variant="primary" onClick={startGame} disabled={!everyoneReady} className="px-6">
+                  <Play className="mr-2 h-4 w-4" />
+                  Start Game
+                </Button>
+              )}
+              {isHost && !everyoneReady && (
+                <p className="self-center font-mono text-sm font-bold uppercase text-nb-placeholder">
+                  Wait for all players ready.
+                </p>
+              )}
+              {isHost && (
+                <span className="ml-auto inline-flex items-center gap-2 border-[3px] border-nb-outline bg-nb-secondary px-4 py-2 font-mono text-sm font-bold uppercase text-nb-on-surface">
+                  <Crown className="h-4 w-4" />
+                  Dealer
+                </span>
+              )}
+            </div>
+          </section>
 
-        <aside className="space-y-6">
           <section className="nb-card">
             <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-nb-primary">Table Info</p>
-            <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+            <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="border-[3px] border-nb-outline bg-nb-surface-low p-4 shadow-nb-sm">
                 <p className="font-mono text-xs font-bold uppercase text-nb-placeholder">Table Name</p>
                 <p className="mt-2 font-display text-lg uppercase text-nb-primary">{roomState.name}</p>
@@ -215,17 +215,17 @@ export default function LobbyPage() {
               </div>
             </div>
           </section>
+        </div>
 
-          <div className="min-h-[420px]">
-            <ChatBox
-              title="Table Chat"
-              messages={messages}
-              typingPlayers={typingPlayers}
-              currentPlayerId={myPlayerId}
-              onSendMessage={sendChatMessage}
-              onTypingChange={setTyping}
-            />
-          </div>
+        <aside className="lg:sticky lg:top-8 h-fit">
+          <ChatBox
+            title="Table Chat"
+            messages={messages}
+            typingPlayers={typingPlayers}
+            currentPlayerId={myPlayerId}
+            onSendMessage={sendChatMessage}
+            onTypingChange={setTyping}
+          />
         </aside>
       </div>
     </main>
