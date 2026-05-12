@@ -42,7 +42,8 @@ const features = [
   },
   {
     title: 'Automated Scoring',
-    description: 'Precise, automatic end-game calculations based on remaining tile values.',
+    description:
+      'Precise, automatic end-game calculations based on remaining tile values.',
     icon: BadgeCheck,
   },
 ];
@@ -69,7 +70,11 @@ export default function LandingPage() {
         router.push('/lobby');
       }
     } else if (isInRoom && currentRoomCode) {
-      joinRoom({ roomCode: currentRoomCode, playerName: nickname });
+      joinRoom({
+        roomCode: currentRoomCode,
+        playerName: nickname,
+        avatarId: 'avatar-1',
+      });
     }
   };
 
@@ -104,7 +109,9 @@ export default function LandingPage() {
                     </p>
                     <p className="font-mono text-sm font-medium text-nb-on-surface">
                       You are in a room{' '}
-                      <span className="font-bold text-nb-primary">({currentRoomCode})</span>
+                      <span className="font-bold text-nb-primary">
+                        ({currentRoomCode})
+                      </span>
                     </p>
                   </div>
                 </div>
@@ -125,7 +132,8 @@ export default function LandingPage() {
               </span>
             </h1>
             <p className="mt-6 max-w-2xl font-mono text-lg font-medium leading-relaxed text-nb-on-surface">
-              Premium multiplayer domino. Real-time play, precise controls, clear turn flow.
+              Premium multiplayer domino. Real-time play, precise controls,
+              clear turn flow.
             </p>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
               {isInRoom ? (
@@ -145,11 +153,21 @@ export default function LandingPage() {
                 </Button>
               ) : (
                 <>
-                  <Button variant="primary" size="lg" className="px-8" onClick={() => setSetupDialog(true, 'create')}>
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    className="px-8"
+                    onClick={() => setSetupDialog(true, 'create')}
+                  >
                     Create Table
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
-                  <Button size="lg" variant="outline" className="px-8" onClick={() => setSetupDialog(true, 'join')}>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="px-8"
+                    onClick={() => setSetupDialog(true, 'join')}
+                  >
                     <DoorOpen className="mr-2 h-5 w-5" />
                     Join Table
                   </Button>
@@ -164,8 +182,12 @@ export default function LandingPage() {
                 ['Premium', 'Smooth Flow'],
               ].map(([value, label]) => (
                 <div key={label} className="nb-card text-center py-8 px-4">
-                  <p className="font-display text-3xl uppercase text-nb-primary">{value}</p>
-                  <p className="mt-2 font-mono text-sm font-bold uppercase text-nb-on-surface">{label}</p>
+                  <p className="font-display text-3xl uppercase text-nb-primary">
+                    {value}
+                  </p>
+                  <p className="mt-2 font-mono text-sm font-bold uppercase text-nb-on-surface">
+                    {label}
+                  </p>
                 </div>
               ))}
             </div>
@@ -196,15 +218,21 @@ export default function LandingPage() {
                   <div className="mt-6 grid grid-cols-3 gap-3">
                     <div className="border-[3px] border-nb-outline bg-nb-white py-4 text-center shadow-nb-sm hover:bg-nb-surface-low">
                       <Users className="mx-auto h-5 w-5 text-nb-primary" />
-                      <p className="mt-2 font-mono text-xs font-bold uppercase">4 Players</p>
+                      <p className="mt-2 font-mono text-xs font-bold uppercase">
+                        4 Players
+                      </p>
                     </div>
                     <div className="border-[3px] border-nb-outline bg-nb-white py-4 text-center shadow-nb-sm hover:bg-nb-surface-low">
                       <Layers3 className="mx-auto h-5 w-5 text-nb-primary" />
-                      <p className="mt-2 font-mono text-xs font-bold uppercase">Ready</p>
+                      <p className="mt-2 font-mono text-xs font-bold uppercase">
+                        Ready
+                      </p>
                     </div>
                     <div className="border-[3px] border-nb-outline bg-nb-white py-4 text-center shadow-nb-sm hover:bg-nb-surface-low">
                       <Lock className="mx-auto h-5 w-5 text-nb-primary-pure" />
-                      <p className="mt-2 font-mono text-xs font-bold uppercase">Secured</p>
+                      <p className="mt-2 font-mono text-xs font-bold uppercase">
+                        Secured
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -223,13 +251,17 @@ export default function LandingPage() {
                     <p className="font-mono text-xs font-bold uppercase tracking-wider text-nb-placeholder">
                       Turn Indicator
                     </p>
-                    <p className="mt-2 font-display text-lg uppercase text-nb-primary">Player 1&apos;s Turn</p>
+                    <p className="mt-2 font-display text-lg uppercase text-nb-primary">
+                      Player 1&apos;s Turn
+                    </p>
                   </div>
                   <div className="border-[3px] border-nb-outline bg-nb-surface-low p-5 shadow-nb-sm">
                     <p className="font-mono text-xs font-bold uppercase tracking-wider text-nb-placeholder">
                       Score Standings
                     </p>
-                    <p className="mt-2 font-mono text-lg font-bold text-nb-primary">7 - 11 - 16 - 23</p>
+                    <p className="mt-2 font-mono text-lg font-bold text-nb-primary">
+                      7 - 11 - 16 - 23
+                    </p>
                   </div>
                 </div>
               </div>
@@ -238,9 +270,14 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="features" className="relative z-10 mx-auto max-w-7xl border-t-[3px] border-nb-outline px-4 py-20 md:px-6">
+      <section
+        id="features"
+        className="relative z-10 mx-auto max-w-7xl border-t-[3px] border-nb-outline px-4 py-20 md:px-6"
+      >
         <div className="mb-12 flex flex-col gap-4 text-center">
-          <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-nb-primary">Premium Features</p>
+          <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-nb-primary">
+            Premium Features
+          </p>
           <h2 className="font-display text-3xl uppercase text-nb-primary md:text-4xl">
             Refined mechanics for serious play
           </h2>
@@ -253,7 +290,9 @@ export default function LandingPage() {
                 <div className="mb-5 inline-flex border-[3px] border-nb-outline bg-nb-secondary p-3 shadow-nb-sm">
                   <Icon className="h-6 w-6 text-nb-primary" />
                 </div>
-                <h3 className="font-display text-xl uppercase text-nb-primary">{feature.title}</h3>
+                <h3 className="font-display text-xl uppercase text-nb-primary">
+                  {feature.title}
+                </h3>
                 <p className="mt-3 font-mono text-sm font-medium leading-relaxed text-nb-on-surface">
                   {feature.description}
                 </p>
@@ -263,15 +302,21 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="how-to-play" className="relative z-10 mx-auto max-w-7xl border-t-[3px] border-nb-outline px-4 py-20 md:px-6">
+      <section
+        id="how-to-play"
+        className="relative z-10 mx-auto max-w-7xl border-t-[3px] border-nb-outline px-4 py-20 md:px-6"
+      >
         <div className="grid gap-12 items-center lg:grid-cols-[0.85fr_1.15fr]">
           <div>
-            <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-nb-primary">How to Play</p>
+            <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-nb-primary">
+              How to Play
+            </p>
             <h2 className="mt-3 font-display text-3xl uppercase text-nb-primary md:text-4xl leading-tight">
               From table selection to victory calculation
             </h2>
             <p className="mt-5 font-mono text-lg font-medium leading-relaxed text-nb-on-surface">
-              A streamlined flow designed for focus: clear indications, informative lobbies, precise resolution.
+              A streamlined flow designed for focus: clear indications,
+              informative lobbies, precise resolution.
             </p>
           </div>
 
@@ -284,7 +329,9 @@ export default function LandingPage() {
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center border-[3px] border-nb-outline bg-nb-secondary font-mono text-base font-bold text-nb-on-surface shadow-nb-sm">
                   {index + 1}
                 </div>
-                <p className="pt-2 font-mono text-sm font-bold leading-relaxed text-nb-on-surface">{step}</p>
+                <p className="pt-2 font-mono text-sm font-bold leading-relaxed text-nb-on-surface">
+                  {step}
+                </p>
               </div>
             ))}
           </div>
@@ -293,7 +340,9 @@ export default function LandingPage() {
 
       <section className="relative z-10 mx-auto max-w-7xl px-4 pb-28 pt-12 md:px-6">
         <div className="nb-card p-12 text-center">
-          <h2 className="font-display text-3xl uppercase text-nb-primary md:text-4xl">Ready to take a seat?</h2>
+          <h2 className="font-display text-3xl uppercase text-nb-primary md:text-4xl">
+            Ready to take a seat?
+          </h2>
           <p className="mt-4 max-w-2xl mx-auto font-mono text-lg font-medium text-nb-on-surface">
             Classic domino multiplayer. The table is ready.
           </p>
@@ -315,10 +364,20 @@ export default function LandingPage() {
               </Button>
             ) : (
               <>
-                <Button variant="primary" size="lg" className="px-10" onClick={() => setSetupDialog(true, 'create')}>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="px-10"
+                  onClick={() => setSetupDialog(true, 'create')}
+                >
                   Create Table
                 </Button>
-                <Button size="lg" variant="outline" className="px-10" onClick={() => setSetupDialog(true, 'join')}>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="px-10"
+                  onClick={() => setSetupDialog(true, 'join')}
+                >
                   Join Table
                 </Button>
               </>
