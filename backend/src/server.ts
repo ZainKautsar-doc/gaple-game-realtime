@@ -11,12 +11,23 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.FRONTEND_URL ?? 'http://localhost:3000',
-    methods: ['GET', 'POST'],
-  },
+    origin: [
+      "http://localhost:3000",
+      "https://gaple-game-realtime-production.up.railway.app"
+    ],
+    methods: ["GET", "POST"],
+    credentials: true
+  }
 });
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+    "https://gaple-game-realtime-production.up.railway.app"
+  ],
+  credentials: true
+}));
+
 app.use(express.json());
 
 app.get('/', (_request, response) => {
