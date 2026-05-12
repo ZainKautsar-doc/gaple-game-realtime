@@ -17,6 +17,8 @@ export default function LobbyPage() {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -54,22 +56,28 @@ export default function LobbyPage() {
   } = useGame();
 
   useEffect(() => {
-    if (!nickname) {
-      router.replace('/');
-    }
-  }, [nickname, router]);
+    // Tunggu sebentar setelah mount agar roomState sempat diisi dari server/socket
+    const timer = setTimeout(() => setIsMounted(true), 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
-    if (roomState?.status === 'playing' && gameState) {
+    if (!nickname && !isLeaving) {
+      router.replace('/');
+    }
+  }, [nickname, router, isLeaving]);
+
+  useEffect(() => {
+    if (roomState?.status === 'playing' && gameState && !isLeaving) {
       router.replace('/game');
     }
-  }, [gameState, roomState?.status, router]);
+  }, [gameState, roomState?.status, router, isLeaving]);
 
   useEffect(() => {
-    if (nickname && !roomState) {
+    if (isMounted && nickname && !roomState && !isLeaving) {
       router.replace('/');
     }
-  }, [nickname, roomState, router]);
+  }, [isMounted, nickname, roomState, router, isLeaving]);
 
   if (!nickname || !roomState) {
     return null;
@@ -105,7 +113,13 @@ export default function LobbyPage() {
               <Copy className="h-4 w-4" />
               {roomState.code}
             </button>
-            <Button variant="outline" onClick={() => router.push('/')}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsLeaving(true);
+                router.push('/');
+              }}
+            >
               <Home className="mr-2 h-4 w-4" />
               Ke Beranda
             </Button>
@@ -113,6 +127,7 @@ export default function LobbyPage() {
               variant="outline"
               onClick={() => {
                 if (window.confirm('Apakah Anda yakin ingin meninggalkan room?')) {
+                  setIsLeaving(true);
                   leaveRoom();
                   router.replace('/');
                 }

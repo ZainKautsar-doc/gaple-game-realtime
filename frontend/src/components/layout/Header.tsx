@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import Link from 'next/link';
 import { Menu, Sparkles, X, LogOut, User, Plus, DoorOpen, LayoutGrid, Loader2 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -15,7 +14,7 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeHash, setActiveHash] = useState('');
   
-  const { nickname, setNickname, isSetupDialogOpen, setupDialogMode, setSetupDialog } =
+  const { nickname, avatarId, setNickname, isSetupDialogOpen, setupDialogMode, setSetupDialog } =
     useGameStore();
   const { isInRoom, currentRoomId } = useNavigationStore();
   const { leaveRoom, roomState, joinRoom, isSubmitting, joinedRoom } = useGame();
@@ -46,7 +45,7 @@ export function Header() {
         router.push('/lobby');
       }
     } else if (isInRoom && currentRoomId) {
-      joinRoom({ roomCode: useNavigationStore.getState().currentRoomCode || '', playerName: nickname });
+      joinRoom({ roomCode: useNavigationStore.getState().currentRoomCode || '', playerName: nickname, avatarId });
     }
   };
 
@@ -61,9 +60,9 @@ export function Header() {
   }, [joinedRoom, roomState?.status, router, pathname]);
 
   const navLinks = [
-    { name: 'Home', href: '/' },
-    { name: 'How to Play', href: '/#how-to-play' },
-    { name: 'Feature', href: '/#features' },
+    { name: 'Home', href: '/', sectionId: '' },
+    { name: 'How to Play', href: '/#how-to-play', sectionId: 'how-to-play' },
+    { name: 'Feature', href: '/#features', sectionId: 'features' },
   ];
 
   const isActive = (href: string) => {
@@ -75,36 +74,35 @@ export function Header() {
     return pathname === href;
   };
 
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    if (href.startsWith('/#') && pathname === '/') {
-      e.preventDefault();
-      const id = href.split('#')[1];
-      const element = document.getElementById(id);
-      if (element) {
-        const offset = 80;
-        const bodyRect = document.body.getBoundingClientRect().top;
-        const elementRect = element.getBoundingClientRect().top;
-        const elementPosition = elementRect - bodyRect;
-        const offsetPosition = elementPosition - offset;
-
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth',
-        });
-
-        window.history.pushState(null, '', href);
-        setActiveHash(`#${id}`);
+  const handleNavClick = (sectionId: string, href: string) => {
+    if (pathname === '/') {
+      // Sudah di halaman home: smooth scroll ke section
+      if (sectionId) {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          const offset = 80;
+          const bodyRect = document.body.getBoundingClientRect().top;
+          const elementRect = element.getBoundingClientRect().top;
+          const elementPosition = elementRect - bodyRect;
+          const offsetPosition = elementPosition - offset;
+          window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+          window.history.pushState(null, '', href);
+          setActiveHash(`#${sectionId}`);
+        }
+      } else {
+        // Home link saat sudah di home
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.history.pushState(null, '', '/');
+        setActiveHash('');
       }
-    } else if (href === '/' && pathname === '/') {
-      e.preventDefault();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      window.history.pushState(null, '', '/');
-      setActiveHash('');
+    } else {
+      // Di halaman lain (/lobby, /game): navigate ke home dulu (client-side, tanpa full reload)
+      router.push('/');
     }
   };
 
   const navLinkClass = (href: string) =>
-    `font-mono text-sm font-bold uppercase tracking-wide border-[3px] border-transparent px-3 py-2 ${
+    `font-mono text-sm font-bold uppercase tracking-wide border-[3px] border-transparent px-3 py-2 cursor-pointer ${
       isActive(href)
         ? 'bg-nb-primary text-nb-white border-nb-outline shadow-nb-sm'
         : 'text-nb-on-surface hover:bg-nb-primary hover:text-nb-white hover:border-nb-outline'
@@ -113,7 +111,11 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b-[3px] border-nb-outline bg-nb-surface">
       <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-4 md:px-6">
-        <Link href="/" className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => handleNavClick('', '/')}
+          className="flex items-center gap-3 cursor-pointer"
+        >
           <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-none border-[3px] border-nb-outline bg-nb-white shadow-nb-sm">
             <img
               src="/image/logo/gaple-arena-logo.svg"
@@ -131,18 +133,18 @@ export function Header() {
               Domino multiplayer online
             </p>
           </div>
-        </Link>
+        </button>
 
         <nav className="hidden md:flex items-center gap-2">
           {navLinks.map((link) => (
-            <Link
+            <button
               key={link.name}
-              href={link.href}
-              onClick={(e) => handleNavClick(e, link.href)}
+              type="button"
+              onClick={() => handleNavClick(link.sectionId, link.href)}
               className={navLinkClass(link.href)}
             >
               {link.name}
-            </Link>
+            </button>
           ))}
         </nav>
 
@@ -224,17 +226,17 @@ export function Header() {
           >
             <nav className="flex flex-col gap-2 max-w-[1400px] mx-auto p-4">
               {navLinks.map((link) => (
-                <Link
+                <button
                   key={link.name}
-                  href={link.href}
-                  className={`${navLinkClass(link.href)} text-left`}
-                  onClick={(e) => {
-                    handleNavClick(e, link.href);
+                  type="button"
+                  className={`${navLinkClass(link.href)} text-left w-full`}
+                  onClick={() => {
+                    handleNavClick(link.sectionId, link.href);
                     setIsMobileMenuOpen(false);
                   }}
                 >
                   {link.name}
-                </Link>
+                </button>
               ))}
               <div className="h-px w-full bg-nb-outline border-0" />
               {nickname ? (

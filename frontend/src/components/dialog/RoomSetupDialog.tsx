@@ -169,21 +169,21 @@ export function RoomSetupDialog({
       {isOpen && (
         <>
           <motion.div
-            initial={false}
+            initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 1 }}
-            transition={{ duration: 0 }}
-            className="fixed inset-0 z-[60] bg-[#1a1b26]"
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-[60] bg-[#1a1b26]/60"
             onClick={onClose}
           />
           <motion.div
-            initial={false}
+            initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 1 }}
-            transition={{ duration: 0 }}
-            className="fixed inset-x-0 top-4 z-[70] mx-auto w-[calc(100%-24px)] max-w-6xl"
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-[70]"
           >
-            <div className="flex flex-col border-[3px] border-nb-outline bg-nb-white shadow-nb-md" style={{ maxHeight: 'calc(100dvh - 2rem)' }}>
+            <div className="flex h-full flex-col border-[3px] border-nb-outline bg-nb-white shadow-nb-md">
               <div className="flex items-center justify-between border-b-[3px] border-nb-outline bg-nb-primary px-6 py-5">
                 <div>
                   <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-nb-secondary">
