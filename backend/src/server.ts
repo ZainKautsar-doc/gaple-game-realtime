@@ -32,7 +32,7 @@ app.get('/health', (_request, response) => {
 
 setupSocketHandlers(io);
 
-const port = Number(process.env.PORT ?? 4000);
+const port = Number(process.env.PORT || 3001);
 
 httpServer.listen(port, () => {
   console.log(`Gaple backend running on port ${port}`);
